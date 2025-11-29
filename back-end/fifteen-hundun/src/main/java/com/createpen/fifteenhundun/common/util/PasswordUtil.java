@@ -13,14 +13,14 @@ public class PasswordUtil {
     /**
      * 加密密码
      */
-    public String encode(String rawPassword) {
+    public static String addMi(String rawPassword) {
         return BCrypt.hashpw(rawPassword, BCrypt.gensalt(LOG_ROUNDS));
     }
 
     /**
      * 校验密码（明文与密文匹配）
      */
-    public boolean matches(String rawPassword, String encodedPassword) {
+    public static boolean check(String rawPassword, String encodedPassword) {
         if (encodedPassword == null || encodedPassword.isEmpty()) {
             return false;
         }

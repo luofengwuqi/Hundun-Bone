@@ -1,8 +1,14 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
+import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
+import com.createpen.fifteenhundun.module.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,10 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 @Slf4j
 public class UserController {
-    @PostMapping("/login")
-    public Result login() {
-        log.info("用户登录");
 
-        return Result.success();
+    @Autowired
+    private UserService us;
+
+    @PostMapping("/login")
+    public Result login(@Valid @RequestBody LoginRequestDTO l) {
+        log.info("用户登录");
+        LoginRequestVO result =  us.login(l);
+        if(result == null)
+        {
+            return Result.fail("用户名或密码错误");
+        }
+        return Result.success(result);
     }
 }

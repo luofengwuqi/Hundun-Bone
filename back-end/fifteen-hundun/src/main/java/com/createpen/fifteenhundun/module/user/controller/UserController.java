@@ -24,10 +24,18 @@ public class UserController {
     public Result login(@Valid @RequestBody LoginRequestDTO l) {
         log.info("用户登录");
         LoginRequestVO result =  us.login(l);
-        if(result == null)
-        {
-            return Result.fail("用户名或密码错误");
-        }
+//        if(result == null)
+//        {
+//            return Result.fail("用户名或密码错误");
+//        }
         return Result.success(result);
+    }
+
+    @PostMapping("/register")
+    public Result register(@Valid @RequestBody LoginRequestDTO l)
+    {
+        log.info("用户注册");
+
+        return Result.success();
     }
 }

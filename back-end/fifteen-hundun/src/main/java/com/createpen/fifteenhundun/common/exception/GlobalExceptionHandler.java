@@ -3,11 +3,24 @@ package com.createpen.fifteenhundun.common.exception;
 import com.createpen.fifteenhundun.common.response.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.xml.bind.ValidationException;
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    //DTO属性异常处理
+    @ExceptionHandler
+    public Result handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String msg = e.getBindingResult().getFieldError().getDefaultMessage();
+        log.info("DTO接收异常信息:{}",msg);
+        return Result.fail(400,msg);
+    }
 
     //jwt相关异常
     @ExceptionHandler
@@ -18,10 +31,17 @@ public class GlobalExceptionHandler {
     public Result handleJwtException(MalformedJwtException e) {
         return Result.fail(401,"令牌无效或者格式有误");
     }
+    //运行时异常处理
+    @ExceptionHandler
+    public Result handleRuntimeException(RuntimeException e) {
+        String msg = e.getMessage();
+        log.info("运行时异常信息:{}",msg);
+        return Result.fail(500,msg);
+    }
 
 //    未知异常处理
-    @ExceptionHandler(Exception.class)
-    public Result handleException(Exception e) {
-        return Result.fail(500,"未知异常");
-    }
+//    @ExceptionHandler(Exception.class)
+//    public Result handleException(Exception e) {
+//        return Result.fail(500,"未知异常");
+//    }
 }

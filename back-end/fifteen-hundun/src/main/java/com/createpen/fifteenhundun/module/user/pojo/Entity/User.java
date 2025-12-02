@@ -77,4 +77,23 @@ public class User {
          * 用户个性化配置实体类
          * 对应数据库 user_settings 表
          */
+
+        //重写TOstring方法
+        @Override
+        public String toString() {
+            return "User{" +
+                    "id=" + id +
+                    ", username='" + username + '\'' +
+                    ", email='" + email + '\'' +
+                    ", passwordHash='" + passwordHash + '\'' +
+                    ", nickname='" + nickname + '\'' +
+                    ", avatarUrl='" + avatarUrl + '\'' +
+                    ", phone='" + phone + '\'' +
+                    ", status=" + status +
+                    ", createdAt=" + createdAt +
+                    ", updatedAt=" + updatedAt +
+                    ", lastLoginAt=" + lastLoginAt +
+                    '}';
+        }
+
 }

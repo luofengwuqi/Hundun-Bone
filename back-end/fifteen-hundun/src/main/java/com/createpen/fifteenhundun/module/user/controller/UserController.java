@@ -25,6 +25,7 @@ public class UserController {
     @PostMapping("/login")
     public Result login(@Valid @RequestBody LoginRequestDTO l) {
         log.info("用户登录");
+        log.info("已经接收到请求:LoginRequestDTO信息为{}",l.toString());
         LoginRequestVO result =  us.login(l);
 //        if(result == null)
 //        {
@@ -33,6 +34,7 @@ public class UserController {
         return Result.success(result);
     }
 
+    //todo:注册时候未引入用户头像
     @PostMapping("/register")
     public Result register(@Valid @RequestBody RegisterDTO dto)
     {

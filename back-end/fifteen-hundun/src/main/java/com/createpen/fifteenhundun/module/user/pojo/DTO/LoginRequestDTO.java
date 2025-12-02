@@ -12,5 +12,6 @@ public class LoginRequestDTO {
     private String password;
 
     @NotBlank(message = "用户名不能为空")
+    @Size(min = 1, max = 10, message = "用户名长度在1-10之间")
     private String username;
 }

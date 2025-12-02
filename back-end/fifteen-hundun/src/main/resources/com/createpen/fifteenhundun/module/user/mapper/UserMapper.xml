@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.createpen.fifteenhundun.module.user.mapper.UserMapper">
+    <insert id="insertUser" parameterType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
+    INSERT INTO user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="id != null">id,</if>
+        <if test="username != null">username,</if>
+        <if test="email != null">email,</if>
+        <if test="passwordHash != null">password_hash,</if>
+        <if test="nickname != null">nickname,</if>
+        <if test="avatarUrl != null">avatar_url,</if>
+        <if test="phone != null">phone,</if>
+        <if test="status != null">status,</if>
+        <if test="createdAt != null">created_at,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        <if test="lastLoginAt != null">last_login_at,</if>
+    </trim>
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+        <if test="id != null">#{id},</if>
+        <if test="username != null">#{username},</if>
+        <if test="email != null">#{email},</if>
+        <if test="passwordHash != null">#{passwordHash},</if>
+        <if test="nickname != null">#{nickname},</if>
+        <if test="avatarUrl != null">#{avatarUrl},</if>
+        <if test="phone != null">#{phone},</if>
+        <if test="status != null">#{status},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+        <if test="lastLoginAt != null">#{lastLoginAt},</if>
+    </trim>
+</insert>
+    <update id="updateUserByUserName">
+        update user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="passwordHash != null">password_hash = #{passwordHash},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="lastLoginAt != null">last_login_at = #{lastLoginAt},</if>
+
+        </set>
+            where username = #{username};
+
+    </update>
+
     <select id="selectByUserName" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
         select * from users where username = #{username}
     </select>

@@ -24,6 +24,8 @@ public class RegisterDTO {
     @Size(min = 6, max = 20, message = "密码长度在6-20之间")
     private String checkPassword;
 
+    private String avatarUrl;
+
     /**
      * 手机号（可选，唯一）
      */

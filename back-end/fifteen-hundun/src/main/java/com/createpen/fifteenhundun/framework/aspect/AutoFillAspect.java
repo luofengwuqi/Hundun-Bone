@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 public class AutoFillAspect {
 //TODO: AOP太他妈难了
-    @Pointcut("execution(* com.createpen.fifteenhundun.module..mapper.*(..)) && @annotation(com.createpen.fifteenhundun.common.anno.AutoFillTime)")
+    @Pointcut("execution(* com.createpen.fifteenhundun.module.*.mapper.*.*(..)) && @annotation(com.createpen.fifteenhundun.common.anno.AutoFillTime)")
     public void autoFillTimePointCut(){}
 
     @Before("autoFillTimePointCut()")

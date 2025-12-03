@@ -47,6 +47,7 @@ public class UserController {
     @PostMapping("/delete")
     public Result deleteUser(@Valid @RequestBody DeleteDTO dto)
     {
+        log.info("用户删除");
         log.info("即将进行用户删除 捕获到信息:{}",dto);
         us.deleteUser(dto);
         return Result.success();

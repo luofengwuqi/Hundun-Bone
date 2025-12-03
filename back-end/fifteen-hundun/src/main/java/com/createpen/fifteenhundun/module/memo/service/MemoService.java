@@ -1,7 +1,9 @@
 package com.createpen.fifteenhundun.module.memo.service;
 
-public class MemoService {
-    public void addMemo() {
+import com.createpen.fifteenhundun.module.memo.pojo.DTO.AddMemoDTO;
+import jakarta.validation.Valid;
 
-    }
+public interface MemoService {
+
+    void addMemo(@Valid AddMemoDTO dto);
 }

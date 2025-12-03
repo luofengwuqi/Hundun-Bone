@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService {
     {
         User findedUser = null;
         log.info("校验存在性");
-        isUserExisted(u.getUsername());
+        findedUser = isUserExisted(u.getUsername());
 //        findedUser = um.selectByUserName(u.getUsername());
 //        if (findedUser==null)
 //        {

@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.common.exception;
 
+import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.response.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -31,6 +32,13 @@ public class GlobalExceptionHandler {
     public Result handleJwtException(MalformedJwtException e) {
         return Result.fail(401,"令牌无效或者格式有误");
     }
+
+    @ExceptionHandler
+    public Result handleUserNotFoundException(UserNotFoundException e) {
+        log.info("已接受到用户不存在异常");
+        return Result.fail(404,"用户不存在!");
+    }
+
     //运行时异常处理
     @ExceptionHandler
     public Result handleRuntimeException(RuntimeException e) {

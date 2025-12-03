@@ -6,6 +6,8 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -21,4 +23,7 @@ public interface UserMapper {
 
     @AutoFillTime(AutoFillTimeType.UPDATE)
     void updateUserByUserName(User u);
+
+    @Delete("delete from users where username = #{username}")
+    void deleteUserByUserName(String username);
 }

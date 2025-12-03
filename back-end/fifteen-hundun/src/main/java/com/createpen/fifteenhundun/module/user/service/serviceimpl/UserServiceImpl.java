@@ -1,8 +1,10 @@
 package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
+import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
@@ -73,8 +75,6 @@ public class UserServiceImpl implements UserService {
         {
             throw new RuntimeException("两次输入的密码不一致");
         }
-
-
         //判断是否已经存在了这个user
         User uExisted = um.selectByUserName(dto.getUsername());
         if(uExisted!=null)
@@ -88,5 +88,40 @@ public class UserServiceImpl implements UserService {
         um.insertUser(u);
 
         return new RegisterVO(u.getUsername());
+    }
+
+    @Transactional
+    @Override
+    public void deleteUser(DeleteDTO dto) {
+        //存在性判断与密码校验
+        User u = new User();
+        u.setUsername(dto.getUsername());
+        u.setPasswordHash(dto.getPassword());
+        checkPassWordByUserAndPassword(u,dto.getPassword());
+        //核心业务
+        um.deleteUserByUserName(dto.getUsername());
+        log.info("已经删除用户:{}",dto.getUsername());
+        return;
+    }
+
+    //辅助方法过来User 帮忙校验密码
+    //通过:无事发生
+    //不通过:抛出RuntimeException("密码错误")
+    public void checkPassWordByUserAndPassword(User u,String password)
+    {
+        User findedUser = null;
+        log.info("校验存在性");
+        findedUser = um.selectByUserName(u.getUsername());
+        if (findedUser==null)
+        {
+            throw new UserNotFoundException("用户不存在");
+        }
+//            log.info("截获用户不存在异常 准备抛给全局异常处理器");
+        log.info("已经查询到当前使用而存在的用户信息:{}",findedUser.toString());
+        //存在开始校验密码
+        log.info("正在校验密码");
+        if (!PasswordUtil.check(password,findedUser.getPasswordHash())) {
+            throw new RuntimeException("密码错误");
+        }
     }
 }

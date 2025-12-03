@@ -1,6 +1,7 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -34,7 +35,6 @@ public class UserController {
         return Result.success(result);
     }
 
-    //todo:注册时候未引入用户头像
     @PostMapping("/register")
     public Result register(@Valid @RequestBody RegisterDTO dto)
     {
@@ -42,5 +42,13 @@ public class UserController {
         log.info("已经接收到请求:RegisterDTO信息为{}",dto.toString());
         RegisterVO r = us.register(dto);
         return Result.success(r);
+    }
+
+    @PostMapping("/delete")
+    public Result deleteUser(@Valid @RequestBody DeleteDTO dto)
+    {
+        log.info("即将进行用户删除 捕获到信息:{}",dto);
+        us.deleteUser(dto);
+        return Result.success();
     }
 }

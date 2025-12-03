@@ -17,4 +17,7 @@ public interface UserService {
     RegisterVO register(RegisterDTO dto);
 
     void deleteUser(@Valid DeleteDTO dto);
+
+    //根据username得到id
+    Long getIdByUsername(String username);
 }

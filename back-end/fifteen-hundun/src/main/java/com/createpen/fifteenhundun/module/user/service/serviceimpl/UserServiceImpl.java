@@ -34,11 +34,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginRequestVO login(LoginRequestDTO l) {
 
-        User u = um.selectByUserName(l.getUsername());
-        if(u==null)
-        {
-            throw new RuntimeException("用户不存在");
-        }//已通过测试
+        User u = isUserExisted(l.getUsername());
+//        User u = um.selectByUserName(l.getUsername());
+//        if(u==null)
+//        {
+//            throw new RuntimeException("用户不存在");
+//        }//已通过测试
         //校验密码
         String password = l.getPassword() ;
         //逻辑有误 增补:
@@ -104,6 +105,13 @@ public class UserServiceImpl implements UserService {
         return;
     }
 
+    @Override
+    public Long getIdByUsername(String username) {
+
+        User u = isUserExisted( username);
+        return u.getId();
+    }
+
     //辅助方法过来User 帮忙校验密码
     //通过:无事发生
     //不通过:抛出RuntimeException("密码错误")
@@ -111,17 +119,30 @@ public class UserServiceImpl implements UserService {
     {
         User findedUser = null;
         log.info("校验存在性");
-        findedUser = um.selectByUserName(u.getUsername());
-        if (findedUser==null)
-        {
-            throw new UserNotFoundException("用户不存在");
-        }
+        isUserExisted(u.getUsername());
+//        findedUser = um.selectByUserName(u.getUsername());
+//        if (findedUser==null)
+//        {
+//            throw new UserNotFoundException("用户不存在");
+//        }
 //            log.info("截获用户不存在异常 准备抛给全局异常处理器");
-        log.info("已经查询到当前使用而存在的用户信息:{}",findedUser.toString());
+
         //存在开始校验密码
         log.info("正在校验密码");
         if (!PasswordUtil.check(password,findedUser.getPasswordHash())) {
             throw new RuntimeException("密码错误");
         }
     }
+    //辅助性方法 用户是否存在
+    public User isUserExisted(String username)
+        {
+            log.info("校验存在性开始");
+            User u = um.selectByUserName(username);
+            if(u==null)
+            {
+                throw new UserNotFoundException("用户不存在");
+            }
+            log.info("已经查询到当前使用而存在的用户信息:{}",u.toString());
+            return u;
+        }
 }

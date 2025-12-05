@@ -1,13 +1,23 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: fifteen-hundun
   datasource:
-    url: jdbc:mysql://localhost:3306/fifteen_hundun?useUnicode=true&characterEncoding=utf8
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  # JWT配置
+    url: ${fifteen-hundun.mysql.url}
+    username: ${fifteen-hundun.mysql.username}
+    password: ${fifteen-hundun.mysql.password}
+    driver-class-name: ${fifteen-hundun.mysql.driver-class-name}
+
+# JWT配置
 jwt:
-  secret: your-secret-key-here-32bytes-long-12345678 # 密钥（建议至少32位）
+  secret: 5LiA5LqU6aaE6aWoY3JlYXRwZW4= # 密钥（建议至少32位）
   expiration: 3600 # 令牌过期时间（秒）
 
+# 阿里云OSS配置
+aliyun:
+  endpoint: ${fifteen-hundun.alioss.endpoint}
+  access-key-id: ${fifteen-hundun.alioss.access-key-id}
+  access-key-secret: ${fifteen-hundun.alioss.access-key-secret}
+  bucket-name: ${fifteen-hundun.alioss.bucket-name}
+  domain: ${fifteen-hundun.alioss.domain}

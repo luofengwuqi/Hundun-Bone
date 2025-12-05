@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Component
 @Aspect
 public class AutoFillAspect {
-//TODO: AOP太他妈难了
+//TODOed: AOP太他妈难了
     @Pointcut("execution(* com.createpen.fifteenhundun.module.*.mapper.*.*(..)) && @annotation(com.createpen.fifteenhundun.common.anno.AutoFillTime)")
     public void autoFillTimePointCut(){}
 

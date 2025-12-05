@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.common.exception;
 
+import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.response.Result;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -37,6 +38,14 @@ public class GlobalExceptionHandler {
     public Result handleUserNotFoundException(UserNotFoundException e) {
         log.info("已接受到用户不存在异常");
         return Result.fail(404,"用户不存在!");
+    }
+
+    //登录异常
+    @ExceptionHandler
+    public Result handleLoginException(LoginException e) {
+        String msg = e.getMessage();
+        log.info("拦截器拦截到登录异常:{}",msg);
+        return Result.fail(401,msg);
     }
 
     //运行时异常处理

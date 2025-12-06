@@ -21,3 +21,11 @@ aliyun:
   access-key-secret: ${fifteen-hundun.alioss.access-key-secret}
   bucket-name: ${fifteen-hundun.alioss.bucket-name}
   domain: ${fifteen-hundun.alioss.domain}
+
+#redis配置
+redis:
+  host: ${fifteen-hundun.redis.host}
+  port: ${fifteen-hundun.redis.port}
+  password: ${fifteen-hundun.redis.password}
+  database: ${fifteen-hundun.redis.database}
+

@@ -42,10 +42,20 @@ public class UserServiceImpl implements UserService {
 //        {
 //            throw new RuntimeException("用户不存在");
 //        }//已通过测试
+
+        //校验是否账号被禁用
+        log.info("开始校验用户是否被禁用");
+        int status = u.getStatus();
+        log.info("用户状态为:{}",status);
+        if(u.getStatus()==0)
+        {
+            log.info("用户被禁用");
+            throw new LoginException("用户被禁用");
+        }
         //校验密码
         String password = l.getPassword() ;
         //逻辑有误 增补:
-        log.info("已经查询到当前登录而存在的用户信息:{}",u.toString());
+        log.info("已经查询到当前登录而存在的用户信息:{}",u);
         log.info("即将进行密码校验 传递密码:{},查询到的加密密码:{}",password,u.getPasswordHash());
         //boolean result = PasswordUtil.check("15hundun", "$2a$12$ZYFpx2DwkrPbaHaBJPrMQe1XEl8bmz4N0Z0XdOp/vRVez81ZEP0Pa");
         //System.out.println("密码校验结果: " + result);
@@ -104,7 +114,6 @@ public class UserServiceImpl implements UserService {
         //核心业务
         um.deleteUserByUserName(dto.getUsername());
         log.info("已经删除用户:{}",dto.getUsername());
-        return;
     }
 
     @Override
@@ -119,9 +128,9 @@ public class UserServiceImpl implements UserService {
     //不通过:抛出RuntimeException("密码错误")
     public void checkPassWordByUserAndPassword(User u,String password)
     {
-        User findedUser = null;
+
         log.info("校验存在性");
-        findedUser = isUserExisted(u.getUsername());
+        User findedUser = isUserExisted(u.getUsername());
 //        findedUser = um.selectByUserName(u.getUsername());
 //        if (findedUser==null)
 //        {
@@ -144,7 +153,7 @@ public class UserServiceImpl implements UserService {
             {
                 throw new UserNotFoundException("用户不存在");
             }
-            log.info("已经查询到当前使用而存在的用户信息:{}",u.toString());
+            log.info("已经查询到当前使用而存在的用户信息:{}",u);
             return u;
         }
 }

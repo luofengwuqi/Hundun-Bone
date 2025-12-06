@@ -1,5 +1,7 @@
 package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
+import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
+import com.createpen.fifteenhundun.common.exception.MyException.UserExistedException;
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
         //boolean result = PasswordUtil.check("15hundun", "$2a$12$ZYFpx2DwkrPbaHaBJPrMQe1XEl8bmz4N0Z0XdOp/vRVez81ZEP0Pa");
         //System.out.println("密码校验结果: " + result);
         if (!PasswordUtil.check(password,u.getPasswordHash())) {
-            throw new RuntimeException("密码错误");
+            throw new LoginException("密码错误");
         }
         log.info("已经通过密码校验");
         LoginRequestVO r = new LoginRequestVO();
@@ -74,13 +76,13 @@ public class UserServiceImpl implements UserService {
     public RegisterVO register(RegisterDTO dto) {
         if(!dto.getPassword().equals(dto.getCheckPassword()))
         {
-            throw new RuntimeException("两次输入的密码不一致");
+            throw new LoginException("两次输入的密码不一致");
         }
         //判断是否已经存在了这个user
         User uExisted = um.selectByUserName(dto.getUsername());
         if(uExisted!=null)
         {
-            throw new RuntimeException("用户名已被使用");
+            throw new UserExistedException("用户名已被使用");
         }
         User u = new User();
         BeanUtils.copyProperties(dto,u);
@@ -130,7 +132,7 @@ public class UserServiceImpl implements UserService {
         //存在开始校验密码
         log.info("正在校验密码");
         if (!PasswordUtil.check(password,findedUser.getPasswordHash())) {
-            throw new RuntimeException("密码错误");
+            throw new LoginException("密码错误");
         }
     }
     //辅助性方法 用户是否存在

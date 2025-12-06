@@ -3,6 +3,7 @@ package com.createpen.fifteenhundun.common.utils;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
+import com.createpen.fifteenhundun.common.exception.MyException.OSSException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -62,7 +63,7 @@ private String domain;
             return domain + "/" + objectName; // 如：https://xxx.oss-cn-hangzhou.aliyuncs.com/memos/avatars/a1b2c3d4.png
         } catch (Exception e) {
             log.error("文件上传OSS失败", e);
-            throw new RuntimeException("文件上传失败");
+            throw new OSSException("文件上传失败");
         } finally {
             // 关闭OSS客户端和输入流
             if (ossClient != null) {
@@ -88,7 +89,7 @@ private String domain;
             log.info("文件删除OSS成功：{}", objectName);
         } catch (Exception e) {
             log.error("文件删除OSS失败", e);
-            throw new RuntimeException("文件删除失败");
+            throw new OSSException("文件删除失败");
         } finally {
             if (ossClient != null) {
                 ossClient.shutdown();

@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/user")
 public class CommonController {
 
     @Autowired

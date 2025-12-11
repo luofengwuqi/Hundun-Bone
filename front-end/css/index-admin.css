@@ -1,0 +1,44 @@
+.w {
+    width: 1257px;
+    margin: 0 auto;
+}
+/* <!-- 1.header --> */
+
+/* <!-- 1.1 快捷导航 --> */
+.shortcut {
+    height: 40px;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 0 20px;
+    line-height: 40px;
+    font-size: 14px;
+    color: #333;
+    
+}
+/* <!-- 1.2 导航 --> */
+.nav {
+    height: 157px; ;
+
+    /* background: pink; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header .nav a{
+    height: 100px;
+    width: 420px;
+    text-indent: -9999px;
+    overflow: hidden;
+    display: block;
+    background: url(../img/big-logo-admin.jpg);
+    /* background-color: black; */
+    
+}
+/* <!-- 999.footer --> */
+.footer .w{
+    height: 200px;
+    background: #f5f5f5; 
+}

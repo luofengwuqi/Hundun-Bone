@@ -1,3 +1,16 @@
+/* <!-- 0.大背景 --> */
+.bg {
+    /* 盒子置于最下层 */
+    z-index: -1;
+    position:fixed;
+
+    height: 100%;
+    width: 100%;
+    background: url("../img/background.png");
+    background-size: cover;
+    
+}
+
 .w {
     width: 1257px;
     margin: 0 auto;
@@ -21,7 +34,7 @@
 .nav {
     height: 100px; ;
 
-    /* background: pink; */
+    background-color: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -29,7 +42,7 @@
 
 .header .nav a{
     height: 75px;
-    width: 315px;
+    width: 307px;
     
     text-indent: -9999px;
     overflow: hidden;
@@ -37,6 +50,8 @@
     background: url(../img/big-logo-admin.jpg);
     background-repeat: no-repeat;
     background-size: contain;
+
+    margin-left: 15px;
 
     border: 1px solid rgba(253, 247, 232);
     border-radius: 20px;

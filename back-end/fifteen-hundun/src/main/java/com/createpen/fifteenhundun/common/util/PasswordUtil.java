@@ -1,8 +1,10 @@
 package com.createpen.fifteenhundun.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 //todo2修好了 我他妈也不知道咋回事 反正就是用不了这个了
 public class PasswordUtil {
 
@@ -23,6 +25,7 @@ public class PasswordUtil {
      * 校验密码（明文与密文匹配）
      */
     public static boolean check(String rawPassword, String encodedPassword) {
+        log.info("进入校验密码工具类:当前明文密码{},加密密码{}",rawPassword,encodedPassword);
         if (encodedPassword == null || encodedPassword.isEmpty()) {
             return false;
         }

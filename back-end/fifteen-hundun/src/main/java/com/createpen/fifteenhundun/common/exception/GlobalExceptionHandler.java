@@ -1,9 +1,6 @@
 package com.createpen.fifteenhundun.common.exception;
 
-import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
-import com.createpen.fifteenhundun.common.exception.MyException.OSSException;
-import com.createpen.fifteenhundun.common.exception.MyException.UserExistedException;
-import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
+import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.response.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -69,6 +66,14 @@ public class GlobalExceptionHandler {
         String msg = e.getMessage();
         log.info("已接受到OSS异常:{}",msg);
         return Result.fail(500,msg);
+    }
+
+    //权限不足异常处理
+    @ExceptionHandler
+    public Result handleInsufficientPermissionsException(InsufficientPermissionsException e) {
+        String msg = e.getMessage();
+        log.info("已接受到权限不足异常:{}",msg);
+        return Result.fail(403,msg);
     }
 
 //    未知异常处理

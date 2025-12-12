@@ -31,16 +31,24 @@
     
 }
 /* <!-- 1.2 导航 --> */
+/* .header {
+    height: 1400px;
+} */
 .nav {
-    height: 100px; ;
+    position: sticky;
+    top: 0px;
 
+    height: 100px; ;
     background-color: #fff;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.header .nav a{
+
+
+.nav a{
     height: 75px;
     width: 307px;
     
@@ -59,7 +67,7 @@
 
     transition: all 0.5s;
 }
-.header .nav a:hover{
+.nav a:hover{
     box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
 }
 
@@ -80,7 +88,7 @@ html {
 
     /* border: 1px solid #333; */
     border-radius: 10px;
-    background-color: #f5f5f5;
+    background-color: #fff;
 
     transition: all 0.3s;
 }

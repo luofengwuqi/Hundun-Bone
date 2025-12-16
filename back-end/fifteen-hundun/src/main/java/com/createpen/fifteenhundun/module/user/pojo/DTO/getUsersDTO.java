@@ -22,10 +22,12 @@ public class getUsersDTO {
 
     private Integer status;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime beginTime;
+    //设置默认值为很久以前
+    private LocalDateTime beginTime = LocalDateTime.of(1900,1,1,0,0,0);
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime endTime;
+    //设置默认值为现在
+    private LocalDateTime endTime = LocalDateTime.now();
 
 
 

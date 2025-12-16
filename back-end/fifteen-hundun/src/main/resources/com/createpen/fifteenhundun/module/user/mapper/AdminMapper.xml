@@ -6,14 +6,20 @@
         select * from users
         <where>
             <if test="name!=null and name!=''">
-                name like concat('%',#{name},'%')
+                username like concat('%',#{name},'%')
             </if>
             <if test="status!=null">
-                status=#{status}
+                and status=#{status}
             </if>
-            <if test="beginTime!=null and endTime!=null">
-                created_at between #{beginTime} and #{endTime}
+            <!-- 时间范围查询统一处理 -->
+
+            <if test="beginTime != null ">
+                and created_at >= #{beginTime}
             </if>
+            <if test="endTime != null ">
+                <![CDATA[ and created_at <= #{endTime} ]]>
+            </if>
+
         </where>
     </select>
 </mapper>

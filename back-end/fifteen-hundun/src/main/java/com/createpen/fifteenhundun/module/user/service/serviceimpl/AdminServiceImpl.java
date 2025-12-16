@@ -10,8 +10,10 @@ import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PageUsersVO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.addAdminDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.getUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
+import com.createpen.fifteenhundun.module.user.service.UserService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -94,9 +96,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PageUsersVO getUsers(Integer page, Integer size) {
-        PageHelper.startPage(page,size);
-        List<User> userList = am.getUsers();
+    public PageUsersVO getUsers(getUsersDTO dto) {
+        log.info("开始分页查询用户");
+        log.info("分页参数:{}",dto);
+        PageHelper.startPage(dto.getPage(),dto.getSize());
+        List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime());
         Page<User> p = (Page<User>)userList;
         return new PageUsersVO(p.getTotal(),p.getResult());
     }

@@ -52,7 +52,7 @@ public class AdminController {
         //page:当前的页数
         //size:前端指定的每页的条数
         log.info("分页查询用户");
-        PageUsersVO vo = as.getUsers(dto.getPage(), dto.getSize());
+        PageUsersVO vo = as.getUsers(dto);
         return Result.success(vo);
     }
 

@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommonController {
 
     @Autowired
-    private com.createpen.fifteenhundun.common.utils.AliOSSUtil aliOssUtil;
+    private com.createpen.fifteenhundun.common.util.AliOSSUtil aliOssUtil;
 
     @Autowired
     private CommonService cs;

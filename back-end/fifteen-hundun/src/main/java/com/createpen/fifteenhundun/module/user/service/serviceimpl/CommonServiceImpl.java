@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommonServiceImpl implements CommonService {
 
     @Autowired
-    private com.createpen.fifteenhundun.common.utils.AliOSSUtil aliOssUtil;
+    private com.createpen.fifteenhundun.common.util.AliOSSUtil aliOssUtil;
 
     @Override
     public String addFile(MultipartFile file) {

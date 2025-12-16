@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.utils;
+package com.createpen.fifteenhundun.common.util;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;

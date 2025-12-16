@@ -8,15 +8,19 @@ import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundExce
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.PageUsersVO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.addAdminDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -87,6 +91,14 @@ public class AdminServiceImpl implements AdminService {
         throw new UserExistedException("用户已存在");
 
 
+    }
+
+    @Override
+    public PageUsersVO getUsers(Integer page, Integer size) {
+        PageHelper.startPage(page,size);
+        List<User> userList = am.getUsers();
+        Page<User> p = (Page<User>)userList;
+        return new PageUsersVO(p.getTotal(),p.getResult());
     }
 
 

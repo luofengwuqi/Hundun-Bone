@@ -29,3 +29,13 @@ redis:
   password: ${fifteen-hundun.redis.password}
   database: ${fifteen-hundun.redis.database}
 
+#mybatis配置
+mybatis:
+  # 开启驼峰命名自动转换（重点！）
+  configuration:
+    map-underscore-to-camel-case: true
+  # 可选：指定Mapper.xml文件位置（如果用XML写SQL需要配）
+#  mapper-locations: classpath:mapper/**/*.xml
+  # 可选：指定实体类别名包（简化XML里的类名）
+#  type-aliases-package: com.createpen.fifteenhundun.module.user.pojo.Entity
+

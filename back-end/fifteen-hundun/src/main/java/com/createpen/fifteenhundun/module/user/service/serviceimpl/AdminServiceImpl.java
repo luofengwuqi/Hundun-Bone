@@ -100,7 +100,7 @@ public class AdminServiceImpl implements AdminService {
         log.info("开始分页查询用户");
         log.info("分页参数:{}",dto);
         PageHelper.startPage(dto.getPage(),dto.getSize());
-        List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime());
+        List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime(),dto.getLoginDays());
         Page<User> p = (Page<User>)userList;
         return new PageUsersVO(p.getTotal(),p.getResult());
     }

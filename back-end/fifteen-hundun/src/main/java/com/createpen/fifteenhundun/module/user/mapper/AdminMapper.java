@@ -13,5 +13,5 @@ public interface AdminMapper {
     @Select("select count(*) from users")
     Integer getUserNumber();
 
-    List<User> getUsers(String name, Integer status, LocalDateTime beginTime, LocalDateTime endTime);
+    List<User> getUsers(String name, Integer status, LocalDateTime beginTime, LocalDateTime endTime,Integer loginDays);
 }

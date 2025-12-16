@@ -19,6 +19,9 @@
             <if test="endTime != null ">
                 <![CDATA[ and created_at <= #{endTime} ]]>
             </if>
+            <if test="loginDays != null">
+                <![CDATA[  and DATEDIFF(NOW(),last_login_at) >= #{loginDays}]]>
+            </if>
 
         </where>
     </select>

@@ -29,6 +29,9 @@ public class getUsersDTO {
     //设置默认值为现在
     private LocalDateTime endTime = LocalDateTime.now();
 
+    //最近一次登录时间距今天数
+    private Integer loginDays;
+
 
 
 }

@@ -16,6 +16,7 @@ public class OperateLog {
         private String operateUserName;
         private String operateType; // 新增/修改/删除/查询
         private String moduleName; // 操作模块
+        private String operateFunctionName; //操作的方法名字
 //        private String requestParams; // 请求参数JSON
 //        private String responseResult; // 响应结果
         private String ipAddress; // 操作IP

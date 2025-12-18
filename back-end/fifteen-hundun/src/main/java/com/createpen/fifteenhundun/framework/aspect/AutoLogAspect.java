@@ -56,6 +56,7 @@ public class AutoLogAspect {
          if (Objects.nonNull(annotation)) {
              o.setOperateType(annotation.operateType());
              o.setModuleName(annotation.moduleName());
+             o.setOperateFunctionName(pjp.getSignature().getName());
          }
 
          Long begin = System.currentTimeMillis();
@@ -66,17 +67,17 @@ public class AutoLogAspect {
              return result;
 
          } catch (Throwable e) {
-//             log.info("\n____________________执行失败______________________");
+             log.info("\n____________________执行失败______________________");
 
              o.setOperateStatus(0);
-             throw e;
+//             throw e;
 //             o.setResponseResult("执行失败：" + e.getMessage());
-//             throw new RuntimeException(e);
+             throw new RuntimeException(e);
          }finally {
              Long end = System.currentTimeMillis();
              o.setOperateTime(end - begin + "ms");
              //写入日志
-             log.info("已写入日志");
+             log.info("已写入日志{}",o );
              cm.addLog(o);
          }
 

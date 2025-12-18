@@ -25,7 +25,10 @@
                 operate_time,
             </if>
             <if test="operateStatus != null">
-                operate_status
+                operate_status,
+            </if>
+            <if test="operateFunctionName != null and operateFunctionName != ''">
+                operate_function_name
             </if>
             ) VALUES (
             <if test="operateUserId != null">
@@ -50,7 +53,10 @@
                 #{operateTime},
             </if>
             <if test="operateStatus != null">
-                #{operateStatus}
+                #{operateStatus},
+            </if>
+            <if test="operateFunctionName != null and operateFunctionName != ''">
+                #{operateFunctionName}
             </if>
             )
         </insert>

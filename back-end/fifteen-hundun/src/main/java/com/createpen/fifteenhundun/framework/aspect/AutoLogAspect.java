@@ -33,7 +33,7 @@ public class AutoLogAspect {
      public void autoLogPointCut(){}
 
      @Around("autoLogPointCut()")
-     public void autoLog(ProceedingJoinPoint pjp) throws Throwable
+     public Object autoLog(ProceedingJoinPoint pjp) throws Throwable
      {
          log.info("自动记录日志启动");
          //初始化日志对象
@@ -61,15 +61,22 @@ public class AutoLogAspect {
          Long begin = System.currentTimeMillis();
          try {
              Object result = pjp.proceed();
+//             log.info("\n____________________执行成功______________________");
              o.setOperateStatus(1);
+             return result;
+
          } catch (Throwable e) {
+//             log.info("\n____________________执行失败______________________");
+
              o.setOperateStatus(0);
+             throw e;
 //             o.setResponseResult("执行失败：" + e.getMessage());
-             throw new RuntimeException(e);
+//             throw new RuntimeException(e);
          }finally {
              Long end = System.currentTimeMillis();
              o.setOperateTime(end - begin + "ms");
              //写入日志
+             log.info("已写入日志");
              cm.addLog(o);
          }
 

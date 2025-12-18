@@ -2,27 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.createpen.fifteenhundun.module.user.mapper.AdminMapper">
 
-    <select id="getUsers" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
-        select * from users
-        <where>
-            <if test="name!=null and name!=''">
-                username like concat('%',#{name},'%')
-            </if>
-            <if test="status!=null">
-                and status=#{status}
-            </if>
-            <!-- 时间范围查询统一处理 -->
+   <select id="getUsers" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
+       select * from users
+       <where>
+           <if test="name!=null and name!=''">
+               username like concat('%',#{name},'%')
+           </if>
+           <if test="status!=null">
+               and status=#{status}
+           </if>
+           <if test="beginTime != null">
+               and created_at >= #{beginTime}
+           </if>
+           <if test="endTime != null">
+               <![CDATA[ and created_at <= #{endTime} ]]>
+           </if>
+           <if test="loginDays != null and loginDays > 0">
+               <![CDATA[ and DATEDIFF(NOW(),last_login_at) >= #{loginDays}]]>
+           </if>
+       </where>
+   </select>
 
-            <if test="beginTime != null ">
-                and created_at >= #{beginTime}
-            </if>
-            <if test="endTime != null ">
-                <![CDATA[ and created_at <= #{endTime} ]]>
-            </if>
-            <if test="loginDays != null">
-                <![CDATA[  and DATEDIFF(NOW(),last_login_at) >= #{loginDays}]]>
-            </if>
-
-        </where>
-    </select>
 </mapper>

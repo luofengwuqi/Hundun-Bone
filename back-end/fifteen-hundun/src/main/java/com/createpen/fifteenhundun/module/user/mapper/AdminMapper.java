@@ -17,5 +17,6 @@ public interface AdminMapper {
     @Select("select count(*) from users")
     Integer getUserNumber();
 
+    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.USER)
     List<User> getUsers(String name, Integer status, LocalDateTime beginTime, LocalDateTime endTime,Integer loginDays);
 }

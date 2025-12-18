@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
 
         //设置loginTime
         u.setLastLoginAt(LocalDateTime.now());
+        log.info("debug:#{}",u);
         um.updateUserByUserName(u);
 
         return r;

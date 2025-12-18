@@ -2,6 +2,7 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
+import com.createpen.fifteenhundun.module.user.mapper.CommonMapper;
 import com.createpen.fifteenhundun.module.user.service.CommonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Service
 public class CommonServiceImpl implements CommonService {
+
+    @Autowired
+    private CommonMapper cm;
 
     @Autowired
     private com.createpen.fifteenhundun.common.util.AliOSSUtil aliOssUtil;

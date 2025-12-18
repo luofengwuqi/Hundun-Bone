@@ -30,21 +30,25 @@
         <if test="lastLoginAt != null">#{lastLoginAt},</if>
     </trim>
 </insert>
-    <update id="updateUserByUserName">
-        update users
-        <set>
-            <if test="username != null">username = #{username},</if>
-            <if test="email != null">email = #{email},</if>
-            <if test="passwordHash != null">password_hash = #{passwordHash},</if>
-            <if test="nickname != null">nickname = #{nickname},</if>
-            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
-            <if test="phone != null">phone = #{phone},</if>
-            <if test="lastLoginAt != null">last_login_at = #{lastLoginAt},</if>
 
-        </set>
-            where username = #{username};
+<update id="updateUserByUserName" parameterType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
+    UPDATE users
+    <set>
+        <if test="email != null and email != ''">email = #{email,jdbcType=VARCHAR},</if>
+        <if test="passwordHash != null and passwordHash != ''">password_hash = #{passwordHash,jdbcType=VARCHAR},</if>
+        <if test="nickname != null and nickname != ''">nickname = #{nickname,jdbcType=VARCHAR},</if>
+        <if test="avatarUrl != null and avatarUrl != ''">avatar_url = #{avatarUrl,jdbcType=VARCHAR},</if>
+        <if test="phone != null and phone != ''">phone = #{phone,jdbcType=VARCHAR},</if>
+        <if test="lastLoginAt != null">last_login_at = #{lastLoginAt,jdbcType=TIMESTAMP},</if>
+        <if test="status != null">status = #{status,jdbcType=TINYINT},</if>
+        <if test="updatedAt != null">updated_at = #{updatedAt,jdbcType=TIMESTAMP},</if>
+    </set>
+    WHERE username = #{username,jdbcType=VARCHAR}
+</update>
 
-    </update>
+
+
+
 
     <select id="selectByUserName" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
         SELECT

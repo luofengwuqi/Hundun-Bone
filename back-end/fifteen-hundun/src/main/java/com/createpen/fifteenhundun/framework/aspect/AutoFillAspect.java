@@ -3,6 +3,7 @@ package com.createpen.fifteenhundun.framework.aspect;
 
 import com.createpen.fifteenhundun.common.anno.AutoFillTime;
 import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,6 +28,7 @@ public class AutoFillAspect {
     public void autoFillTime(JoinPoint joinPoint)
     {
         log.info("自动填充时间启动");
+        //获取方法参数
         AutoFillTimeType value = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(AutoFillTime.class).value();
         Object[] args = joinPoint.getArgs();
         if(args == null || args.length == 0)
@@ -44,6 +46,7 @@ public class AutoFillAspect {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            log.info("已经填充时间");
         }
         if(value == AutoFillTimeType.INSERT)
         {

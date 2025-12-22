@@ -38,24 +38,32 @@ body {
   transform: translate(-50%, -50%);
 
 
-  width: 380px;
+  width: 475px;
+  /* height: 300px; */
   background: #fff;
   padding: 30px;
   border-radius: 8px;
   text-align: center;
+
+  transition: all 0.5s;
+
+}
+
+.container:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 /* 标题 */
 .container h2 {
   color: #d82323;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 /* 输入框 */
 form input {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -67,7 +75,10 @@ form input {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+
 }
+
+
 
 .pw a {
   color: #d82323;

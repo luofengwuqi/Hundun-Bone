@@ -1,0 +1,75 @@
+* 全局重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "微软雅黑";
+}
+
+/* 页面背景（品牌图全屏） */
+body {
+  background: url("D:\\web\\Login Page\\image\\big-logo-admin.jpg") no-repeat center center;
+  background-size: 1400px auto; 
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 登录框 */
+.container {
+  width: 380px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* 标题 */
+.container h2 {
+  color: #d82323;
+  margin-bottom: 20px;
+}
+
+/* 输入框 */
+form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* 记住/忘记密码 */
+.pw {
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.pw a {
+  color: #d82323;
+  text-decoration: none;
+}
+
+/* 登录按钮 */
+button {
+  width: 100%;
+  padding: 10px;
+  background: #d82323;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 注册链接 */
+span {
+  display: block;
+  margin-top: 15px;
+  font-size: 12px;
+}
+span a {
+  color: #d82323;
+  text-decoration: none;
+}

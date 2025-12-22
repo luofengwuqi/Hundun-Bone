@@ -7,16 +7,37 @@
 
 /* 页面背景（品牌图全屏） */
 body {
+  position: relative;
+
   background: url("../img/background.png") no-repeat center center;
-  background-size: 1400px auto;
+  background-repeat: no-repeat;
+
+  background-size: cover;
+
+  background-position: center center;
+  /* 图片居中显示 */
+  background-attachment: fixed;
+  /* 滚动页面时背景图固定不动 */
+
+  /* 清除body默认的边距，避免出现白边 */
+  margin: 0;
+  /* 设置最小高度为视口高度，确保背景图铺满整个可视区域 */
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* min-height: 100vh; */
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
 }
 
 /* 登录框 */
 .container {
+  /* margin: auto; */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+
   width: 380px;
   background: #fff;
   padding: 30px;
@@ -41,6 +62,7 @@ form input {
 
 /* 记住/忘记密码 */
 .pw {
+  position: relative;
   font-size: 12px;
   display: flex;
   justify-content: space-between;
@@ -50,6 +72,12 @@ form input {
 .pw a {
   color: #d82323;
   text-decoration: none;
+}
+
+.pw span {
+  position: absolute;
+  top: -15px;
+  left: 25px;
 }
 
 /* 登录按钮 */

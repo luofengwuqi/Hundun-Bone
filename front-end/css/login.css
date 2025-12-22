@@ -1,5 +1,4 @@
-* 全局重置 */
-* {
+* 全局重置 */ * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -8,8 +7,8 @@
 
 /* 页面背景（品牌图全屏） */
 body {
-  background: url("D:\\web\\Login Page\\image\\big-logo-admin.jpg") no-repeat center center;
-  background-size: 1400px auto; 
+  background: url("../img/background.png") no-repeat center center;
+  background-size: 1400px auto;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -47,6 +46,7 @@ form input {
   justify-content: space-between;
   margin-bottom: 20px;
 }
+
 .pw a {
   color: #d82323;
   text-decoration: none;
@@ -69,6 +69,7 @@ span {
   margin-top: 15px;
   font-size: 12px;
 }
+
 span a {
   color: #d82323;
   text-decoration: none;

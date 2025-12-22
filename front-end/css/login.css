@@ -50,6 +50,7 @@ body {
 
 /* 标题 */
 .container h2 {
+  font-size: 30px;
   color: #d82323;
   margin-bottom: calc(30px * 1.25);
 

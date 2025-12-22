@@ -31,50 +31,54 @@ body {
 
 /* 登录框 */
 .container {
-  /* margin: auto; */
+  background-color: #fff;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 
-
-  width: 475px;
-  /* height: 300px; */
-  background: #fff;
-  padding: 30px;
-  border-radius: 8px;
+  width: calc(475px * 1.25);
+  padding: calc(30px * 1.25);
+  border-radius: calc(8px * 1.25);
   text-align: center;
-
   transition: all 0.5s;
-
 }
 
 .container:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 12.5px rgba(0, 0, 0, 0.5);
 }
 
 /* 标题 */
 .container h2 {
   color: #d82323;
-  margin-bottom: 30px;
+  margin-bottom: calc(30px * 1.25);
+
 }
 
 /* 输入框 */
 form input {
   width: 100%;
-  padding: 10px;
+  /* padding: 10px;
   margin-bottom: 25px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  box-sizing: border-box; */
+  padding: calc(10px * 1.25);
+  margin-bottom: calc(25px * 1.25);
+  border: calc(1px * 1.25) solid #ddd;
+  border-radius: calc(4px * 1.25);
+  box-sizing: border-box;
 }
 
 /* 记住/忘记密码 */
 .pw {
   position: relative;
-  font-size: 12px;
+  font-size: calc(12px * 1.25);
+  margin-bottom: calc(20px * 1.25);
+  /* font-size: 12px; */
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 
 }
 
@@ -87,26 +91,27 @@ form input {
 
 .pw span {
   position: absolute;
-  top: -15px;
-  left: 25px;
+  top: calc(-15px * 1.25);
+  left: calc(25px * 1.25);
 }
 
 /* 登录按钮 */
 button {
   width: 100%;
-  padding: 10px;
+  padding: calc(10px * 1.25);
+  border-radius: calc(4px * 1.25);
   background: #d82323;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   cursor: pointer;
 }
 
 /* 注册链接 */
 span {
   display: block;
-  margin-top: 15px;
-  font-size: 12px;
+  margin-top: calc(15px * 1.25);
+  font-size: calc(12px * 1.25);
 }
 
 span a {

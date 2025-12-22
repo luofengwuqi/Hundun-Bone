@@ -1,9 +1,10 @@
-* 全局重置 */ * {
+/* * 全局重置
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "微软雅黑";
-}
+} */
 
 /* 页面背景（品牌图全屏） */
 body {
@@ -92,8 +93,8 @@ form input {
 
 .pw span {
   position: absolute;
-  top: calc(-15px * 1.25);
-  left: calc(25px * 1.25);
+  top: -20px;
+  left: 20px;
 }
 
 /* 登录按钮 */

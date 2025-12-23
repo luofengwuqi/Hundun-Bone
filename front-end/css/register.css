@@ -1,0 +1,14 @@
+body {
+    margin: 0;
+    /* 填入你的图片实际路径 */
+    background-image: url('../img/background.png');
+    /*  图片居中显示 */
+    background-position: center;
+    /*  图片保持比例覆盖整个网页 */
+    background-size: cover;
+    /*  图片不重复平铺 */
+    background-repeat: no-repeat;
+    /*  背景图固定，滚动页面不跟随移动 */
+    background-attachment: fixed;
+    min-height: 100vh;
+}

@@ -24,17 +24,17 @@
             <option value="admin">管理员</option>
           </select>
         </div>
-        <!-- //选择管理员时候出现以下的提示 -->
-        <div class="mb-3 admin-only">
-          <span class="text-danger fw-bold">注意:如果您想注册管理员用户请务必与开发者团队取得联系以获得重要密码!</span>
-        </div>
         <!-- Bootstrap表单组件 -->
         <form id="registerForm" class="register-form">
           <!-- 重要密码输入框 -->
           <div class="mb-3 admin-only" id="importantpassword">
-            <label for="importantpassword" class="form-label">重要密码</label>
+            <label for="importantpassword" class="form-label">管理员秘钥</label>
             <input type="password" class="form-control form-control-lg" id="importantpassword" name="importantpassword"
-              placeholder="请输入6-16位密码" required>
+              placeholder="请输入管理员秘钥" required>
+          </div>
+          <!-- //选择管理员时候出现以下的提示 -->
+          <div class="mb-3 admin-only">
+            <span class="text-danger fw-bold">注意:如果您想注册管理员用户请务必与开发团队取得联系以获得管理员秘钥!</span>
           </div>
           <!-- 用户名输入框 -->
           <div class="mb-3 ">

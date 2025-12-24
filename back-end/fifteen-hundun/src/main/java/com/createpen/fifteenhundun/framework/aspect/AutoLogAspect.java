@@ -67,9 +67,8 @@ public class AutoLogAspect {
              return result;
 
          } catch (Throwable e) {
-             log.info("\n____________________执行失败______________________");
-
-             o.setOperateStatus(0);
+//             log.info("\n____________________执行失败______________________");
+//             o.setOperateStatus(0);
 //             throw e;
 //             o.setResponseResult("执行失败：" + e.getMessage());
              throw new RuntimeException(e);

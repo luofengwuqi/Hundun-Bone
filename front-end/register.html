@@ -12,64 +12,63 @@
 </head>
 
 <body>
-<div class="container d-flex justify-content-center align-items-center min-vh-100 pb-5 mt-5">
-  <!-- Bootstrap卡片组件作为注册容器 -->
-  <div class="card register-card shadow-sm ">
-    <div class="card-body p-4 p-md-5 ">
-      <h2 class="card-title text-center mb-4 fw-bold">用户注册</h2>
-      <div class="mb-3">
-        <label for="userType" class="form-label">用户类型</label>
-        <select class="form-select" id="userType" name="userType"
-                onchange="this.value==='normal'?window.location.href='register.html':window.location.href='adminregister.html'">
-          <option value="normal">普通用户</option>
-          <option value="admin">管理员</option>
-
-
-        </select>
-      </div>
-      <!-- Bootstrap表单组件 -->
-      <form id="registerForm" class="register-form">
-        <!-- 用户名输入框 -->
+  <div class="container d-flex justify-content-center align-items-center min-vh-100 pb-5 mt-5">
+    <!-- Bootstrap卡片组件作为注册容器 -->
+    <div class="card register-card shadow-sm ">
+      <div class="card-body p-4 p-md-5 ">
+        <h2 class="card-title text-center mb-4 fw-bold">用户注册</h2>
         <div class="mb-3">
-          <label for="username" class="form-label">用户名</label>
-          <input type="text" class="form-control form-control-lg" id="username" name="username"
-                 placeholder="请输入用户名" required>
-        </div>
-        <!-- 重要密码输入框 -->
-<!--        <div class="mb-3">-->
-<!--          <label for="importantpassword" class="form-label">重要密码</label>-->
-<!--          <input type="password" class="form-control form-control-lg" id="importantpassword" name="importantpassword"-->
-<!--                 placeholder="请输入6-16位密码" required>-->
-<!--        </div>-->
+          <label for="userType" class="form-label">用户类型</label>
+          <select class="form-select" id="userType" name="userType"
+            onchange="this.value==='normal'?window.location.href='register.html':window.location.href='adminregister.html'">
+            <option value="normal">普通用户</option>
+            <option value="admin">管理员</option>
 
-        <!-- 密码输入框 -->
-        <div class="mb-3">
-          <label for="password" class="form-label">密码</label>
-          <input type="password" class="form-control form-control-lg" id="password" name="password"
-                 placeholder="请输入6-16位密码" required>
-        </div>
 
-        <!-- 确认密码输入框 -->
-        <div class="mb-3">
-          <label for="checkpasswo" class="form-label">确认密码</label>
-          <input type="password" class="form-control form-control-lg" id="checkpasswo" name="checkpasswo"
-                 placeholder="请再次输入密码" required>
+          </select>
         </div>
+        <!-- Bootstrap表单组件 -->
+        <form id="registerForm" class="register-form">
+          <!-- 用户名输入框 -->
+          <div class="mb-3">
+            <label for="username" class="form-label">用户名</label>
+            <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="请输入用户名"
+              required>
+          </div>
+          <!-- 重要密码输入框 -->
+          <!--        <div class="mb-3">-->
+          <!--          <label for="importantpassword" class="form-label">重要密码</label>-->
+          <!--          <input type="password" class="form-control form-control-lg" id="importantpassword" name="importantpassword"-->
+          <!--                 placeholder="请输入6-16位密码" required>-->
+          <!--        </div>-->
 
-<!--        &lt;!&ndash; 手机号输入框 &ndash;&gt;-->
-<!--        <div class="mb-3">-->
-<!--          <label for="phone" class="form-label">手机号</label>-->
-<!--          <input type="tel" class="form-control form-control-lg" id="phone" name="phone"-->
-<!--                 placeholder="请输入手机号" required>-->
-<!--        </div>-->
-        <!-- 电子邮箱 -->
-        <div class="mb-3">
-          <label for="email" class="form-label">电子邮箱</label>
-          <input type="tel" class="form-control form-control-lg" id="email" name="email"
-                 placeholder="请输入电子邮箱" >
-        </div>
+          <!-- 密码输入框 -->
+          <div class="mb-3">
+            <label for="password" class="form-label">密码</label>
+            <input type="password" class="form-control form-control-lg" id="password" name="password"
+              placeholder="请输入6-16位密码" required>
+          </div>
 
-        <!-- 验证码行（使用Bootstrap网格） -->
+          <!-- 确认密码输入框 -->
+          <div class="mb-3">
+            <label for="checkpasswo" class="form-label">确认密码</label>
+            <input type="password" class="form-control form-control-lg" id="checkpasswo" name="checkpasswo"
+              placeholder="请再次输入密码" required>
+          </div>
+
+          <!--        &lt;!&ndash; 手机号输入框 &ndash;&gt;-->
+          <!--        <div class="mb-3">-->
+          <!--          <label for="phone" class="form-label">手机号</label>-->
+          <!--          <input type="tel" class="form-control form-control-lg" id="phone" name="phone"-->
+          <!--                 placeholder="请输入手机号" required>-->
+          <!--        </div>-->
+          <!-- 电子邮箱 -->
+          <div class="mb-3">
+            <label for="email" class="form-label">电子邮箱</label>
+            <input type="tel" class="form-control form-control-lg" id="email" name="email" placeholder="请输入电子邮箱">
+          </div>
+
+          <!-- 验证码行（使用Bootstrap网格）
         <div class="mb-3 row gx-2">
           <label for="code" class="col-form-label col-3">验证码</label>
           <div class="col-6">
@@ -79,27 +78,27 @@
           <div class="col-3">
             <button type="button" class="btn btn-primary btn-danger w-100 get-code-btn">获取验证码</button>
           </div>
-        </div>
+        </div> -->
 
-        <!-- 协议勾选 -->
-        <div class="mb-4 form-check">
-          <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
-          <label class="form-check-label" for="agree">
-            我已阅读并同意<a href="#" class="text-primary">《用户注册协议》</a>和<a href="#" class="text-primary">《隐私政策》</a>
-          </label>
-        </div>
+          <!-- 协议勾选 -->
+          <div class="mb-4 form-check">
+            <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
+            <label class="form-check-label" for="agree">
+              我已阅读并同意<a href="#" class="text-primary">《用户注册协议》</a>和<a href="#" class="text-primary">《隐私政策》</a>
+            </label>
+          </div>
 
-        <!-- 提交按钮 -->
-        <button type="submit" class="btn btn-primary btn-danger w-100 submit-btn">立即注册</button>
-      </form>
+          <!-- 提交按钮 -->
+          <button type="submit" class="btn btn-primary btn-danger w-100 submit-btn">立即注册</button>
+        </form>
 
-      <!-- 登录链接 -->
-      <p class="text-center mt-4 mb-0">
-        已有账号？<a href="login.html" class="text-primary">立即登录</a>
-      </p>
+        <!-- 登录链接 -->
+        <p class="text-center mt-4 mb-0">
+          已有账号？<a href="login.html" class="text-primary">立即登录</a>
+        </p>
+      </div>
     </div>
   </div>
-</div>
 
 </body>
 

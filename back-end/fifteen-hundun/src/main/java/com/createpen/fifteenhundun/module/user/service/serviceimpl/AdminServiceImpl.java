@@ -68,15 +68,21 @@ public class AdminServiceImpl implements AdminService {
     public void addAdmin(addAdminDTO dto) {
         log.info("开始添加管理员");
         log.info("开始校验是否已经存在");
-        //这里的逻辑应该只有当时写代码的我才能看得懂 这里就当是一个教训
+        //这里的逻辑应该只有当时写代码的我还有上帝才能看得懂 这里就当是一个教训
         try{
-            us.isUserExisted(dto.getUsername()).getUsername();
+            String abc = us.isUserExisted(dto.getUsername()).getUsername();
         }catch (UserNotFoundException e)//不存在才继续 真拧巴
         {
             log.info("开始校验重要密码");
-            if (!PasswordUtil.check(dto.getImportantPassword(),ImportantConstant.IMPORTANTPASSWORD)) {
-                throw new LoginException("你貌似没有权限 你干嘛啊??");
+            String importantPassword = am.selectInvitePassword(dto.getImportantPassword());
+            log.info("检索到的邀请码#{}",importantPassword);
+            if(importantPassword==null){
+                throw new LoginException("你貌似没有被邀请 你干嘛啊??");
             }
+            log.info("重要密码已校验通过");
+//            if (!PasswordUtil.check(dto.getImportantPassword(),ImportantConstant.IMPORTANTPASSWORD)) {
+//                throw new LoginException("你貌似没有被邀请 你干嘛啊??");
+//            }
 
             User u = new User();
             u.setUsername(dto.getUsername());
@@ -87,6 +93,7 @@ public class AdminServiceImpl implements AdminService {
             u.setAvatarUrl(dto.getAvatarUrl());
             u.setLastLoginAt(LocalDateTime.now());
 
+            am.deleteUserByUserName("管理员待注册"+importantPassword);
             um.insertUser(u);
             return;
         }
@@ -119,7 +126,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deleteUserByUserName(String username) {
-        am.deleteUserByUserName( username);
+        am.deleteUserByUserName(username);
     }
 
 

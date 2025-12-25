@@ -6,6 +6,7 @@ import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
 import com.createpen.fifteenhundun.common.exception.MyException.UserExistedException;
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
+import com.createpen.fifteenhundun.common.util.RandomCodeUtil;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PageUsersVO;
@@ -13,7 +14,6 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.addAdminDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.getUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
-import com.createpen.fifteenhundun.module.user.service.UserService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -106,14 +106,20 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void makeInviteCode() {
+    public String makeInviteCode() {
         User u =new User();
-        u.setUsername("管理员待注册");
         u.setPasswordHash(PasswordUtil.addMi("fqeqvbqeiovfbqiudbv"));
         u.setStatus(0);
-        //todo: 生成邀请码
-        u.setInviteCode("");
+        //todoed: 生成邀请码
+        u.setInviteCode(RandomCodeUtil.makeComplexCode(10));
+        u.setUsername("管理员待注册"+u.getInviteCode());
         um.insertUser(u);
+        return u.getInviteCode();
+    }
+
+    @Override
+    public void deleteUserByUserName(String username) {
+        am.deleteUserByUserName( username);
     }
 
 

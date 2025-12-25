@@ -4,6 +4,7 @@ import com.createpen.fifteenhundun.common.anno.AutoLog;
 import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
 import com.createpen.fifteenhundun.common.constant.OperateTypeConstant;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -19,4 +20,8 @@ public interface AdminMapper {
 
     @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.USER)
     List<User> getUsers(String name, Integer status, LocalDateTime beginTime, LocalDateTime endTime,Integer loginDays);
+
+    @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.USER)
+    @Delete("delete from users where username = #{username}")
+    void deleteUserByUserName(String username);
 }

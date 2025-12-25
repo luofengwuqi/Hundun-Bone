@@ -37,12 +37,12 @@ public class AdminController {
         return Result.success(num);
     }
     //生成邀请码
-    @GetMapping("/inviteCode")
+    @GetMapping("/makeInviteCode")
     public Result makeInviteCode()
     {
         log.info("生成邀请码");
-        as.makeInviteCode();
-        return Result.success();
+        String code = as.makeInviteCode();
+        return Result.success(code);
     }
     //禁用或启用用户
     @GetMapping("/changeStatus")
@@ -50,6 +50,14 @@ public class AdminController {
     {
         log.info("禁用或启用用户");
         as.changeStatus(username);
+        return Result.success();
+    }
+    //删除用户
+    @GetMapping("/deleteUser")
+    public Result deleteUser(@RequestParam("username") String username)
+    {
+        log.info("删除用户");
+        as.deleteUserByUserName(username);
         return Result.success();
     }
 

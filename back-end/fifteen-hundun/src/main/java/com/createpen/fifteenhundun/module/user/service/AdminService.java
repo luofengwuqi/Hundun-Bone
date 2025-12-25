@@ -16,5 +16,7 @@ public interface AdminService {
 
     PageUsersVO getUsers(getUsersDTO dto);
 
-    void makeInviteCode();
+    String makeInviteCode();
+
+    void deleteUserByUserName(String username);
 }

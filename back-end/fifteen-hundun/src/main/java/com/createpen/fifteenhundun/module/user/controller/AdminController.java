@@ -36,6 +36,14 @@ public class AdminController {
         Integer num = as.getUserNumber();
         return Result.success(num);
     }
+    //生成邀请码
+    @GetMapping("/inviteCode")
+    public Result makeInviteCode()
+    {
+        log.info("生成邀请码");
+        as.makeInviteCode();
+        return Result.success();
+    }
     //禁用或启用用户
     @GetMapping("/changeStatus")
     public Result changeStatus(@RequestParam("username") String username)

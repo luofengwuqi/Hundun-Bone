@@ -15,4 +15,6 @@ public interface AdminService {
     void addAdmin(addAdminDTO dto);
 
     PageUsersVO getUsers(getUsersDTO dto);
+
+    void makeInviteCode();
 }

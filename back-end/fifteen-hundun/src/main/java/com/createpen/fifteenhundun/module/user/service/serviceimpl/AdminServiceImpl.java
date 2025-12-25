@@ -105,5 +105,16 @@ public class AdminServiceImpl implements AdminService {
         return new PageUsersVO(p.getTotal(),p.getResult());
     }
 
+    @Override
+    public void makeInviteCode() {
+        User u =new User();
+        u.setUsername("管理员待注册");
+        u.setPasswordHash(PasswordUtil.addMi("fqeqvbqeiovfbqiudbv"));
+        u.setStatus(0);
+        //todo: 生成邀请码
+        u.setInviteCode("");
+        um.insertUser(u);
+    }
+
 
 }

@@ -52,6 +52,9 @@ public class User {
          */
         private Integer status;
 
+        //邀请码
+        private String inviteCode;
+
         /**
          * 创建时间
          */

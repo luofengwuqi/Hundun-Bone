@@ -28,7 +28,7 @@ public class AdminController {
         return Result.success();
     }
 
-    //    统计数据部分
+    //统计用户数量
     @GetMapping("/count")
     public Result<Integer> getUserNumber()
     {

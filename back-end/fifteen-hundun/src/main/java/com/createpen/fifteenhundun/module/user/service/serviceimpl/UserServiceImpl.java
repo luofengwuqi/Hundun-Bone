@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
         log.info("开始校验用户是否被禁用");
         int status = u.getStatus();
         log.info("用户状态为:{}",status);
-        if(u.getStatus()==0)
+        if(u.getStatus()<=0)
         {
             log.info("用户被禁用");
             throw new LoginException("用户被禁用");

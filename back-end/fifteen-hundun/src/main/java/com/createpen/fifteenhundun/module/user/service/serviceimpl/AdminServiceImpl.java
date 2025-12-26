@@ -10,6 +10,7 @@ import com.createpen.fifteenhundun.common.util.RandomCodeUtil;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
+import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
@@ -149,7 +150,7 @@ public class AdminServiceImpl implements AdminService {
     public PageVO getLogs(GetLogsDTO dto) {
         log.info("{}",dto);
         PageHelper.startPage(dto.getPage(),dto.getSize());
-        List l = am.getLogs(dto);
+        List<OperateLog> l = am.getLogs(dto);
         Page p = (Page) l;
         PageVO vo  = new PageVO(p.getTotal(),p.getResult());
         return vo;

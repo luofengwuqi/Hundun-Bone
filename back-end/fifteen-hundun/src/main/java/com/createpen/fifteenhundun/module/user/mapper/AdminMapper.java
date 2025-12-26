@@ -4,6 +4,7 @@ import com.createpen.fifteenhundun.common.anno.AutoLog;
 import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
 import com.createpen.fifteenhundun.common.constant.OperateTypeConstant;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
+import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Delete;
@@ -32,5 +33,5 @@ public interface AdminMapper {
 
     //我也不知道这里适不适合加自动填充注解
     @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.USER)
-    List getLogs(GetLogsDTO dto);
+    List<OperateLog> getLogs(GetLogsDTO dto);
 }

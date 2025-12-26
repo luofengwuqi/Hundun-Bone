@@ -9,9 +9,10 @@ import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.RandomCodeUtil;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.PageUsersVO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.addAdminDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.getUsersDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
+import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
 import com.github.pagehelper.Page;
@@ -80,7 +81,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void addAdmin(addAdminDTO dto) {
+    public void addAdmin(AddAdminDTO dto) {
         log.info("开始添加管理员");
         log.info("开始校验是否已经存在");
         //这里的逻辑应该只有当时写代码的我还有上帝才能看得懂 这里就当是一个教训
@@ -118,13 +119,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PageUsersVO getUsers(getUsersDTO dto) {
+    public PageVO getUsers(GetUsersDTO dto) {
         log.info("开始分页查询用户");
         log.info("分页参数:{}",dto);
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime(),dto.getLoginDays());
         Page<User> p = (Page<User>)userList;
-        return new PageUsersVO(p.getTotal(),p.getResult());
+        return new PageVO(p.getTotal(),p.getResult());
     }
 
     @Override
@@ -142,6 +143,16 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteUserByUserName(String username) {
         am.deleteUserByUserName(username);
+    }
+
+    @Override
+    public PageVO getLogs(GetLogsDTO dto) {
+        log.info("{}",dto);
+        PageHelper.startPage(dto.getPage(),dto.getSize());
+        List l = am.getLogs(dto);
+        Page p = (Page) l;
+        PageVO vo  = new PageVO(p.getTotal(),p.getResult());
+        return vo;
     }
 
 

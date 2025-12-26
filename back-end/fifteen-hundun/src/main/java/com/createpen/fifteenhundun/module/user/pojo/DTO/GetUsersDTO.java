@@ -1,7 +1,5 @@
 package com.createpen.fifteenhundun.module.user.pojo.DTO;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class getUsersDTO {
+public class GetUsersDTO {
 
     private Integer page;
 

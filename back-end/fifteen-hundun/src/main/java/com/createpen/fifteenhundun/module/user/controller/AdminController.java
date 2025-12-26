@@ -1,16 +1,15 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.PageUsersVO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.addAdminDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.getUsersDTO;
+import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -22,7 +21,7 @@ public class AdminController {
 
     //新建管理员
     @PostMapping("/add")
-    public Result addAdmin(@RequestBody addAdminDTO dto){
+    public Result addAdmin(@RequestBody AddAdminDTO dto){
         log.info("新建管理员");
         as.addAdmin(dto);
         return Result.success();
@@ -63,13 +62,22 @@ public class AdminController {
 
     //分页查询用户
     @PostMapping("/getUsers")
-    public Result getUsers(@Valid @RequestBody getUsersDTO dto)
+    public Result getUsers(@Valid @RequestBody GetUsersDTO dto)
     {
         //page:当前的页数
         //size:前端指定的每页的条数
         log.info("分页查询用户");
-        PageUsersVO vo = as.getUsers(dto);
+        PageVO vo = as.getUsers(dto);
         return Result.success(vo);
     }
+    //分页查询日志
+    @PostMapping("/getLogs")
+    public Result SelectLog(@Valid @RequestBody GetLogsDTO dto)
+    {
+        log.info("日志分页查询");
+        PageVO vo = as.getLogs(dto);
+        return Result.success(vo);
+    }
+
 
 }

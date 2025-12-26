@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class addAdminDTO {
+public class AddAdminDTO {
     @NotBlank(message = "重要密码不能为空")
     private String importantPassword;
     @NotBlank(message = "用户名不能为空")

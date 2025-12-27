@@ -17,21 +17,21 @@ import java.util.List;
 @Mapper
 public interface AdminMapper {
 
-    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.USER)
+    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.ADMIN)
     @Select("select count(*) from users")
     Integer getUserNumber();
 
-    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.USER)
+    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.ADMIN)
     List<User> getUsers(String name, Integer status, LocalDateTime beginTime, LocalDateTime endTime,Integer loginDays);
 
-    @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.USER)
+    @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.ADMIN)
     @Delete("delete from users where username = #{username}")
     void deleteUserByUserName(String username);
 
     @Select("select invite_code from users where invite_code = #{importantPassword}")
-    String selectInvitePassword(@NotBlank(message = "重要密码不能为空") String importantPassword);
+    String selectInvitePassword(@NotBlank(message = "邀请码不能为空") String importantPassword);
 
-    //我也不知道这里适不适合加自动填充注解
-    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.USER)
+    //我也不知道这里适不适合加自动填充注解(我觉得还是算了
+    @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.ADMIN)
     List<OperateLog> getLogs(GetLogsDTO dto);
 }

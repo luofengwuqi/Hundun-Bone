@@ -1,6 +1,6 @@
 package com.createpen.fifteenhundun.module.user.pojo.Entity;
 
-import jakarta.validation.constraints.NotBlank;
+//import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +23,6 @@ public class OperateLog {
         private LocalDateTime operateAt; // 操作时间
         private String operateTime;//操作时长
         private Integer operateStatus; // 1成功 0失败
+        //新增字段:操作的sql
+        private String executedSql;
 }

@@ -5,6 +5,7 @@ import com.createpen.fifteenhundun.common.exception.MyException.UserExistedExcep
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
+//import com.createpen.fifteenhundun.framework.interception.CurrentSqlInterceptor;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
@@ -74,8 +75,12 @@ public class UserServiceImpl implements UserService {
 
         //设置loginTime
         u.setLastLoginAt(LocalDateTime.now());
-        log.info("debug:#{}",u);
+//        log.info("debug:#{}",u);
         um.updateUserByUserName(u);
+        //todoed:测试sql拦截器 测试通过
+//        String currentSql= CurrentSqlInterceptor.getCurrentSql();
+//        log.info("当前sql:{}",currentSql);
+//        CurrentSqlInterceptor.clear();
 
         return r;
 

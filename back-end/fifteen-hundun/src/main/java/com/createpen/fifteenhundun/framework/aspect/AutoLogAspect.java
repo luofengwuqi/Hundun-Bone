@@ -2,11 +2,12 @@ package com.createpen.fifteenhundun.framework.aspect;
 
 import com.createpen.fifteenhundun.common.anno.AutoLog;
 import com.createpen.fifteenhundun.common.context.BaseContext;
+import com.createpen.fifteenhundun.framework.interception.CurrentSqlInterceptor;
 import com.createpen.fifteenhundun.module.user.mapper.CommonMapper;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
 import org.springframework.web.context.request.RequestContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.java.Log;
+//import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -62,22 +63,26 @@ public class AutoLogAspect {
          Long begin = System.currentTimeMillis();
          try {
              Object result = pjp.proceed();
-//             log.info("\n____________________执行成功______________________");
+//             log.info("\n____________________执行原方法成功______________________");
              o.setOperateStatus(1);
              return result;
 
          } catch (Throwable e) {
-//             log.info("\n____________________执行失败______________________");
+//             log.info("\n____________________执行原方法失败______________________");
 //             o.setOperateStatus(0);
 //             throw e;
 //             o.setResponseResult("执行失败：" + e.getMessage());
              throw new RuntimeException(e);
          }finally {
+
              Long end = System.currentTimeMillis();
              o.setOperateTime(end - begin + "ms");
+             //todoed:获取当前sql
+             o.setExecutedSql(CurrentSqlInterceptor.getCurrentSql());
              //写入日志
-             log.info("已写入日志{}",o );
              cm.addLog(o);
+             log.info("已写入日志{}",o );
+             CurrentSqlInterceptor.clear();
          }
 
      }

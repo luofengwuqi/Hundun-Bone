@@ -30,6 +30,9 @@
             <if test="operateFunctionName != null and operateFunctionName != ''">
                 operate_function_name
             </if>
+             <if test="executedSql != null and executedSql != ''">
+                 ,executed_sql
+             </if>
             ) VALUES (
             <if test="operateUserId != null">
                 #{operateUserId},
@@ -57,6 +60,9 @@
             </if>
             <if test="operateFunctionName != null and operateFunctionName != ''">
                 #{operateFunctionName}
+            </if>
+            <if test="executedSql != null and executedSql != ''">
+                ,#{executedSql}
             </if>
             )
         </insert>

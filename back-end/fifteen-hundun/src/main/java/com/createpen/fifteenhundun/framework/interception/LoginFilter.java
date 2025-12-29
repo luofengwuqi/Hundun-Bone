@@ -1,12 +1,12 @@
 package com.createpen.fifteenhundun.framework.interception;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
-import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
+//import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.http.HttpServlet;
+//import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +30,7 @@ public class LoginFilter implements Filter{
             BaseContext.setCurrentUsername("login");
             BaseContext.setCurrentId(0L);
             chain.doFilter(request, response);
+            log.info("已经放行");
             return;
         }
         String token = req.getHeader("token");

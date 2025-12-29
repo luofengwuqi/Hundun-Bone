@@ -27,8 +27,9 @@ public class LoginFilter implements Filter{
         if(uri.contains("/login"))
         {
             log.info("检查到登录请求");
+            BaseContext.setCurrentUsername("login");
+            BaseContext.setCurrentId(0L);
             chain.doFilter(request, response);
-            log.info("已经放行");
             return;
         }
         String token = req.getHeader("token");
@@ -41,7 +42,7 @@ public class LoginFilter implements Filter{
             return;
         }
         //创建解析令牌得到的信息对象 备用
-        Claims c = null;
+        Claims c;
         try{
             c = JwtUtil.solveToken(token);
         }catch (Exception e)
@@ -68,6 +69,8 @@ public class LoginFilter implements Filter{
         BaseContext.setCurrentUsername(username);
 
         chain.doFilter(request, response);
+        log.info("已经放行");
+
 
     }
 

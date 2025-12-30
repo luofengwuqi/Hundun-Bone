@@ -24,7 +24,7 @@ public class LoginFilter implements Filter{
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         String uri = req.getRequestURI();
-        if(uri.contains("/login"))
+        if(uri.contains("/login")||uri.contains("/register"))
         {
             log.info("检查到登录请求");
             BaseContext.setCurrentUsername("login");
@@ -33,6 +33,7 @@ public class LoginFilter implements Filter{
             log.info("已经放行");
             return;
         }
+
         String token = req.getHeader("token");
         if(token==null || token.isEmpty())
         {

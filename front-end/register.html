@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/bootstrap-dist/css/bootstrap.min.css">
 
 </head>
+
 <body>
   <div class="container d-flex justify-content-center align-items-center min-vh-100 pb-5 mt-5">
     <!-- Bootstrap卡片组件作为注册容器 -->
@@ -26,7 +27,7 @@
         <!-- Bootstrap表单组件 -->
         <form id="registerForm" class="register-form">
           <!-- 重要密码输入框 -->
-          <div class="mb-3 admin-only">
+          <div class="admin-only mb-3">
             <label for="importantpassword" class="form-label">管理员邀请码</label>
             <input type="password" class="form-control form-control-lg" id="importantpassword" name="importantpassword"
               placeholder="请输入管理员邀请码" required>
@@ -51,8 +52,8 @@
 
           <!-- 确认密码输入框 -->
           <div class="mb-3">
-            <label for="checkpasswo" class="form-label">确认密码</label>
-            <input type="password" class="form-control form-control-lg" id="checkpasswo" name="checkpasswo"
+            <label for="checkPassword" class="form-label">确认密码</label>
+            <input type="password" class="form-control form-control-lg" id="checkPassword" name="checkPassword"
               placeholder="请再次输入密码" required>
           </div>
 
@@ -99,7 +100,9 @@
       </div>
     </div>
   </div>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="./js/register.js"></script>
+
 
 </body>
 

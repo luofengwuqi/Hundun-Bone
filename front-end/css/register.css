@@ -12,3 +12,7 @@ body {
     background-attachment: fixed;
     min-height: 100vh;
 }
+
+.admin-only {
+    display: none;
+}

@@ -90,10 +90,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public RegisterVO register(RegisterDTO dto) {
-        if(!dto.getPassword().equals(dto.getCheckPassword()))
-        {
-            throw new LoginException("两次输入的密码不一致");
-        }
+//        if(!dto.getPassword().equals(dto.getCheckPassword()))
+//        {
+//            throw new LoginException("两次输入的密码不一致");
+//        }
         //判断是否已经存在了这个user
         User uExisted = um.selectByUserName(dto.getUsername());
         if(uExisted!=null)

@@ -50,7 +50,7 @@
                 AND CAST(REGEXP_REPLACE(operate_time, '[^0-9]', '') AS UNSIGNED) >= CAST(REGEXP_REPLACE(#{operateTime}, '[^0-9]', '') AS UNSIGNED)
             </if>
             <!-- 4. 操作状态：兼容数字/字符串，且允许传0 -->
-            <if test="operateStatus != null">
+            <if test="operateStatus != null and operateStatus!=''">
                 AND operate_status = #{operateStatus}
             </if>
             <!-- 5. 模块名称：兼容空字符串，trim去空格 -->

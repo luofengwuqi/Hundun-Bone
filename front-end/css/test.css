@@ -1,0 +1,53 @@
+/* 全局重置：消除默认边距 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft Yahei", sans-serif;
+}
+
+/* 背景容器：铺满全屏（可替换为图片背景） */
+.bg {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff; /* 若需用图片背景，替换为：background-image: url("你的背景图路径"); */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* 图片里的左侧导航栏样式 */
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px; /* 匹配图片导航栏宽度 */
+    height: 100%;
+    background-color: #2f4050; /* 匹配图片导航栏深色背景 */
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+/* 导航菜单项：匹配图片样式（图标+文字） */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff; /* 匹配图片白色文字 */
+    padding: 15px 20px; /* 匹配图片内边距 */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* 匹配图片导航栏的悬浮高亮效果 */
+.menu-item:hover {
+    background-color: #1ab394;
+}
+
+/* 图标样式适配 */
+.menu-item i {
+    font-size: 16px;
+}

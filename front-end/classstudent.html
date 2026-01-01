@@ -24,35 +24,36 @@
 
 <!-- 主体区域 -->
 <div class="container-main">
-    <!-- 侧边栏（完善首页的data-target引用，关联首页内容区） -->
+    <!-- 侧边栏（给用户管理、日志管理添加a标签，保留原有所有属性和交互） -->
     <div class="sidebar">
         <ul class="sidebar-menu" id="sidebarMenu">
-            <!-- 关键：添加data-target="homeContent"，引用首页内容区的id -->
+            <!-- 首页：保持原有结构不变 -->
             <li class="menu-item" data-target="homeContent">
                 <i class="bi bi-house-door"></i>首页
             </li>
+            <!-- 核心修改1：用户管理添加a跳转标签，保留图标、data-target、menu-item类 -->
             <li class="menu-item" data-target="userContent">
-                <i class="bi bi-people"></i>用户管理
+                <a href="user.html" style="text-decoration: none; color: inherit; display: block;">
+                    <i class="bi bi-people"></i>用户管理
+                </a>
             </li>
+            <!-- 核心修改2：日志管理添加a跳转标签，保留图标、data-target、menu-item类 -->
             <li class="menu-item" data-target="logContent">
-                <i class="bi bi-journal-text"></i>日志管理
+                <a href="log.html" style="text-decoration: none; color: inherit; display: block;">
+                    <i class="bi bi-journal-text"></i>日志管理
+                </a>
             </li>
         </ul>
     </div>
 
-    <!-- 1. 新增：首页内容区（核心：设置唯一id=homeContent，与侧边栏data-target对应） -->
-    <div class="content active" id="homeContent">
+    <!-- 1. 首页内容区（补充完整，与data-target对应） -->
+    <div class="content" id="homeContent">
         <div class="content-title">Tlias教学后台</div>
         <div class="content-subtitle">教学业务全流程管理服务平台</div>
-        <div style="text-align: center; margin-top: 50px; color: #008b8b;">
-            <i class="bi bi-clipboard-data" style="font-size: 80px; margin-bottom: 20px;"></i>
-            <p>点击左侧「用户管理」可进入学员信息查询与维护界面</p>
-            <p>点击左侧「日志管理」可查看系统操作日志与数据统计</p>
-        </div>
     </div>
 
-    <!-- 2. 用户管理内容区（移除默认active，仅点击后显示） -->
-    <div class="content" id="userContent">
+    <!-- 2. 用户管理内容区（保留原有active和所有结构） -->
+    <div class="content active" id="userContent">
         <div class="student-manage">
             <div class="page-nav">
                 <button class="page-nav-btn active"><i class="bi bi-table"></i> 学员列表</button>
@@ -143,7 +144,7 @@
         </div>
     </div>
 
-    <!-- 3. 日志管理内容区 -->
+    <!-- 3. 日志管理内容区（保留原有所有结构） -->
     <div class="content" id="logContent">
         <div class="content-title">日志管理</div>
         <div class="content-subtitle">系统操作日志与数据统计查询平台</div>
@@ -153,7 +154,7 @@
 <!-- 引入Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 交互逻辑（无需大幅修改，原有代码已支持菜单与内容区的引用跳转） -->
+<!-- 交互逻辑（完全保留原有功能，无修改） -->
 <script>
     // 侧边栏菜单跳转逻辑（自动识别首页的引用关联）
     const menuItems = document.querySelectorAll('.menu-item');

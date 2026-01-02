@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志管理</title>
+    <style>
+        /* 筛选区域容器：Flex 布局，控制整体排列 */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap; /* 自动换行，适配小屏幕 */
+            gap: 15px; /* 元素之间的间距 */
+            align-items: center; /* 垂直居中对齐 */
+            padding: 15px 0;
+        }
+        /* 单个筛选项容器：Flex 控制标签+输入框的排列 */
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* 输入框/下拉框样式（可根据项目统一风格调整） */
+        .filter-item input, 
+        .filter-item select {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        /* 查询按钮样式 */
+        .query-btn {
+            padding: 6px 15px;
+            background: #1677ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* 日志列表样式（基础结构） */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .log-table th, .log-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="log-management">
+        <h3>日志管理</h3>
+        <p>系统操作日志查询与展示</p>
+
+        <!-- 筛选区域：Flex 布局 -->
+        <div class="filter-area">
+            <h4>查询条件</h4>
+            <div class="filter-container">
+                <!-- 操作人 -->
+                <div class="filter-item">
+                    <label>操作人：</label>
+                    <input type="text" placeholder="请输入操作人">
+                </div>
+                <!-- 操作状态 -->
+                <div class="filter-item">
+                    <label>操作状态：</label>
+                    <select>
+                        <option>全部状态</option>
+                        <option>成功</option>
+                        <option>失败</option>
+                    </select>
+                </div>
+                <!-- 模块名 -->
+                <div class="filter-item">
+                    <label>模块名：</label>
+                    <input type="text" placeholder="请输入模块名">
+                </div>
+                <!-- 操作时间 -->
+                <div class="filter-item">
+                    <label>操作时间：</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="datetime-local" placeholder="yyyy/mm/日 --:--">
+                        <span>至</span>
+                        <input type="datetime-local" placeholder="yyyy/mm/日 --:--">
+                    </div>
+                </div>
+                <!-- 查询按钮 -->
+                <div class="filter-item">
+                    <button class="query-btn">查询</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日志列表 -->
+        <div class="log-list">
+            <h4>日志列表</h4>
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>操作人</th>
+                        <th>操作类型</th>
+                        <th>模块名</th>
+                        <th>操作方法名</th>
+                        <th>操作地址</th>
+                        <th>操作时间</th>
+                        <th>操作用时(ms)</th>
+                        <th>操作状态</th>
+                        <th>执行的SQL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="10" style="text-align: center;">暂无日志数据</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="10">共0条数据</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

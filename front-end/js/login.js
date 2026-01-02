@@ -1,75 +1,38 @@
-/**
- * 登录页面业务逻辑
- * 作用：仅处理登录页面的交互逻辑，依赖工具函数和接口封装
- */
-; (function (window) {
-  // 页面加载完成后执行
-  window.onload = function () {
-    // 绑定登录按钮点击事件（替代HTML中的onclick）
-    const loginBtn = document.querySelector(".container button");
-    if (loginBtn) {
-      loginBtn.addEventListener("click", handleLogin);
-    }
-
-    // 绑定回车登录（增强体验）
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        handleLogin();
-      }
-    });
+function handleLogin() {
+  // 1. 获取输入参数
+  const loginForm = document.querySelector("#loginForm");
+  const formData = new FormData(loginForm);
+  const username = formData.get("username")?.trim() || "";
+  const password = formData.get("password")?.trim() || "";
+  
+  const params = {
+    username: username,
+    password: password
   };
 
-  /**
-   * 处理登录逻辑
-   */
-  function handleLogin() {
-    // 1. 获取输入参数
-    const loginForm = document.querySelector("#loginForm");
-    const formData = new FormData(loginForm);
-    const params = {
-      username: formData.get("username")?.trim() || "",
-      password: formData.get("password")?.trim() || ""
-    };
-
-    // 2. 前端参数校验
-    const validateMsg = Utils.validateParams(params, ["username", "password"]);
-    if (validateMsg) {
-      Utils.showErrorTip(validateMsg);
-      return;
-    }
-    // 2.5 ajax前后端数据交互
-    axios({
-      url:'http://localhost:8080/user/login',
-      type:'post'
-      Data:{
-        username,
-        password
-      }
-      }).then(result => {
-        console.log(result)
-        console.log(result.Data.message)
-      }).catch(error => {
-        console.log(error)
-        comsole.log(error.response.Data.message)
-      })
-    })
-
-    // 3. 调用登录接口
-    UserApi.login(params)
-      .then((res) => {
-        // 4. 登录成功处理
-        Utils.setToken(res.token); // 存储token
-        Utils.showSuccessTip("登录成功！");
-        // 跳转到首页（根据实际需求修改）
-        window.location.href = "home.html";
-      })
-      .catch((error) => {
-        // 5. 登录失败处理
-        Utils.showErrorTip(error.message);
-        console.error("登录失败详情：", error); // 控制台打印详情，便于调试
-      });
+  // 2. 前端参数校验
+  const validateMsg = Utils.validateParams(params, ["username", "password"]);
+  if (validateMsg) {
+    Utils.showErrorTip(validateMsg);
+    return;
   }
 
-  // 暴露全局函数（可选，便于调试）
-  window.handleLogin = handleLogin;
-})(window);
+  // 3. 调用登录接口（使用axios）
+  axios({
+    url: 'http://localhost:8080/user/login',
+    method: 'post',  // 修正：应该用method而不是type
+    data: params
+  })
+  .then((result) => {
+    // 4. 登录成功处理
+    Utils.setToken(result.data.token); // 注意：axios返回的数据在data属性中
+    Utils.showSuccessTip(result.data.message || "登录成功！");
+    window.location.href = "home.html";
+  })
+  .catch((error) => {
+    // 5. 登录失败处理
+    const errorMsg = error.response?.data?.message || error.message || "登录失败";
+    Utils.showErrorTip(errorMsg);
+    console.error("登录失败详情：", error);
+  });
+}

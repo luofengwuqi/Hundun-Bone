@@ -1,4 +1,4 @@
-/* 全局重置：消除默认边距 */
+/* 全局重置 */
 * {
     margin: 0;
     padding: 0;
@@ -6,48 +6,93 @@
     font-family: "Microsoft Yahei", sans-serif;
 }
 
-/* 背景容器：铺满全屏（可替换为图片背景） */
-.bg {
+/* 页面整体容器（仅包裹首页内容） */
+.app-container {
     width: 100vw;
     height: 100vh;
-    background-color: #ffffff; /* 若需用图片背景，替换为：background-image: url("你的背景图路径"); */
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* 核心新增：给页面添加背景图（关键样式组） */
+    background-image: url("../img/background.png"); /* 背景图路径，需替换为你的实际图片文件名/路径 */
+    background-repeat: no-repeat; /* 禁止背景图重复平铺 */
+    background-size: cover; /* 让背景图铺满整个容器，自动拉伸/裁剪适配宽高 */
+    background-position: center center; /* 背景图居中显示，优先展示图片核心区域 */
+    background-attachment: fixed; /* 固定背景图，滚动页面（若有）时背景不跟随移动 */
 }
 
-/* 图片里的左侧导航栏样式 */
-.sidebar-nav {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 120px; /* 匹配图片导航栏宽度 */
-    height: 100%;
-    background-color: #2f4050; /* 匹配图片导航栏深色背景 */
+/* 顶部：仅“欢迎使用”样式，简洁美观 */
+.home-top {
+    height: 60px;
+    background-color: rgba(34, 195, 170, 0.8); /* 增加透明度，避免遮挡背景图，同时保留原有颜色 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 可选：添加轻微阴影，提升顶部栏层次感 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-text {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: normal;
+}
+
+/* 主体容器（侧边栏+首页主内容） */
+.container-main {
+    display: flex;
+    flex: 1;
+    /* 主体区域背景增加轻微透明，既保留背景图可见，又提升内容可读性 */
+    background-color: rgba(243, 243, 244, 0.9);
+}
+
+/* 侧边栏（仅首页导航样式，无冗余） */
+.sidebar {
+    width: 100px;
+    background-color: rgba(47, 64, 80, 0.95); /* 增加透明度，兼顾背景图和侧边栏可读性 */
+    color: #a7b1c2;
 }
 
 .sidebar-menu {
     list-style: none;
 }
 
-/* 导航菜单项：匹配图片样式（图标+文字） */
 .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #ffffff; /* 匹配图片白色文字 */
-    padding: 15px 20px; /* 匹配图片内边距 */
+    padding: 15px 20px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
-/* 匹配图片导航栏的悬浮高亮效果 */
-.menu-item:hover {
+/* 首页激活/悬浮样式，保持交互一致性 */
+.menu-item.active, .menu-item:hover {
     background-color: #1ab394;
+    color: #ffffff;
 }
 
-/* 图标样式适配 */
+.menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    text-decoration: none;
+}
+
 .menu-item i {
     font-size: 16px;
+}
+
+/* 首页主内容区（仅首页专属，无其他页面样式） */
+.home-main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333333; /* 加深文字颜色，提升可读性 */
+    font-size: 18px;
+}
+
+.home-content-tip {
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9); /* 增加白色透明背景，突出提示文字 */
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

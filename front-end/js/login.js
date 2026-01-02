@@ -37,6 +37,22 @@
       Utils.showErrorTip(validateMsg);
       return;
     }
+    // 2.5 ajax前后端数据交互
+    axios({
+      url:'http://localhost:8080/user/login',
+      type:'post'
+      Data:{
+        username,
+        password
+      }
+      }).then(result => {
+        console.log(result)
+        console.log(result.Data.message)
+      }).catch(error => {
+        console.log(error)
+        comsole.log(error.response.Data.message)
+      })
+    })
 
     // 3. 调用登录接口
     UserApi.login(params)

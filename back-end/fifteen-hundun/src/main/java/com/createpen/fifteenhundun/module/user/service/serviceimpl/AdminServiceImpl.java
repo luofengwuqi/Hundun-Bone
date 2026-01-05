@@ -43,7 +43,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Transactional
     @Override
-    public void changeStatus(String username) {
+    public Integer changeStatus(String username) {
         User u = um.selectByUserName( username);
         if(u== null)
         {
@@ -78,7 +78,8 @@ public class AdminServiceImpl implements AdminService {
 
         um.updateUserByUserName(u);
         log.info("用户状态已修改");
-        log.info("用户状态:{}", status);
+        log.info("用户状态:{}", u.getStatus());
+        return u.getStatus();
     }
 
     @Override
@@ -152,8 +153,8 @@ public class AdminServiceImpl implements AdminService {
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<OperateLog> l = am.getLogs(dto);
         Page p = (Page) l;
-        PageVO vo  = new PageVO(p.getTotal(),p.getResult());
-        return vo;
+
+        return new PageVO(p.getTotal(),p.getResult());
     }
 
 

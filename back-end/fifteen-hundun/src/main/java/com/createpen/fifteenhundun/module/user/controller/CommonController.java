@@ -13,18 +13,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping
 public class CommonController {
 
-    @Autowired
-    private com.createpen.fifteenhundun.common.util.AliOSSUtil aliOssUtil;
+//    @Autowired
+//    private com.createpen.fifteenhundun.common.util.AliOSSUtil aliOssUtil;
 
     @Autowired
     private CommonService cs;
     /**
      * 上传图片/附件
      */
-    @PostMapping("/file/add")
+    @PostMapping("/files")
     public Result<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl =  cs.addFile(file);
         if(fileUrl == null)

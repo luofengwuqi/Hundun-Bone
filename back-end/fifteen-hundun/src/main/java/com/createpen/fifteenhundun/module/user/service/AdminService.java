@@ -11,7 +11,7 @@ public interface AdminService {
     Integer getUserNumber();
 
 
-    void changeStatus(String username);
+    Integer changeStatus(String username);
 
 
     void addAdmin(AddAdminDTO dto);

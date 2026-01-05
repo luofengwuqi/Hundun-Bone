@@ -20,7 +20,7 @@ public class AdminController {
 
 
     //新建管理员
-    @PostMapping
+    @PostMapping("/admins")
     public Result addAdmin(@RequestBody AddAdminDTO dto){
         log.info("新建管理员");
         as.addAdmin(dto);

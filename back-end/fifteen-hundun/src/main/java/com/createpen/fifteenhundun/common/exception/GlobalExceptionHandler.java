@@ -24,7 +24,9 @@ public class GlobalExceptionHandler {
     //jwt相关异常
     @ExceptionHandler
     public Result handleJwtException(ExpiredJwtException e) {
-        return Result.fail(401,"令牌已经过期 请重新登录");
+        log.info("已接受到用户不存在异常");
+        String msg = e.getMessage();
+        return Result.fail(401,msg);
     }
     @ExceptionHandler
     public Result handleJwtException(MalformedJwtException e) {
@@ -75,6 +77,18 @@ public class GlobalExceptionHandler {
         log.info("已接受到权限不足异常:{}",msg);
         return Result.fail(403,msg);
     }
+    //密码异常处理
+    @ExceptionHandler
+    public Result handlePasswordException(PasswordException e) {
+        String msg = e.getMessage();
+        return Result.fail(401,msg);
+    }
+    //传参异常处理
+    @ExceptionHandler
+    public Result handleIllegalArgumentException(IllegalArgumentException e) {
+        String msg = e.getMessage();
+        return Result.fail(400,msg);
+    }
 
 //    未知异常处理
     @ExceptionHandler
@@ -82,4 +96,5 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return Result.fail(500,"未知异常");
     }
+
 }

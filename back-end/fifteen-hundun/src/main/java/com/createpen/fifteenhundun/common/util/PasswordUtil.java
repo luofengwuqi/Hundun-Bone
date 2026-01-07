@@ -2,10 +2,9 @@ package com.createpen.fifteenhundun.common.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-//todo2修好了 我他妈也不知道咋回事 反正就是用不了这个了
+//todoed修好了 我也不知道咋回事 反正就是用不了这个了
 public class PasswordUtil {
 
     // 加密强度（4-31，越高越安全）

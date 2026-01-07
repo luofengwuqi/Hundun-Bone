@@ -48,9 +48,24 @@
     </set>
     WHERE username = #{username,jdbcType=VARCHAR}
 </update>
+    <delete id="deleteUserByUserNameList">
+        DELETE
 
-
-
+        FROM users
+        WHERE 1=1
+        <!-- 核心：遍历用户名列表，拼接IN条件 -->
+        <if test="userNameList != null and userNameList.size() > 0">
+            AND username IN
+            <foreach collection="userNameList"
+                     item="username"
+                     index="index"
+                     open="("
+                     close=")"
+                     separator=",">
+                #{username}
+            </foreach>
+        </if>
+    </delete>
 
 
     <select id="selectByUserName" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
@@ -68,5 +83,33 @@
             last_login_at AS lastLoginAt
         FROM users
         WHERE username = #{username}
+    </select>
+    <select id="selectByUserNameList" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
+        SELECT
+        id,
+        username,
+        email,
+        password_hash AS passwordHash,
+        nickname,
+        avatar_url AS avatarUrl,
+        phone,
+        status,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        last_login_at AS lastLoginAt
+        FROM users
+        WHERE 1=1
+        <!-- 核心：遍历用户名列表，拼接IN条件 -->
+        <if test="userNameList != null and userNameList.size() > 0">
+            AND username IN
+            <foreach collection="userNameList"
+                item="username"
+                index="index"
+                open="("
+                close=")"
+                separator=",">
+                #{username}
+            </foreach>
+        </if>
     </select>
 </mapper>

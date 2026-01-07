@@ -9,10 +9,10 @@ spring:
     password: ${fifteen-hundun.mysql.password}
     driver-class-name: ${fifteen-hundun.mysql.driver-class-name}
 
-# JWT配置
-jwt:
-  secret: 5LiA5LqU6aaE6aWoY3JlYXRwZW4= # 密钥（建议至少32位）
-  expiration: 3600 # 令牌过期时间（秒）
+## JWT配置
+#jwt:
+#  secret: 5LiA5LqU6aaE6aWoY3JlYXRwZW4= # 密钥（建议至少32位）
+#  expiration: 3600 # 令牌过期时间（秒）
 
 # 阿里云OSS配置
 aliyun:

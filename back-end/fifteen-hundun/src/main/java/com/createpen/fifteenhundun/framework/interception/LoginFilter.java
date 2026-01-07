@@ -29,7 +29,7 @@ public class LoginFilter implements Filter {
 
         // ========== 1. 放行无需登录的接口（核心修复：加入注册接口） ==========
         // 精准匹配：登录(/auth/login)、注册(/users)，避免模糊匹配
-        if (uri.equals("/auth/login") || uri.equals("/users")) {
+        if (uri.equals("/auth/login") || uri.equals("/auth/users")) {
             log.info("检查到无需登录的请求（登录/注册），直接放行");
             BaseContext.setCurrentUsername("login");
             BaseContext.setCurrentId(0L);

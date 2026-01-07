@@ -1,6 +1,6 @@
 package com.createpen.fifteenhundun.module.user.service;
 
-import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -16,7 +16,7 @@ public interface UserService {
     @Transactional
     RegisterVO register(RegisterDTO dto);
 
-    void deleteUser(@Valid DeleteDTO dto);
+    void deleteUser(@Valid DeleteUsersDTO dto) throws  Exception;
 
     //根据username得到id
     Long getIdByUsername(String username);

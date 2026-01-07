@@ -52,17 +52,15 @@ public class AdminController {
         return Result.success(status);
     }
     //删除用户
-    @DeleteMapping("/admins/users")
-    public Result deleteUser(@RequestBody DeleteUsersDTO dto)
-    {
-        //todo:优化这里的删除逻辑 改为批量删除 而且这里不符合RESTful风格 好麻烦(遗憾离场)
-        log.info("删除用户");
-        for(String username: dto.getUsernames())
-        {
-            as.deleteUserByUserName(username);
-        }
-        return Result.success();
-    }
+//    @DeleteMapping("/admins/users")
+//    public Result deleteUser(@RequestBody DeleteUsersDTO dto)
+//    {
+//        //todoed:优化这里的删除逻辑 改为批量删除 而且这里不符合RESTful风格 好麻烦(遗憾离场)
+//        log.info("删除用户");
+//        as.deleteUserByUserName(username);
+//
+//        return Result.success();
+//    }
 
     //分页查询用户
     @GetMapping("/users")

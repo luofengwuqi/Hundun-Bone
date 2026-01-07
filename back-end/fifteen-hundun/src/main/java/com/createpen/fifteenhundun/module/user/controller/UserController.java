@@ -1,7 +1,7 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -33,7 +33,7 @@ public class UserController {
         return Result.success(result);
     }
 
-    @PostMapping("/users")
+    @PostMapping("/auth/users")
     public Result register(@Valid @RequestBody RegisterDTO dto)
     {
         log.info("用户注册");
@@ -42,11 +42,11 @@ public class UserController {
         return Result.success(r);
     }
 
+    //todoed:优化这里的删除逻辑 改为批量删除
     @DeleteMapping("/users")
-    public Result deleteUser(@Valid @RequestBody DeleteDTO dto)
-    {
+    public Result deleteUser(@Valid @RequestBody DeleteUsersDTO dto) throws Exception {
         log.info("用户删除");
-        log.info("即将进行用户删除 捕获到信息:{}",dto);
+//        log.info("即将进行用户删除 捕获到信息:{}",dto);
         us.deleteUser(dto);
         return Result.success();
     }

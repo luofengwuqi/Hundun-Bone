@@ -24,9 +24,10 @@ public interface AdminMapper {
     @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.ADMIN)
     List<User> getUsers(String name, Integer status, LocalDateTime beginTime, LocalDateTime endTime,Integer loginDays);
 
-    @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.ADMIN)
-    @Delete("delete from users where username = #{username}")
-    void deleteUserByUserName(String username);
+    //已被弃用
+//    @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.ADMIN)
+//    @Delete("delete from users where username = #{username}")
+//    void deleteUserByUserName(String username);
 
     @Select("select invite_code from users where invite_code = #{importantPassword}")
     String selectInvitePassword(@NotBlank(message = "邀请码不能为空") String importantPassword);

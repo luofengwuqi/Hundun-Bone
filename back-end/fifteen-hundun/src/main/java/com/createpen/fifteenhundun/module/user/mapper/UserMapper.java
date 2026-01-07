@@ -9,12 +9,14 @@ import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
 //    User selectByUserNameAndPassword(LoginRequestDTO l);
 
-    //这里不知道加合不合适
-    @AutoLog(operateType = OperateTypeConstant.UPDATE, moduleName = ModuleNameConstant.USER)
+    //这里不知道加合不合适(太频繁使用了 先不加了)
+//    @AutoLog(operateType = OperateTypeConstant.UPDATE, moduleName = ModuleNameConstant.USER)
     User selectByUserName(String username);
 
     @AutoFillTime(AutoFillTimeType.INSERT)
@@ -28,4 +30,10 @@ public interface UserMapper {
     @Delete("delete from users where username = #{username}")
     @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.USER)
     void deleteUserByUserName(String username);
+
+
+    List<User> selectByUserNameList(List userNameList);
+
+    @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.USER)
+    void deleteUserByUserNameList(List userNameList);
 }

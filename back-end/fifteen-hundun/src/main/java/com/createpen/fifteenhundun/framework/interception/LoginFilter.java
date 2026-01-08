@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 登录校验过滤器（修复核心问题：放行注册接口、规范响应、处理空指针、避免重复注册）
@@ -19,17 +21,29 @@ import java.io.PrintWriter;
 @Component // 仅用Spring管理，去掉@WebFilter避免重复注册
 public class LoginFilter implements Filter {
 
+    //预先声明直接放行的请求
+    private static final List<String> SKIP_URIS = Arrays.asList(
+            "/users/auth/login",//登录接口
+            "/users"       //注册接口
+    );
+    //对应SKIP_URIS中需要限制方法的路径（索引对应
+    private static final List<String> SKIP_URIS_METHODS = Arrays.asList(
+            "",                   // 登录接口：允许所有方法
+            "POST"                // 注册接口：仅允许POST
+    );
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         log.info("进入登录校验过滤器");
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         String uri = req.getRequestURI();
+        String method = req.getMethod();
         log.info("当前请求URI：{}", uri);
+        log.info("当前请求方法：{}", method);
 
         // ========== 1. 放行无需登录的接口（核心修复：加入注册接口） ==========
         // 精准匹配：登录(/auth/login)、注册(/users)，避免模糊匹配
-        if (uri.equals("/auth/login") || uri.equals("/auth/users")) {
+        if (isSkipUrl(uri,method)) {
             log.info("检查到无需登录的请求（登录/注册），直接放行");
             BaseContext.setCurrentUsername("login");
             BaseContext.setCurrentId(0L);
@@ -103,5 +117,33 @@ public class LoginFilter implements Filter {
     @Override
     public void init(FilterConfig config) throws ServletException {
 //        log.info("初始化登录过滤器");
+    }
+
+    //辅助方法 判断是否是已经声明可以跳过的请求
+    private boolean isSkipUrl(String uri,String method) {
+        for(int i = 0 ; i < SKIP_URIS.size(); i++)
+        {
+            if(!uri.equals(SKIP_URIS.get(i)))
+            {//不匹配 下一条校验
+                continue;
+            }
+            //通过uri校验 接着校验方法对不对(POST之类)
+            String currentMethod = SKIP_URIS_METHODS.get(i);
+            if(currentMethod.isEmpty())
+            {//没有做额外限定
+                return true;
+            }
+            else
+            {//有额外的限定 比如注册是POST
+//                log.warn("你好 拦你");
+                if(method.equals(currentMethod))
+                {
+//                    log.warn("你过关!");
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
 }

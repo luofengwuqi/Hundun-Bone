@@ -4,8 +4,6 @@ import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
-//import com.createpen.fifteenhundun.framework.interception.CurrentSqlInterceptor;
-import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
@@ -15,7 +13,6 @@ import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
 import com.createpen.fifteenhundun.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.constraintvalidators.bv.time.futureorpresent.FutureOrPresentValidatorForReadableInstant;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,12 +29,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper um;
-    @Autowired
-    private AdminMapper am;
 
 
 
-    @Transactional
+
+
     @Override
     public LoginRequestVO login(LoginRequestDTO l) {
 
@@ -201,13 +197,13 @@ public class UserServiceImpl implements UserService {
             return u;
         }
     //2 用户名集合
-    public List<User> getValidUserListByUserNameList(List userNameList)
+    public List<User> getValidUserListByUserNameList(List<String> userNameList)
     {
         if(userNameList==null)
         {
             throw new IllegalArgumentException("删除用户传参错误") ;
         }
-        log.error("多个用户校验存在性开始");
+        log.info("多个用户校验存在性开始");
         List<User> userList = um.selectByUserNameList(userNameList);
         //num代表测试有没有不存在的用户名
         int num =  userNameList.size()-userList.size();

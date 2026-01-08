@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping
+@RequestMapping("/users")
 @Slf4j
 public class UserController {
 
@@ -33,7 +33,7 @@ public class UserController {
         return Result.success(result);
     }
 
-    @PostMapping("/auth/users")
+    @PostMapping
     public Result register(@Valid @RequestBody RegisterDTO dto)
     {
         log.info("用户注册");
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     //todoed:优化这里的删除逻辑 改为批量删除
-    @DeleteMapping("/users")
+    @DeleteMapping
     public Result deleteUser(@Valid @RequestBody DeleteUsersDTO dto) throws Exception {
         log.info("用户删除");
 //        log.info("即将进行用户删除 捕获到信息:{}",dto);

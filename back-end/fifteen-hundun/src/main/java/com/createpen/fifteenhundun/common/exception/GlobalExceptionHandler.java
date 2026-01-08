@@ -91,10 +91,10 @@ public class GlobalExceptionHandler {
     }
 
 //    未知异常处理
-    @ExceptionHandler
-    public Result handleException(Exception e) {
-        log.error(e.getMessage());
-        return Result.fail(500,"未知异常");
-    }
+//    @ExceptionHandler
+//    public Result handleException(Exception e) {
+//        log.error(e.getMessage());
+//        return Result.fail(500,"未知异常");
+//    }
 
 }

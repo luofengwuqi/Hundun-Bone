@@ -175,6 +175,11 @@
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
 			<version>1.4.7</version> <!-- 版本可按需更 -->
 		</dependency>
+<!--		引入SpringCaChe依赖-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
 
 
 

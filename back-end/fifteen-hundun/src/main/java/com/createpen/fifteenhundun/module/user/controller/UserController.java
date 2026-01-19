@@ -2,10 +2,13 @@ package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
+import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
+import com.createpen.fifteenhundun.module.user.service.AdminService;
 import com.createpen.fifteenhundun.module.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,8 @@ public class UserController {
 
     @Autowired
     private UserService us;
+    @Autowired
+    private AdminService as;
 
     //auth代表认证资源 至于认证资源是啥我不知道
     @PostMapping("/auth/login")
@@ -49,5 +54,15 @@ public class UserController {
 //        log.info("即将进行用户删除 捕获到信息:{}",dto);
         us.deleteUser(dto);
         return Result.success();
+    }
+
+    @GetMapping
+    public Result getUsers(@Valid @RequestBody GetUsersDTO dto)
+    {
+        //page:当前的页数
+        //size:前端指定的每页的条数
+        log.info("分页查询用户");
+        PageVO vo = as.getUsers(dto);
+        return Result.success(vo);
     }
 }

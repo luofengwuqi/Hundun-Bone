@@ -63,15 +63,7 @@ public class AdminController {
 //    }
 
     //分页查询用户
-    @GetMapping("/users")
-    public Result getUsers(@Valid @RequestBody GetUsersDTO dto)
-    {
-        //page:当前的页数
-        //size:前端指定的每页的条数
-        log.info("分页查询用户");
-        PageVO vo = as.getUsers(dto);
-        return Result.success(vo);
-    }
+
     //分页查询日志
     @GetMapping("/logs")
     public Result SelectLog(@Valid @RequestBody GetLogsDTO dto)

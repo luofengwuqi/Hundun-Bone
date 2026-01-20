@@ -20,6 +20,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +32,12 @@ import java.util.List;
 @Slf4j
 @Service
 public class AdminServiceImpl implements AdminService {
+
     @Autowired
     private AdminMapper am;
     @Autowired
     private UserMapper um;
+
     @Autowired
     private UserServiceImpl us;
 
@@ -41,7 +46,15 @@ public class AdminServiceImpl implements AdminService {
         return am.getUserNumber();
     }
 
+
+
     @Transactional
+    @Caching(
+            evict={
+                    @CacheEvict(cacheNames = "usersCache" ,allEntries = true),
+                    @CacheEvict(cacheNames = "userCache" ,key = "#username")
+            }
+    )
     @Override
     public Integer changeStatus(String username) {
         User u = um.getUserByUserName( username);
@@ -83,6 +96,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
     public void addAdmin(AddAdminDTO dto) {
         log.info("开始添加管理员");
         log.info("开始校验是否已经存在");
@@ -113,6 +127,7 @@ public class AdminServiceImpl implements AdminService {
 
             um.deleteUserByUserName("管理员待注册"+importantPassword);
             um.insertUser(u);
+            us.cacheUser(u);
             return;
         }
         throw new UserExistedException("用户已存在");
@@ -121,12 +136,23 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+//todo:为分页查询用户添加缓存
     public PageVO getUsers(GetUsersDTO dto) {
         log.info("开始分页查询用户");
         log.info("分页参数:{}",dto);
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime(),dto.getLoginDays());
         Page<User> p = (Page<User>)userList;
+        return new PageVO(p.getTotal(),p.getResult());
+    }
+    @Override
+//todo:为分页查询日志添加缓存
+    public PageVO getLogs(GetLogsDTO dto) {
+        log.info("{}",dto);
+        PageHelper.startPage(dto.getPage(),dto.getSize());
+        List<OperateLog> l = am.getLogs(dto);
+        Page p = (Page) l;
+
         return new PageVO(p.getTotal(),p.getResult());
     }
 
@@ -141,21 +167,11 @@ public class AdminServiceImpl implements AdminService {
         um.insertUser(u);
         return u.getInviteCode();
     }
+//    @Override
+//    public void deleteUserByUserName(String username) {
+//        um.deleteUserByUserName(username);
 
-    @Override
-    public void deleteUserByUserName(String username) {
-        um.deleteUserByUserName(username);
-    }
-
-    @Override
-    public PageVO getLogs(GetLogsDTO dto) {
-        log.info("{}",dto);
-        PageHelper.startPage(dto.getPage(),dto.getSize());
-        List<OperateLog> l = am.getLogs(dto);
-        Page p = (Page) l;
-
-        return new PageVO(p.getTotal(),p.getResult());
-    }
+//    }
 
 
 }

@@ -5,12 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OperateLog {
+public class OperateLog implements Serializable {
         private Long id;
         private Long operateUserId; // 操作人ID
         private String operateUserName;

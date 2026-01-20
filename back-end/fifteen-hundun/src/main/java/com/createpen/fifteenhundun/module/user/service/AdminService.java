@@ -20,7 +20,7 @@ public interface AdminService {
 
     String makeInviteCode();
 
-    void deleteUserByUserName(String username);
+//    void deleteUserByUserName(String username);
 
     PageVO getLogs(@Valid GetLogsDTO dto);
 }

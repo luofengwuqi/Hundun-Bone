@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetLogsDTO {
+public class GetLogsDTO implements Serializable {
     // 分页参数
     private Integer page; // 页码（从1开始）
     private Integer size; // 每页条数

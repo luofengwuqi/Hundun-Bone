@@ -16,7 +16,7 @@ public interface UserService {
     @Transactional
     RegisterVO register(RegisterDTO dto);
 
-    void deleteUser(@Valid DeleteUsersDTO dto) throws  Exception;
+    void deleteUsers(@Valid DeleteUsersDTO dto) throws  Exception;
 
     //根据username得到id
     Long getIdByUsername(String username);

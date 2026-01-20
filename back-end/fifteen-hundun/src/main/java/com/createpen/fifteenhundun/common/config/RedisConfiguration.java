@@ -23,7 +23,10 @@ public class RedisConfiguration {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         //设置key的序列化器
         redisTemplate.setKeySerializer(new StringRedisSerializer());
+        //设置自动过期时间
 
+
+        log.info("创建redis模版对象成功.............");
         return redisTemplate;
     }
 }

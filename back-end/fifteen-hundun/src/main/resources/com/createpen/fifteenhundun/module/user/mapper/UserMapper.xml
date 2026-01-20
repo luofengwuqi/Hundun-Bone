@@ -68,7 +68,7 @@
     </delete>
 
 
-    <select id="selectByUserName" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
+    <select id="getUserByUserName" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
         SELECT
             id,
             username,

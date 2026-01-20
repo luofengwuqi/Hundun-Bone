@@ -44,7 +44,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     @Override
     public Integer changeStatus(String username) {
-        User u = um.selectByUserName( username);
+        User u = um.getUserByUserName( username);
         if(u== null)
         {
             throw new UserNotFoundException("用户不存在");

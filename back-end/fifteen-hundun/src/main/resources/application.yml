@@ -28,6 +28,7 @@ redis:
   port: ${fifteen-hundun.redis.port}
   password: ${fifteen-hundun.redis.password}
   database: ${fifteen-hundun.redis.database}
+  timeout: ${fifteen-hundun.redis.timeout}
 
 #mybatis配置
 mybatis:

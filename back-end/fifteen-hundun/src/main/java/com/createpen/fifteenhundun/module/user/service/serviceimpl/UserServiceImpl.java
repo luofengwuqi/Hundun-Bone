@@ -15,6 +15,11 @@ import com.createpen.fifteenhundun.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +34,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper um;
-
-
-
-
+    @Autowired
+    private RedisCacheManager cacheManager;
 
     @Override
     public LoginRequestVO login(LoginRequestDTO l) {
@@ -87,31 +90,43 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Transactional
-    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
+//    @Cacheable(cacheNames = "userCache",key = "#dto.username")
     public RegisterVO register(RegisterDTO dto) {
 //        if(!dto.getPassword().equals(dto.getCheckPassword()))
 //        {
 //            throw new LoginException("两次输入的密码不一致");
 //        }
         //判断是否已经存在了这个user
-        User uExisted = um.selectByUserName(dto.getUsername());
-        if(uExisted!=null)
-        {
-            throw new UserExistedException("用户名已被使用");
-        }
+//        User uExisted = um.selectByUserName(dto.getUsername());
+//        if(uExisted!=null)
+//        {
+//            throw new UserExistedException("用户名已被使用");
+//        }
+//        User  uExisted = getValidUserByUserName(dto.getUsername());
+        //1检验用户是否已经存在
+        checkUserNotExists(dto.getUsername());
+        //2 不存在 插入
         User u = new User();
         BeanUtils.copyProperties(dto,u);
-
         u.setPasswordHash(PasswordUtil.addMi(dto.getPassword()));
         um.insertUser(u);
-
+        //3 手动插入缓存
+        cacheUser(u);
+        //4 返回
         return new RegisterVO(u.getUsername());
     }
 
     @Transactional
+    @Caching(
+        evict={
+            @CacheEvict(cacheNames = "usersCache" ,allEntries = true),
+            @CacheEvict(cacheNames = "userCache" ,allEntries = true)
+        }
+    )
     @Override
-    public void deleteUser(DeleteUsersDTO dto) throws IllegalAccessException {
+    public void deleteUsers(DeleteUsersDTO dto) throws IllegalAccessException {
 
         //拿到执行人对象
         String operateUsername = BaseContext.getCurrentUsername();
@@ -153,10 +168,15 @@ public class UserServiceImpl implements UserService {
 //        log.info("已经删除用户:{}",dto.getUsername());
     }
 
+
     @Override
     public Long getIdByUsername(String username) {
-
-        User u = getValidUserByUserName(username);
+        User u = getUserInCache(username);
+        if(u==null)
+        {
+            u = getValidUserByUserName(username);
+            cacheUser(u);
+        }
         return u.getId();
     }
 
@@ -183,12 +203,48 @@ public class UserServiceImpl implements UserService {
 //            throw new LoginException("密码错误");
 //        }
 //    }
+    public User getUserInCache(String username)
+    {
+        Cache cache = cacheManager.getCache("userCache");
+        Cache.ValueWrapper valueWrapper = cache.get(username);
+        //没找到
+        if(valueWrapper==null)
+        {
+            log.info("缓存未命中,用户{}不在缓存中",username);
+            return null;
+        }
+        //找到了
+        return (User) valueWrapper.get();
+    }
+    //共通方法:单个用户塞入缓存
+    public void cacheUser(User u)
+    {
+        Cache userCache = cacheManager.getCache("userCache");
+        if(userCache!=null)
+        {
+            log.info("缓存正在存入用户{}",u.getUsername());
+            userCache.put(u.getUsername(),u);
+            log.info("缓存成功存入用户{}",u.getUsername());
+        }
+        log.info("缓存中{}已存在",u.getUsername());
+    }
+    //辅助性方法 用户存在报错
+    public void checkUserNotExists(String username)
+    {
+        User u = um.getUserByUserName(username);
+        if(u!=null)
+        {
+            throw new UserExistedException("用户已存在");
+        }
+
+    }
+
     //辅助性方法 用户是否存在
     //1 单个用户
     public User getValidUserByUserName(String username)
         {
             log.info("单个用户校验存在性开始");
-            User u = um.selectByUserName(username);
+            User u = um.getUserByUserName(username);
             if(u==null)
             {
                 throw new UserNotFoundException("用户不存在");

@@ -17,7 +17,7 @@ public interface UserMapper {
 
     //这里不知道加合不合适(太频繁使用了 先不加了)
 //    @AutoLog(operateType = OperateTypeConstant.UPDATE, moduleName = ModuleNameConstant.USER)
-    User selectByUserName(String username);
+    User getUserByUserName(String username);
 
     @AutoFillTime(AutoFillTimeType.INSERT)
     @AutoLog(operateType = OperateTypeConstant.INSERT, moduleName = ModuleNameConstant.USER)

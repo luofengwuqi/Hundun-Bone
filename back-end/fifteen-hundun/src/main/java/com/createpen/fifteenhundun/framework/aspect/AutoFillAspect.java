@@ -3,7 +3,7 @@ package com.createpen.fifteenhundun.framework.aspect;
 
 import com.createpen.fifteenhundun.common.anno.AutoFillTime;
 import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
-import lombok.extern.java.Log;
+//import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Component
 @Aspect
 public class AutoFillAspect {
-//TODOed: AOP太他妈难了
+//TODOed: AOP太(脏话)难了
     @Pointcut("execution(* com.createpen.fifteenhundun.module.*.mapper.*.*(..)) && @annotation(com.createpen.fifteenhundun.common.anno.AutoFillTime)")
     public void autoFillTimePointCut(){}
 

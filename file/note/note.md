@@ -40,4 +40,5 @@ public class CorsConfig implements WebMvcConfigurer {
     }
 }
 ```
+2025/1/30纪念 第一次靠自己打通前后端
 

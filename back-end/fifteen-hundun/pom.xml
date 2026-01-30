@@ -102,7 +102,7 @@
 			<artifactId>jbcrypt</artifactId>
 			<version>0.4</version>
 		</dependency>
-<!--		修复lombok又**用不了的问题 修好了 艹!-->
+<!--		修复lombok又(脏话)用不了的问题 修好了 (脏话)!-->
 <!--		<dependency>-->
 <!--			<groupId>org.projectlombok</groupId>-->
 <!--			<artifactId>lombok</artifactId>-->

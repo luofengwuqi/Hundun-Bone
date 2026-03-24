@@ -1,0 +1,10 @@
+{
+
+  "plugins": ["eslint", "unicorn", "oxc", "vue"],
+  "env": {
+    "browser": true
+  },
+  "categories": {
+    "correctness": "error"
+  }
+}

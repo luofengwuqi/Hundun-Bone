@@ -51,7 +51,7 @@ public class UserController {
 
     //todoed:优化这里的删除逻辑 改为批量删除
     @GetMapping
-    @Cacheable(cacheNames = "usersCache" ,key = "#dto.page + '_' + #dto.size + '_' + #dto.name + '_' + #dto.status")
+    //@Cacheable(cacheNames = "usersCache" ,key = "#dto.page + '_' + #dto.size + '_' + #dto.name + '_' + #dto.status")
     public Result getUsers(@Valid @RequestBody GetUsersDTO dto)
     {
         log.info("{}",dto);

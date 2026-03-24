@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     //DTO属性异常处理
     @ExceptionHandler
-    public Result handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public Result<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String msg = e.getBindingResult().getFieldError().getDefaultMessage();
         log.info("DTO接收异常信息:{}",msg);
         return Result.fail(400,msg);
@@ -24,24 +24,24 @@ public class GlobalExceptionHandler {
 
     //jwt相关异常
     @ExceptionHandler
-    public Result handleJwtException(ExpiredJwtException e) {
+    public Result<Void> handleJwtException(ExpiredJwtException e) {
         log.info("已接受到用户不存在异常");
         String msg = e.getMessage();
         return Result.fail(401,msg);
     }
     @ExceptionHandler
-    public Result handleJwtException(MalformedJwtException e) {
+    public Result<Void> handleJwtException(MalformedJwtException e) {
         return Result.fail(401,"令牌无效或者格式有误");
     }
 
     //用户异常
     @ExceptionHandler
-    public Result handleUserNotFoundException(UserNotFoundException e) {
+    public Result<Void> handleUserNotFoundException(UserNotFoundException e) {
         log.info("已接受到用户不存在异常");
         String msg = e.getMessage();
         return Result.fail(404,msg);
     }
-    public Result handleUserExistedException(UserExistedException e) {
+    public Result<Void> handleUserExistedException(UserExistedException e) {
         String msg = e.getMessage();
         log.info("已接受到用户已存在异常");
         return Result.fail(409,msg);
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 
     //登录异常
     @ExceptionHandler
-    public Result handleLoginException(LoginException e) {
+    public Result<Void> handleLoginException(LoginException e) {
         String msg = e.getMessage();
         log.info("拦截器拦截到登录异常:{}",msg);
         return Result.fail(401,msg);
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
 
     //运行时异常处理
     @ExceptionHandler
-    public Result handleRuntimeException(RuntimeException e) {
+    public Result<Void> handleRuntimeException(RuntimeException e) {
         String msg = e.getMessage();
         log.info("运行时异常信息:{}",msg);
         return Result.fail(500,msg);
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
 
     //OSS异常
     @ExceptionHandler
-    public Result handleOSSException(OSSException e) {
+    public Result<Void> handleOSSException(OSSException e) {
         String msg = e.getMessage();
         log.info("已接受到OSS异常:{}",msg);
         return Result.fail(500,msg);
@@ -73,26 +73,26 @@ public class GlobalExceptionHandler {
 
     //权限不足异常处理
     @ExceptionHandler
-    public Result handleInsufficientPermissionsException(InsufficientPermissionsException e) {
+    public Result<Void> handleInsufficientPermissionsException(InsufficientPermissionsException e) {
         String msg = e.getMessage();
         log.info("已接受到权限不足异常:{}",msg);
         return Result.fail(403,msg);
     }
     //密码异常处理
     @ExceptionHandler
-    public Result handlePasswordException(PasswordException e) {
+    public Result<Void> handlePasswordException(PasswordException e) {
         String msg = e.getMessage();
         return Result.fail(401,msg);
     }
     //传参异常处理
     @ExceptionHandler
-    public Result handleIllegalArgumentException(IllegalArgumentException e) {
+    public Result<Void> handleIllegalArgumentException(IllegalArgumentException e) {
         String msg = e.getMessage();
         return Result.fail(400,msg);
     }
 
     @ExceptionHandler
-    public Result RedisConnectionFailureException(RedisConnectionFailureException e) {
+    public Result<Void> RedisConnectionFailureException(RedisConnectionFailureException e) {
         String msg = e.getMessage();
         return Result.fail(503,msg);
     }

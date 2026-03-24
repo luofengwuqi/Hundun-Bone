@@ -1,21 +1,11 @@
-<template>
-  <div class="hello">
-    <h1>hello world!~</h1>
-  </div>
-</template>
-<script lang = "ts">
-  export default{
-    name:'App'
-  }
-</script>
-<style>
-  .hello {
-    height: 100%;
-    width: 100%;
-    /* border-radius: 50%; */
+<script setup></script>
 
-    background-color: #000;
-    color: #fff;
-    text-align: center;
-  }
-</style>
+<template>
+  <h1>You did it!</h1>
+  <p>
+    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
+    documentation
+  </p>
+</template>
+
+<style scoped></style>

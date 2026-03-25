@@ -76,7 +76,7 @@ watch(value, (newVal) => {
 
 <style lang="less" scoped>
 .loginWay:hover{
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .loginWay{
@@ -87,6 +87,7 @@ watch(value, (newVal) => {
   //加个边框
   border-radius: 0 30px 30px 0;
   overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 
   transition: all 0.5s ease-in-out;
 

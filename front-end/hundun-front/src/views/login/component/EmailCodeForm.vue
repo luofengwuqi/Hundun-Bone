@@ -3,7 +3,7 @@
 </script>
 
 <template>
-
+  emailcodeform
 </template>
 
 <style scoped>

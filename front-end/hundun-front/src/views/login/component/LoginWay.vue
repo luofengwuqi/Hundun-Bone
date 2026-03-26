@@ -96,5 +96,26 @@ watch(value, (newVal) => {
     font-weight: bold;
     color: black;
   }
+
+  // 使用 CSS 变量覆盖 el-segmented 的选中样式
+  --el-segmented-item-selected-bg-color: #C3272B;
+  --el-segmented-item-selected-color: white;
+
+  :deep(.el-segmented) {
+    --el-segmented-item-selected-bg-color: #C3272B;
+    --el-segmented-item-selected-color: white;
+  }
+}
+</style>
+
+// 添加一个全局样式块（不带 scoped）
+<style lang="less">
+// 全局覆盖 Element Plus 的 CSS 变量
+.el-segmented {
+  --el-segmented-item-selected-bg-color: #C3272B !important;
+}
+// 选中项的背景色
+.el-segmented__item.is-selected {
+  background-color: #C3272B !important;
 }
 </style>

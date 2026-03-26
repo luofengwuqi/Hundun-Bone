@@ -3,7 +3,7 @@ package com.createpen.fifteenhundun.module.user.controller;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
@@ -14,11 +14,10 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 @Slf4j
 public class UserController {
 
@@ -28,16 +27,12 @@ public class UserController {
     private AdminService as;
 
     //auth代表认证资源 至于认证资源是啥我不知道
-    @PostMapping("/auth/login")
-    public Result login(@Valid @RequestBody LoginRequestDTO l) {
+    @PostMapping("/login/username-password")
+    public Result<LoginRequestVO> loginUsernamePassword(@Valid @RequestBody LoginUsernamePasswordRequestDTO dto) {
         log.info("用户登录");
-        log.info("已经接收到请求:LoginRequestDTO信息为{}",l.toString());
-        LoginRequestVO result =  us.login(l);
-//        if(result == null)
-//        {
-//            return Result.fail("用户名或密码错误");
-//        }
-        return Result.success(result);
+        log.info("已经接收到请求:LoginRequestDTO信息为{}",dto.toString());
+        LoginRequestVO vo =  us.loginUsernamePassword(dto);
+        return Result.success(vo);
     }
 
     @PostMapping

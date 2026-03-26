@@ -6,7 +6,7 @@ import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginRequestDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -15,11 +15,8 @@ import com.createpen.fifteenhundun.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,22 +28,17 @@ import java.util.Map;
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+    //26/3/26 芜柒:看见之前的代码想把自己打一顿怎么办
 
     @Autowired
     private UserMapper um;
-    @Autowired
-    private RedisCacheManager cacheManager;
+//    @Autowired
+//    private RedisCacheManager cacheManager;
 
     @Override
-    public LoginRequestVO login(LoginRequestDTO l) {
+    public LoginRequestVO loginUsernamePassword(LoginUsernamePasswordRequestDTO l) {
 
         User u = getValidUserByUserName(l.getUsername());
-//        User u = um.selectByUserName(l.getUsername());
-//        if(u==null)
-//        {
-//            throw new RuntimeException("用户不存在");
-//        }//已通过测试
-
         //校验是否账号被禁用
         log.info("开始校验用户是否被禁用");
         int status = u.getStatus();
@@ -54,7 +46,7 @@ public class UserServiceImpl implements UserService {
         if(u.getStatus()<=0)
         {
             log.info("用户被禁用");
-            throw new LoginException("用户被禁用");
+            throw new LoginException("你的账户被ban了(#`Д´)ﾉ!(tell me why)");
         }
         //校验密码
         String password = l.getPassword() ;
@@ -72,9 +64,9 @@ public class UserServiceImpl implements UserService {
         Map<String,Object> tokenDatamap = new HashMap<>();
         tokenDatamap.put("id",u.getId());
         tokenDatamap.put("username",u.getUsername());
-
+        //处理vo
         r.setToken(JwtUtil.makeToken(tokenDatamap));
-        r.setUsername(u.getUsername());
+        r.setUser(u);
 
         //设置loginTime
         u.setLastLoginAt(LocalDateTime.now());
@@ -91,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
+//    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
 //    @Cacheable(cacheNames = "userCache",key = "#dto.username")
     public RegisterVO register(RegisterDTO dto) {
 //        if(!dto.getPassword().equals(dto.getCheckPassword()))
@@ -113,7 +105,7 @@ public class UserServiceImpl implements UserService {
         u.setPasswordHash(PasswordUtil.addMi(dto.getPassword()));
         um.insertUser(u);
         //3 手动插入缓存
-        cacheUser(u);
+//        cacheUser(u);
         //4 返回
         return new RegisterVO(u.getUsername());
     }
@@ -154,7 +146,7 @@ public class UserServiceImpl implements UserService {
         } else if (operateUser.getStatus()==2 || operateUser.getStatus()==3) {
             //管理员 无需密码删除
             //1 传参存在性判断
-            List<User> userList = getValidUserListByUserNameList(dto.getUsernames());
+            getValidUserListByUserNameList(dto.getUsernames());
             //2 删除这些合法参数
             um.deleteUserByUserNameList(dto.getUsernames());
         }
@@ -169,16 +161,16 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    public Long getIdByUsername(String username) {
-        User u = getUserInCache(username);
-        if(u==null)
-        {
-            u = getValidUserByUserName(username);
-            cacheUser(u);
-        }
-        return u.getId();
-    }
+//    @Override
+//    public Long getIdByUsername(String username) {
+//        User u = getUserInCache(username);
+//        if(u==null)
+//        {
+//            u = getValidUserByUserName(username);
+//            cacheUser(u);
+//        }
+//        return u.getId();
+//    }
 
 
     //这里代码耦合太强 重整!
@@ -203,31 +195,31 @@ public class UserServiceImpl implements UserService {
 //            throw new LoginException("密码错误");
 //        }
 //    }
-    public User getUserInCache(String username)
-    {
-        Cache cache = cacheManager.getCache("userCache");
-        Cache.ValueWrapper valueWrapper = cache.get(username);
-        //没找到
-        if(valueWrapper==null)
-        {
-            log.info("缓存未命中,用户{}不在缓存中",username);
-            return null;
-        }
-        //找到了
-        return (User) valueWrapper.get();
-    }
+//    public User getUserInCache(String username)
+//    {
+//        Cache cache = cacheManager.getCache("userCache");
+//        Cache.ValueWrapper valueWrapper = cache.get(username);
+//        //没找到
+//        if(valueWrapper==null)
+//        {
+//            log.info("缓存未命中,用户{}不在缓存中",username);
+//            return null;
+//        }
+//        //找到了
+//        return (User) valueWrapper.get();
+//    }
     //共通方法:单个用户塞入缓存
-    public void cacheUser(User u)
-    {
-        Cache userCache = cacheManager.getCache("userCache");
-        if(userCache!=null)
-        {
-            log.info("缓存正在存入用户{}",u.getUsername());
-            userCache.put(u.getUsername(),u);
-            log.info("缓存成功存入用户{}",u.getUsername());
-        }
-        log.info("缓存中{}已存在",u.getUsername());
-    }
+//    public void cacheUser(User u)
+//    {
+//        Cache userCache = cacheManager.getCache("userCache");
+//        if(userCache!=null)
+//        {
+//            log.info("缓存正在存入用户{}",u.getUsername());
+//            userCache.put(u.getUsername(),u);
+//            log.info("缓存成功存入用户{}",u.getUsername());
+//        }
+//        log.info("缓存中{}已存在",u.getUsername());
+//    }
     //辅助性方法 用户存在报错
     public void checkUserNotExists(String username)
     {

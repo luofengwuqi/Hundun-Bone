@@ -23,13 +23,19 @@ public class LoginFilter implements Filter {
 
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
-            "/users/auth/login",//登录接口
-            "/users"       //注册接口
+            "/user/login/username-password",//用户名 + 密码登录
+            "/user/login/phone-password",   //手机号 + 密码登录
+            "/user/login/email-code",       //邮箱 + 验证码登录
+            "/user/login/email-password",   //邮箱 + 密码登录
+            "/users"                        //注册接口
     );
-    //对应SKIP_URIS中需要限制方法的路径（索引对应
+    //对应 SKIP_URIS 中需要限制方法的路径（索引对应
     private static final List<String> SKIP_URIS_METHODS = Arrays.asList(
-            "",                   // 登录接口：允许所有方法
-            "POST"                // 注册接口：仅允许POST
+            "",                   // 用户名 + 密码：允许所有方法
+            "",                   // 手机号 + 密码：允许所有方法
+            "",                   // 邮箱 + 验证码：允许所有方法
+            "",                   // 邮箱 + 密码：允许所有方法
+            "POST"                // 注册接口：仅允许 POST
     );
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -42,7 +48,12 @@ public class LoginFilter implements Filter {
         log.info("当前请求方法：{}", method);
 
         // ========== 1. 放行无需登录的接口（核心修复：加入注册接口） ==========
-        // 精准匹配：登录(/auth/login)、注册(/users)，避免模糊匹配
+        // 精准匹配：登录、注册，避免模糊匹配
+        if (method.equals("OPTIONS")){
+            log.info("OPTIONS请求，拦这个干啥 放了");
+            chain.doFilter(request, response);
+            return;
+        }
         if (isSkipUrl(uri,method)) {
             log.info("检查到无需登录的请求（登录/注册），直接放行");
             BaseContext.setCurrentUsername("login");
@@ -115,7 +126,7 @@ public class LoginFilter implements Filter {
     public void destroy() {}
 
     @Override
-    public void init(FilterConfig config) throws ServletException {
+    public void init(FilterConfig config)  {
 //        log.info("初始化登录过滤器");
     }
 

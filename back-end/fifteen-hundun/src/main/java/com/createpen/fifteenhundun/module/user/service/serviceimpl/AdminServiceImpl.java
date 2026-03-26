@@ -21,7 +21,6 @@ import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,7 +126,7 @@ public class AdminServiceImpl implements AdminService {
 
             um.deleteUserByUserName("管理员待注册"+importantPassword);
             um.insertUser(u);
-            us.cacheUser(u);
+//            us.cacheUser(u);
             return;
         }
         throw new UserExistedException("用户已存在");

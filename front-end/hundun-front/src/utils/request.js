@@ -2,6 +2,7 @@ import router from "@/router";
 import axios from "axios";
 import { useUserStore } from "@/stores/user.js";
 import { ElMessage } from "element-plus";
+import { show500Error } from '@/utils/500.js'
 
 // 1. 创建实例
 const request = axios.create({
@@ -20,7 +21,7 @@ const getToken = () => {
 };
 
 // 请求拦截器
-instance.interceptors.request.use((config) => {
+request.interceptors.request.use((config) => {
   const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`; // 标准格式
@@ -29,12 +30,13 @@ instance.interceptors.request.use((config) => {
 });
 
 // 响应拦截器
-instance.interceptors.response.use(
+request.interceptors.response.use(
   (response) => {
     // 文件下载特殊处理
     if (response.request.responseType === "blob") return response;
 
-    if (response.data.code === 0) {
+    // 修改判断条件：code 为 0 或 200 都表示成功
+    if (response.data.code === 0 || response.data.code === 200) {
       return response.data;
     }
 
@@ -55,6 +57,7 @@ instance.interceptors.response.use(
     // 其他错误
     else {
       ElMessage.error(error.response?.data?.message || "网络异常");
+      show500Error()
     }
 
     return Promise.reject(error);

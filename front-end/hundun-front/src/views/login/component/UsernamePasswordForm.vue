@@ -1,36 +1,90 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { loginByUsernameAndPassword } from '@/api/user.js'
+import { useUserStore } from '@/stores/user.js'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
+//表单相关
 const form = reactive({
   username: '',
   password: '',
 })
+//表单验证相关
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6,max:20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+  ]
+}
+//按钮相关
+const userStore = useUserStore()
+const router = useRouter()
+const formRef = ref(null)
+const handleLogin = async () => {
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
+      console.log('验证通过，提交登录', form)
+      const res = await loginByUsernameAndPassword(form.username, form.password)
+      // res.data:token/user
+      //操作pinia
+      userStore.setToken(res.data.token)
+      userStore.setUserInfo(res.data.user)
+      ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      //路由跳转
+      if(userStore.userInfo.status === 3 || userStore.userInfo.status === 2){
+        router.push('/admin')
+      }
+      else{
+        router.push('/user')
+      }
+
+
+
+    } else {
+      console.log('表单验证失败')
+      return false
+    }
+  })
+}
+
+
 </script>
 <template>
   <div class="form">
     <div class="logo-box">
       <img src="../../../assets/img/common/logotext.png" alt="这是logo 按理来说不会显示不出来 哈哈">
     </div>
-    <el-form :model="form" label-width="auto" style="max-width: 600px">
-    <el-form-item label="用户名">
-      <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
+    <el-form
+      :model="form"
+      :rules="rules"
+      ref="formRef"
+      label-width="auto"
+      style="max-width: 600px">
+    <el-form-item prop="username">
+      <el-input v-model="form.username" placeholder="请输入用户名" prefix-icon="user" >
+      </el-input>
     </el-form-item>
-    <el-form-item label="密码">
-      <el-input v-model="form.password" placeholder="请输入密码"></el-input>
+    <el-form-item prop="password">
+      <el-input v-model="form.password" placeholder="请输入密码" prefix-icon="lock"></el-input>
     </el-form-item>
-    <el-form-item>
-      <el-button type="primary">登录</el-button>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary">注册</el-button>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary">忘记密码</el-button>
-    </el-form-item>
+    <div class="buttons">
+      <el-form-item class="button-group">
+        <el-button type="primary" @click="handleLogin">登录</el-button>
+        <el-button type="primary">注册</el-button>
+      </el-form-item>
+    </div>
+      <router-link to="/help">忘记密码</router-link>
     </el-form>
 
   </div>
 </template>
+
 <style scoped>
 .form{
   padding: 50px;
@@ -45,18 +99,44 @@ const form = reactive({
     img{
       width: 100%;
       height: 100%;
-      /* 关键：让图片完整显示在容器内，保持宽高比 */
       object-fit: contain;
     }
 
   }
+  a{
+    display: block;
+    width: 20%;
+    margin-left: 80%;
+    color: #AAA;
+  }
+  a:hover{
+    color: #666;
+  }
   /* 专门放大表单标签字体 */
-  :deep(.el-form-item__label) {
-    font-size: 18px;
+  :deep(.el-form-item) {
+    margin-bottom: 24px;
   }
   :deep(.el-input__inner) {
-    height: 45px;       /* 输入框高度变大 */
-    padding: 0 15px;    /* 左右内边距变大 */
+    font-size: 15px;
+    height: 45px;
+  }
+
+  .button-group{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    .el-button{
+      width: 48%;
+      background-color: #C3272B;
+      border: none;
+    }
+    .el-button:hover{
+      background-color: #D64A4F;
+    }
+
+
 
   }
 }

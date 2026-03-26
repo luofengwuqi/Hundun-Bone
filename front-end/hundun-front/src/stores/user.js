@@ -3,8 +3,19 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref('')
+  const setToken = (newToken) => {
+    token.value = newToken
+  }
+  const userInfo = ref({})
+  const setUserInfo = (newUserInfo) => {
+    userInfo.value = newUserInfo
+  }
+
 
   return {
-    token
+    token,
+    setToken,
+    userInfo,
+    setUserInfo
   }
 })

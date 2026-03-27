@@ -6,8 +6,11 @@ import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
 import com.createpen.fifteenhundun.common.constant.OperateTypeConstant;
 import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -36,4 +39,7 @@ public interface UserMapper {
 
     @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.USER)
     void deleteUserByUserNameList(List userNameList);
+
+    @Select("Select * from users where phone=#{phone}")
+    User selectUserByPhone(@NotBlank(message = "手机号不能为空") @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式错误") String phone);
 }

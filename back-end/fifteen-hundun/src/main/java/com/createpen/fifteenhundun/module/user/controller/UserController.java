@@ -26,7 +26,6 @@ public class UserController {
     @Autowired
     private AdminService as;
 
-    //auth代表认证资源 至于认证资源是啥我不知道
     @PostMapping("/login/username-password")
     public Result<LoginRequestVO> loginUsernamePassword(@Valid @RequestBody LoginUsernamePasswordRequestDTO dto) {
         log.info("用户登录");
@@ -34,6 +33,7 @@ public class UserController {
         LoginRequestVO vo =  us.loginUsernamePassword(dto);
         return Result.success(vo);
     }
+
 
     @PostMapping
     public Result register(@Valid @RequestBody RegisterDTO dto)

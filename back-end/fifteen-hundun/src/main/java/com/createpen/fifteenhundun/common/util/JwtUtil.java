@@ -15,19 +15,22 @@ public class JwtUtil {
     //生成令牌
     public static String makeToken(Map<String,Object> claims)
     {
-        String jwt = Jwts.builder().signWith(SignatureAlgorithm.HS256,SECRET_KEY)
+         return Jwts.builder().signWith(SignatureAlgorithm.HS256,SECRET_KEY)
                 .addClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis()+EXPIRATION_TIME))
                 .compact();
-        return jwt;
     }
+    public static String makeToken(Integer id,String username)
+    {
+        return makeToken(Map.of("id",id,"username",username));
+    }
+
 
     //解析令牌
     public static Claims solveToken(String token) throws ExpiredJwtException,MalformedJwtException
     {
-        Claims c =Jwts.parser().setSigningKey(SECRET_KEY)
+        return Jwts.parser().setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
-        return c;
     }
 }

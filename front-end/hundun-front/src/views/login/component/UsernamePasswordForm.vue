@@ -4,6 +4,7 @@ import { loginByUsernameAndPassword } from '@/api/user.js'
 import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { loginRouterPush } from '@/utils/login/loginRouterPush.js'
 
 //表单相关
 const form = reactive({
@@ -37,15 +38,7 @@ const handleLogin = async () => {
       ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
       await new Promise(resolve => setTimeout(resolve, 1500))
       //路由跳转
-      if(userStore.userInfo.status === 3 || userStore.userInfo.status === 2){
-        router.push('/admin')
-      }
-      else{
-        router.push('/user')
-      }
-
-
-
+      await loginRouterPush()
     } else {
       console.log('表单验证失败')
       return false

@@ -3,8 +3,8 @@ import LoginWay from '@/views/login/component/LoginWay.vue'
 import { ref } from 'vue'
 import EmailCodeForm from '@/views/login/component/EmailCodeForm.vue'
 import EmailPasswordForm from '@/views/login/component/EmailPasswordForm.vue'
-import PhonelPasswordForm from '@/views/login/component/PhonelPasswordForm.vue'
 import UsernamePasswordForm from '@/views/login/component/UsernamePasswordForm.vue'
+import PhonePasswordForm from '@/views/login/component/PhonePasswordForm.vue'
 //登录模式选择器相关的东西(子传父)
 const loginType = ref(`username-password`)
 const changeLoginType = (type) => {
@@ -20,7 +20,7 @@ const changeLoginType = (type) => {
       <UsernamePasswordForm></UsernamePasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='phone-password'">
-      <PhonelPasswordForm></PhonelPasswordForm>
+      <PhonePasswordForm></PhonePasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='email-code'">
       <EmailCodeForm></EmailCodeForm>

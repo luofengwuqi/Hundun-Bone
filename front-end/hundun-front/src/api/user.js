@@ -9,3 +9,11 @@ export const loginByUsernameAndPassword = async (username , password)=> {
     }
   )
 }
+
+export const loginByPhoneAndPassword = async (phone , password)=>{
+  return await  request.post('/user/login/phone-password',
+    {
+    phone,
+    password,
+  })
+}

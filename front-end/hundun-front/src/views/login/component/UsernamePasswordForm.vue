@@ -4,7 +4,6 @@ import { loginByUsernameAndPassword } from '@/api/user.js'
 import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { loginRouterPush } from '@/utils/login/loginRouterPush.js'
 
 //表单相关
 const form = reactive({
@@ -38,13 +37,37 @@ const handleLogin = async () => {
       ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
       await new Promise(resolve => setTimeout(resolve, 1500))
       //路由跳转
-      await loginRouterPush()
+      if(userStore.userInfo.status === 3 || userStore.userInfo.status === 2){
+        await router.push('/admin')
+      }
+      else{
+        await router.push('/user')
+      }
+
+
+
     } else {
       console.log('表单验证失败')
       return false
     }
   })
+
 }
+  //TODO: 测试方法 最后要禁用
+  const adminLogin = async ()=>{
+    const res = await loginByUsernameAndPassword('wuqi', '15hundun')
+    // res.data:token/user
+    //操作pinia
+    userStore.setToken(res.data.token)
+    userStore.setUserInfo(res.data.user)
+    ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
+    //路由跳转
+    if(userStore.userInfo.status === 3 || userStore.userInfo.status === 2){
+      await router.push('/admin')
+    }
+  }
+
+
 
 
 </script>
@@ -70,6 +93,9 @@ const handleLogin = async () => {
       <el-form-item class="button-group">
         <el-button type="primary" @click="handleLogin">登录</el-button>
         <el-button type="primary">注册</el-button>
+        <el-button type="primary" @click="adminLogin">测试按钮:管理员登录</el-button>
+<!--        TODO : 这里后续要删除-->
+        <el-button type="primary">测试按钮:用户登录</el-button>
       </el-form-item>
     </div>
       <router-link to="/help">忘记密码</router-link>
@@ -78,7 +104,7 @@ const handleLogin = async () => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .form{
   padding: 50px;
   border-radius: 20px;

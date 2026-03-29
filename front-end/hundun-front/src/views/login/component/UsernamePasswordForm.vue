@@ -55,7 +55,7 @@ const handleLogin = async () => {
 }
   //TODO: 测试方法 最后要禁用
   const adminLogin = async ()=>{
-    const res = await loginByUsernameAndPassword('wuqi', '15hundun')
+    const res = await loginByUsernameAndPassword('admin', '15hundun')
     // res.data:token/user
     //操作pinia
     userStore.setToken(res.data.token)

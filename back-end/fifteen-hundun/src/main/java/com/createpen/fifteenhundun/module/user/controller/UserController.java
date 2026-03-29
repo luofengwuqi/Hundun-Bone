@@ -36,7 +36,7 @@ public class UserController {
 
 
     @PostMapping
-    public Result register(@Valid @RequestBody RegisterDTO dto)
+    public Result<RegisterVO> register(@Valid @RequestBody RegisterDTO dto)
     {
         log.info("用户注册");
         log.info("已经接收到请求:RegisterDTO信息为{}",dto.toString());
@@ -45,9 +45,9 @@ public class UserController {
     }
 
     //todoed:优化这里的删除逻辑 改为批量删除
-    @GetMapping
+    @PostMapping("/page")
     //@Cacheable(cacheNames = "usersCache" ,key = "#dto.page + '_' + #dto.size + '_' + #dto.name + '_' + #dto.status")
-    public Result getUsers(@Valid @RequestBody GetUsersDTO dto)
+    public Result<PageVO> getUsers(@Valid @RequestBody GetUsersDTO dto)
     {
         log.info("{}",dto);
         //page:当前的页数
@@ -58,8 +58,8 @@ public class UserController {
     }
 
     @DeleteMapping
-    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
-    public Result deleteUsers(@Valid @RequestBody DeleteUsersDTO dto) throws Exception {
+//    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
+    public Result<Void> deleteUsers(@Valid @RequestBody DeleteUsersDTO dto) throws Exception {
         log.info("用户删除");
 //        log.info("即将进行用户删除 捕获到信息:{}",dto);
         us.deleteUsers(dto);

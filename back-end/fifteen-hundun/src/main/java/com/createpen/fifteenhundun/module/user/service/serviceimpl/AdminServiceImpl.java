@@ -66,7 +66,8 @@ public class AdminServiceImpl implements AdminService {
         //检验权限是否允许这样做
         String currentUsername = BaseContext.getCurrentUsername();
         User currentUser= um.getUserByUserName(currentUsername);
-        if (currentUser.getStatus()<= operateUser.getStatus()){
+
+        if (currentUser.getStatus()<= operateUser.getStatus() || currentUser.getStatus()<=(-operateUser.getStatus())){
             throw new InsufficientPermissionsException("权限不够的...(就算你是鹈鹕也不能吃同事/w\\)");
         }
         switch (status){

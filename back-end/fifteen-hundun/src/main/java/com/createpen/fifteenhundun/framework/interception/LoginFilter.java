@@ -63,11 +63,21 @@ public class LoginFilter implements Filter {
             return;
         }
 
-        // ========== 2. 校验token ==========
-        String token = req.getHeader("token");
-        // 2.1 token为空 → 返回401（规范响应流）
+        // ========== 2. 校验 token ==========
+        // 优先从 Authorization 头获取（标准格式：Bearer <token>）
+        String authorization = req.getHeader("Authorization");
+        String token;
+                
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7); // 去掉 "Bearer " 前缀
+        } else {
+            // 兼容旧的 token 头方式
+            token = req.getHeader("token");
+        }
+                
+        // 2.1 token 为空 → 返回 401（规范响应流）
         if (token == null || token.isEmpty()) {
-            log.info("检查到token为空，返回401");
+            log.info("检查到 token 为空，返回 401");
             returnJson(res, 401, "未登录");
             return;
         }

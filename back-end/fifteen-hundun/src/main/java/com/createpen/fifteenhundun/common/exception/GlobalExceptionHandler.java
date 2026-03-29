@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler
     public Result<Void> handleJwtException(MalformedJwtException e) {
-        return Result.fail(401,"令牌无效或者格式有误");
+        return Result.fail(401, e.getMessage());
     }
 
     //用户异常
@@ -99,9 +99,10 @@ public class GlobalExceptionHandler {
 
 //    未知异常处理
 //    @ExceptionHandler
-//    public Result handleException(Exception e) {
+//    public Result<Void> handleException(Exception e) {
 //        log.error(e.getMessage());
 //        return Result.fail(500,"未知异常");
 //    }
+
 
 }

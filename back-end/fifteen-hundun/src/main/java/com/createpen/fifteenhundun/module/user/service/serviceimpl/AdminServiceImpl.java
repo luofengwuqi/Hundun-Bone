@@ -1,6 +1,7 @@
 package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
 //import com.createpen.fifteenhundun.common.constant.ImportantConstant;
+import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.InsufficientPermissionsException;
 import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
 import com.createpen.fifteenhundun.common.exception.MyException.UserExistedException;
@@ -20,13 +21,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.createpen.fifteenhundun.common.constant.UserStatusConstant.*;
 
 @Slf4j
 @Service
@@ -48,54 +49,61 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Transactional
-    @Caching(
-            evict={
-                    @CacheEvict(cacheNames = "usersCache" ,allEntries = true),
-                    @CacheEvict(cacheNames = "userCache" ,key = "#username")
-            }
-    )
+//    @Caching(
+//            evict={
+//                    @CacheEvict(cacheNames = "usersCache" ,allEntries = true),
+//                    @CacheEvict(cacheNames = "userCache" ,key = "#username")
+//            }
+//    )
     @Override
     public Integer changeStatus(String username) {
-        User u = um.getUserByUserName( username);
-        if(u== null)
+        User operateUser = um.getUserByUserName( username);
+        if(operateUser == null)
         {
             throw new UserNotFoundException("用户不存在");
         }
-//        else if(u.getUsername().equals(ImportantConstant.ADMINNAME))
-//        {
-//            throw new InsufficientPermissionsException("你想干啥 不许你这样对管理员大人");
-//        }
-        Integer status = u.getStatus();
+        Integer status = operateUser.getStatus();
+        //检验权限是否允许这样做
+        String currentUsername = BaseContext.getCurrentUsername();
+        User currentUser= um.getUserByUserName(currentUsername);
+        if (currentUser.getStatus()<= operateUser.getStatus()){
+            throw new InsufficientPermissionsException("权限不够的...(就算你是鹈鹕也不能吃同事/w\\)");
+        }
+        switch (status){
+            case STATUS_USER:{
+                operateUser.setStatus(STATUS_USER_BAN);
+                break;
+            }
+            case STATUS_USER_BAN:{
+                operateUser.setStatus(STATUS_USER);
+                break;
+            }
+            case STATUS_ADMIN_BAN:{
+                operateUser.setStatus(STATUS_ADMIN);
+                break;
+            }
+            case STATUS_ADMIN:{
+                operateUser.setStatus(STATUS_ADMIN_BAN);
+                break;
+            }
+            case STATUS_WUQI:{
+                throw new InsufficientPermissionsException("你干嘛 不许你这样对芜柒sama");
+            }
+            default:{
+                log.warn("用户状态未定义 系统已经将状态设为默认态");
+                operateUser.setStatus(STATUS_USER_BAN);
+                break;
+            }
+        }
 
-        if(status ==1)
-        {
-            u.setStatus(0);
-        }
-        else if(status ==0)
-        {
-            u.setStatus(1);
-        }
-        else if(status == 2)
-        {
-            u.setStatus(-1);
-        }
-        else if(status == -1)
-        {
-            u.setStatus(2);
-        }
-        else if(status ==3)
-        {
-            throw new InsufficientPermissionsException("你想干啥 不许你这样对管理员大人");
-        }
-
-        um.updateUserByUserName(u);
+        um.updateUserByUserName(operateUser);
         log.info("用户状态已修改");
-        log.info("用户状态:{}", u.getStatus());
-        return u.getStatus();
+        log.info("用户状态:{}", operateUser.getStatus());
+        return operateUser.getStatus();
     }
 
     @Override
-    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
+//    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
     public void addAdmin(AddAdminDTO dto) {
         log.info("开始添加管理员");
         log.info("开始校验是否已经存在");

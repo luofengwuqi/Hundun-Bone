@@ -44,8 +44,8 @@ public class AdminController {
         return Result.success(code);
     }
     //禁用或启用用户
-    @PutMapping("/users/status")
-    public Result changeStatus(@RequestParam("username") String username)
+    @PutMapping("/user/status")
+    public Result<Integer> changeStatus(@RequestParam("username") String username)
     {
         log.info("禁用或启用用户");
         Integer status = as.changeStatus(username);

@@ -5,12 +5,12 @@ import { ElNotification } from 'element-plus'
  * 显示 500 服务器错误弹窗
  * @param {string} message - 错误信息，可选，默认显示通用提示
  */
-export const show500Error = (message = '出现这个错误的话那么大概率是芜师傅的后端代码写错了... (ó﹏ò｡)  如果可以的话请在反馈页面反馈该错误的详细截图 非常感谢･ﾟ･(｡>ω<｡)･ﾟ･') => {
+export const show500Error = (message = '出现这个错误的话那么大概率是芜师傅的后端又炸了... (ó﹏ò｡)  如果可以的话请在反馈页面反馈该错误的详细截图 非常感谢･ﾟ･(｡>ω<｡)･ﾟ･') => {
   ElNotification({
     title: '啊哦...',
     message: message,
     type: 'error',
-    duration: 0, // 不自动关闭，需要手动点击关闭
+    duration: 10000, // 10s关闭
     // position: 'top-right', // 弹窗位置
     showClose: true, // 显示关闭按钮
     dangerouslyUseHTMLString: true, // 允许使用 HTML

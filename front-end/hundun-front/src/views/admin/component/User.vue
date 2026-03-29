@@ -7,10 +7,11 @@
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-          <el-option label="正常" :value="1" />
-          <el-option label="禁用" :value="-1" />
+          <el-option label="用户" :value="1" />
+          <el-option label="用户禁用" :value="-1" />
           <el-option label="管理员" :value="2" />
           <el-option label="管理员禁用" :value="-2" />
+          <el-option label="超级管理员" :value="-2" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -151,7 +152,7 @@ const fetchUsers = async () => {
     }
   } catch (error) {
     console.error('查询用户列表失败:', error)
-    ElMessage.error('查询失败')
+    // ElMessage.error('查询失败')
   } finally {
     loading.value = false
   }
@@ -206,7 +207,6 @@ const handleChangeStatus = async (username, targetStatus) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('操作失败:', error)
-      // ElMessage.error('操作失败')
     }
   }
 }

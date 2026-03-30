@@ -57,14 +57,15 @@ const handleLogin = async () => {
   const adminLogin = async ()=>{
     const res = await loginByUsernameAndPassword('admin', '15hundun')
     // res.data:token/user
-    //操作pinia
+    //操作 pinia
     userStore.setToken(res.data.token)
     userStore.setUserInfo(res.data.user)
     ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
+    // 等待状态更新和消息显示
+    await new Promise(resolve => setTimeout(resolve, 1500))
     //路由跳转
-    if(userStore.userInfo.status === 3 || userStore.userInfo.status === 2){
       await router.push('/admin')
-    }
+
   }
 
 
@@ -159,5 +160,4 @@ const handleLogin = async () => {
 
   }
 }
-
 </style>

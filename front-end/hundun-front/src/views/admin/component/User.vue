@@ -21,49 +21,52 @@
     </el-form>
 
     <!-- 表格 -->
-    <el-table
-      :data="tableData"
-      style="width: 100%"
-      :row-class-name="tableRowClassName"
-      v-loading="loading"
-      :header-cell-style="{ background: '#f5f7fa', color: '#606266', fontWeight: '600' }"
-      :cell-style="{ padding: '12px 0' }"
-      border
-    >
-      <el-table-column prop="username" label="用户名" min-width="150" show-overflow-tooltip />
-      <el-table-column prop="email" label="邮箱" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="phone" label="手机号" min-width="130" />
-      <el-table-column prop="status" label="状态" width="110" align="center">
-        <template #default="{ row }">
-          <el-tag :type="getStatusType(row.status)" size="small" effect="light">
-            {{ getStatusText(row.status) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="lastLoginAt" label="最后登录时间" min-width="170" />
-      <el-table-column label="操作" fixed="right" width="220" align="center">
-        <template #default="scope">
-          <el-button
-            type="success"
-            size="small"
-            @click="handleChangeStatus(scope.row.username, -1)"
-            v-if="scope.row.status < 0"
-            plain
-          >
-            启用
-          </el-button>
-          <el-button
-            type="danger"
-            size="small"
-            @click="handleChangeStatus(scope.row.username, 1)"
-            v-else-if="scope.row.status > 0"
-            plain
-          >
-            禁用
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <transition-group name="table-list" tag="div">
+      <el-table
+        :key="tableKey"
+        :data="tableData"
+        style="width: 100%"
+        :row-class-name="tableRowClassName"
+        v-loading="loading"
+        :header-cell-style="{ background: '#FFEFD5', color: '#606266', fontWeight: '600' }"
+        :cell-style="{ padding: '12px 0' }"
+        border
+      >
+        <el-table-column prop="username" label="用户名" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="email" label="邮箱" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="phone" label="手机号" min-width="130" />
+        <el-table-column prop="status" label="状态" width="110" align="center">
+          <template #default="{ row }">
+            <el-tag :type="getStatusType(row.status)" size="small" effect="light">
+              {{ getStatusText(row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lastLoginAt" label="最后登录时间" min-width="170" />
+        <el-table-column label="操作" fixed="right" width="220" align="center">
+          <template #default="scope">
+            <el-button
+              type="success"
+              size="small"
+              @click="handleChangeStatus(scope.row.username, -1)"
+              v-if="scope.row.status < 0"
+              plain
+            >
+              启用
+            </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleChangeStatus(scope.row.username, 1)"
+              v-else-if="scope.row.status > 0"
+              plain
+            >
+              禁用
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </transition-group>
 
     <!-- 分页 -->
     <el-pagination
@@ -82,13 +85,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { changeStatus } from '@/api/user.js'
 import request from '@/utils/request.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 加载状态
 const loading = ref(false)
+
+// 表格 key，用于触发过渡动画
+const tableKey = computed(() => {
+  return pagination.page + '-' + pagination.size + '-' + (searchForm.name || '') + '-' + (searchForm.status || '')
+})
 
 // 搜索表单
 const searchForm = reactive({
@@ -220,7 +228,7 @@ onMounted(() => {
 <style scoped>
 .search-form {
   margin-bottom: 20px;
-  background: #fff;
+  background: #FFF8E8;
   padding: 24px 24px 16px;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
@@ -231,7 +239,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   padding: 16px 0;
-  background: #fff;
+  background: #FFF8E8;
   border-radius: 8px;
 }
 
@@ -239,6 +247,7 @@ onMounted(() => {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background-color: #FFF8E8;
 }
 
 .el-table .super-admin-row {
@@ -252,9 +261,30 @@ onMounted(() => {
 
 /* 表格头部样式 */
 .el-table th {
-  background-color: #f5f7fa;
+  background-color: #FFEFD5 !important;
   color: #606266;
   font-weight: 600;
+}
+
+/* 表格行样式 */
+:deep(.el-table__row) {
+  background-color: #FFF8E8 !important;
+}
+
+:deep(.el-table__row td) {
+  background-color: #FFF8E8 !important;
+}
+
+:deep(.el-table th.el-table__cell) {
+  background-color: #FFEFD5 !important;
+}
+
+:deep(.el-table td.el-table__cell) {
+  background-color: #FFF8E8 !important;
+}
+
+:deep(.el-table__body tr) {
+  background-color: #FFF8E8 !important;
 }
 
 /* 按钮组样式 */
@@ -268,5 +298,78 @@ onMounted(() => {
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 12px;
+}
+
+/* 表格列表过渡动画 */
+.table-list-enter-active,
+.table-list-leave-active {
+  transition: all 0.4s ease;
+}
+
+.table-list-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.table-list-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 表格行逐个出现动画 */
+:deep(.el-table__body tr) {
+  animation: table-row-fade-in 0.3s ease-in-out forwards;
+  opacity: 0;
+}
+
+:deep(.el-table__body tr:nth-child(1)) {
+  animation-delay: 0.05s;
+}
+
+:deep(.el-table__body tr:nth-child(2)) {
+  animation-delay: 0.1s;
+}
+
+:deep(.el-table__body tr:nth-child(3)) {
+  animation-delay: 0.15s;
+}
+
+:deep(.el-table__body tr:nth-child(4)) {
+  animation-delay: 0.2s;
+}
+
+:deep(.el-table__body tr:nth-child(5)) {
+  animation-delay: 0.25s;
+}
+
+:deep(.el-table__body tr:nth-child(6)) {
+  animation-delay: 0.3s;
+}
+
+:deep(.el-table__body tr:nth-child(7)) {
+  animation-delay: 0.35s;
+}
+
+:deep(.el-table__body tr:nth-child(8)) {
+  animation-delay: 0.4s;
+}
+
+:deep(.el-table__body tr:nth-child(9)) {
+  animation-delay: 0.45s;
+}
+
+:deep(.el-table__body tr:nth-child(10)) {
+  animation-delay: 0.5s;
+}
+
+@keyframes table-row-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

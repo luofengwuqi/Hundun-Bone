@@ -168,10 +168,10 @@ public class AdminServiceImpl implements AdminService {
     public String makeInviteCode() {
         User u =new User();
         u.setPasswordHash(PasswordUtil.addMi("fqeqvbqeiovfbqiudbv"));
-        u.setStatus(0);
+        u.setStatus(STATUS_ADMIN);
         //todoed: 生成邀请码
         u.setInviteCode(RandomCodeUtil.makeComplexCode(10));
-        u.setUsername("管理员待注册"+u.getInviteCode());
+        u.setUsername("管理员待注册"+u.getId());
         um.insertUser(u);
         return u.getInviteCode();
     }

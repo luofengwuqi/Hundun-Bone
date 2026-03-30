@@ -36,8 +36,8 @@ public class AdminController {
         return Result.success(num);
     }
     //生成邀请码
-    @PostMapping("/admins/invite-codes")
-    public Result makeInviteCode()
+    @GetMapping("/admin/invite-code")
+    public Result<String> makeInviteCode()
     {
         log.info("生成邀请码");
         String code = as.makeInviteCode();

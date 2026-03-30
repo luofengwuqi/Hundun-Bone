@@ -7,7 +7,7 @@ import { logout } from '@/utils/login/logout.js'
 const emit = defineEmits(['changeMenu']);
 
 const activeIndex = ref(0);
-const menuItems = ref(['用户管理', '日志管理','敬请期待']);
+const menuItems = ref(['用户管理', '邀请管理员','敬请期待']);
 
 const handleChoose = (index) => {
   activeIndex.value = index;
@@ -16,6 +16,7 @@ const handleChoose = (index) => {
 
 //用户相关
 const userStore = useUserStore();
+const userStatus = ref(userStore.userInfo.status);
 //底部按钮
 const handleHelp = async ()=>{
   await router.push('/help')
@@ -32,12 +33,17 @@ const handleLogout = async ()=>{
   <el-divider />
   <div class="choose">
     <div
-      v-for="(item, index) in menuItems"
-      :key="index"
-      class="choose-item"
-      :class="{ active: activeIndex === index }"
-      @click="handleChoose(index)"
-    >{{ item }}</div>
+      v-for="(item, index) in menuItems" :key="index">
+      <p
+        v-if="!(index===1 && userStatus !== 3)"
+        class="choose-item"
+        :class="{ active: activeIndex === index }"
+        @click="handleChoose(index)"
+      >
+        {{ item }}
+      </p>
+    </div>
+
   </div>
   <div class="footer">
 

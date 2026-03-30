@@ -2,10 +2,11 @@
 import { ref } from 'vue'
 import Aside from '@/views/admin/Aside.vue'
 import User from '@/views/admin/component/User.vue'
+import InviteAdmin from '@/views/admin/component/InviteAdmin.vue'
 
-const header = ref('');
+const header = ref('用户管理');
 const menu = ref(0);
-const menuItems = ['用户管理', '日志管理','敬请期待']
+const menuItems = ['用户管理', '邀请管理员','敬请期待']
 
 const changeMenu = (index) => {
   // console.log('切换菜单:', index);
@@ -25,6 +26,7 @@ const changeMenu = (index) => {
         <el-header>{{header}}</el-header>
         <el-main :span="18">
           <div v-if="menu===0"><User/></div>
+          <div v-else-if="menu===1"><InviteAdmin/></div>
           <!--     TODO:这里日后会放管理员的其他功能组件     -->
         </el-main>
       </el-container>
@@ -32,7 +34,7 @@ const changeMenu = (index) => {
   </div>
 </template>
 
-<style lang="less">
+<style lang="less" scoped>
 //  左侧边栏
 .el-aside {
   /* 你要求的外边距 + 背景色 */

@@ -1,17 +1,17 @@
 <template>
   <div>
     <!-- 搜索栏 -->
-    <el-form :inline="true" :model="searchForm" class="search-form">
+    <el-form :inline="true" :model="searchForm" class="search-form" @submit.prevent>
       <el-form-item label="用户名">
-        <el-input v-model="searchForm.name" placeholder="请输入用户名" clearable />
+        <el-input v-model="searchForm.name" placeholder="请输入用户名" clearable @keydown.enter.prevent />
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+        <el-select v-model="searchForm.status" placeholder="请选择状态" clearable @keydown.enter.prevent style="min-width: 140px;">
           <el-option label="用户" :value="1" />
           <el-option label="用户禁用" :value="-1" />
           <el-option label="管理员" :value="2" />
           <el-option label="管理员禁用" :value="-2" />
-          <el-option label="超级管理员" :value="-2" />
+          <el-option label="超级管理员" :value="3" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -95,7 +95,7 @@ const loading = ref(false)
 
 // 表格 key，用于触发过渡动画
 const tableKey = computed(() => {
-  return pagination.page + '-' + pagination.size + '-' + (searchForm.name || '') + '-' + (searchForm.status || '')
+  return pagination.page + '-' + pagination.size
 })
 
 // 搜索表单

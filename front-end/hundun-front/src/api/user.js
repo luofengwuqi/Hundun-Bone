@@ -28,3 +28,7 @@ export const logoutAPI = async ()=>{
   console.log('登出逻辑待完善')
   //TODO:前后交互逻辑待完善
 }
+
+export const getInviteCode = async ()=>{
+  return await request.get('/admin/invite-code')
+}

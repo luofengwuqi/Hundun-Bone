@@ -32,3 +32,9 @@ export const logoutAPI = async ()=>{
 export const getInviteCode = async ()=>{
   return await request.get('/admin/invite-code')
 }
+
+export const deleteSingleUser = async (id)=> {
+  return await request.delete(`/user/${id}`)
+}
+
+

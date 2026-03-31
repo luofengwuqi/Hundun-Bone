@@ -5,12 +5,14 @@ import EmailCodeForm from '@/views/login/component/EmailCodeForm.vue'
 import EmailPasswordForm from '@/views/login/component/EmailPasswordForm.vue'
 import UsernamePasswordForm from '@/views/login/component/UsernamePasswordForm.vue'
 import PhonePasswordForm from '@/views/login/component/PhonePasswordForm.vue'
+import Register from '@/views/login/component/Register.vue'
 //登录模式选择器相关的东西(子传父)
 const loginType = ref(`username-password`)
 const changeLoginType = (type) => {
   console.log(`登录模式切换:${type}`)
   loginType.value = type
 }
+
 
 </script>
 <template>
@@ -27,6 +29,9 @@ const changeLoginType = (type) => {
     </div>
     <div class="loginForm" v-else-if="loginType==='email-password'">
       <EmailPasswordForm></EmailPasswordForm>
+    </div>
+    <div class="loginForm" v-else-if="loginType==='register'">
+      <Register></Register>
     </div>
     <div class="loginForm" v-else>
       纳尼

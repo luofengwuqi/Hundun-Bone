@@ -63,6 +63,14 @@
             >
               禁用
             </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleDeleteUser(scope.row.id)"
+              plain
+            >
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -86,7 +94,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { changeStatus } from '@/api/user.js'
+import { changeStatus, deleteSingleUser } from '@/api/user.js'
 import request from '@/utils/request.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -219,6 +227,11 @@ const handleChangeStatus = async (username, targetStatus) => {
   }
 }
 
+//删除用户
+const handleDeleteUser = async (id) => {
+  await deleteSingleUser(id)
+  await fetchUsers()
+}
 // 初始化加载
 onMounted(() => {
   fetchUsers()

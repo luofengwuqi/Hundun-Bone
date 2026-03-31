@@ -93,9 +93,9 @@ const handleLogin = async () => {
     <div class="buttons">
       <el-form-item class="button-group">
         <el-button type="primary" @click="handleLogin">登录</el-button>
-        <el-button type="primary">注册</el-button>
-        <el-button type="primary" @click="adminLogin">测试按钮:管理员登录</el-button>
+        <el-button type="primary" @click="handleRegister">注册</el-button>
 <!--        TODO : 这里后续要删除-->
+        <el-button type="primary" @click="adminLogin">测试按钮:管理员登录</el-button>
         <el-button type="primary">测试按钮:用户登录</el-button>
       </el-form-item>
     </div>

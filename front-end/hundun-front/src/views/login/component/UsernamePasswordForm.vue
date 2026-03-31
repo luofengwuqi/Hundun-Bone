@@ -5,6 +5,9 @@ import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
+// 定义 emits
+const emit = defineEmits(['changeLoginType'])
+
 //表单相关
 const form = reactive({
   username: '',
@@ -52,6 +55,10 @@ const handleLogin = async () => {
     }
   })
 
+}
+const handleRegister = async () => {
+  // 通知父组件切换到注册模式
+  emit('changeLoginType', 'register')
 }
   //TODO: 测试方法 最后要禁用
   const adminLogin = async ()=>{

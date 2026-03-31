@@ -17,12 +17,12 @@ const changeLoginType = (type) => {
 </script>
 <template>
   <div class="login">
-    <login-way @changeLoginType="changeLoginType"/>
+    <login-way @changeLoginType="changeLoginType" v-if="loginType !== 'register'"></login-way>
     <div class="loginForm" v-if="loginType==='username-password'">
-      <UsernamePasswordForm></UsernamePasswordForm>
+      <UsernamePasswordForm @changeLoginType="changeLoginType"></UsernamePasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='phone-password'">
-      <PhonePasswordForm></PhonePasswordForm>
+      <PhonePasswordForm @changeLoginType="changeLoginType"></PhonePasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='email-code'">
       <EmailCodeForm></EmailCodeForm>

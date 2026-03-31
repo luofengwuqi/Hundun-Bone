@@ -6,6 +6,9 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { loginRouterPush } from '@/utils/login/loginRouterPush.js'
 
+// 定义 emits
+const emit = defineEmits(['changeLoginType'])
+
 //表单相关
 const form = reactive({
   phone: '',
@@ -32,7 +35,7 @@ const handleLogin = async () => {
       console.log('验证通过，提交登录', form)
       const res = await loginByPhoneAndPassword(form.phone, form.password)
       // res.data:token/user
-      //操作pinia
+      //操作 pinia
       userStore.setToken(res.data.token)
       userStore.setUserInfo(res.data.user)
       ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
@@ -46,6 +49,11 @@ const handleLogin = async () => {
     }
 
   })
+}
+
+const changeLoginType = async () => {
+  // 通知父组件切换到注册模式
+  emit('changeLoginType', 'register')
 }
 
 
@@ -71,7 +79,7 @@ const handleLogin = async () => {
       <div class="buttons">
         <el-form-item class="button-group">
           <el-button type="primary" @click="handleLogin">登录</el-button>
-          <el-button type="primary">注册</el-button>
+          <el-button type="primary" @click="changeLoginType">注册</el-button>
         </el-form-item>
       </div>
       <router-link to="/help">忘记密码</router-link>

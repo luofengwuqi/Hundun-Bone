@@ -48,7 +48,6 @@ public class LoginFilter implements Filter {
         log.info("当前请求方法：{}", method);
 
         // ========== 1. 放行无需登录的接口（核心修复：加入注册接口） ==========
-        // 精准匹配：登录、注册，避免模糊匹配
         if (method.equals("OPTIONS")){
             log.info("OPTIONS请求，拦这个干啥 放了");
             chain.doFilter(request, response);

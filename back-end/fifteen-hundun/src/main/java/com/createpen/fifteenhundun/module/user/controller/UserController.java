@@ -3,9 +3,7 @@ package com.createpen.fifteenhundun.module.user.controller;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
-import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
@@ -13,7 +11,6 @@ import com.createpen.fifteenhundun.module.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,13 +23,7 @@ public class UserController {
     @Autowired
     private AdminService as;
 
-    @PostMapping("/login/username-password")
-    public Result<LoginRequestVO> loginUsernamePassword(@Valid @RequestBody LoginUsernamePasswordRequestDTO dto) {
-        log.info("用户登录");
-        log.info("已经接收到请求:LoginRequestDTO信息为{}",dto.toString());
-        LoginRequestVO vo =  us.loginUsernamePassword(dto);
-        return Result.success(vo);
-    }
+
 
 
     @PostMapping

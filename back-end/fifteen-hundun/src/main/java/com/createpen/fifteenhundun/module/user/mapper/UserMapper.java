@@ -35,11 +35,17 @@ public interface UserMapper {
     void deleteUserByUserName(String username);
 
 
-    List<User> selectByUserNameList(List userNameList);
+    List<User> selectByUserNameList(List<String> userNameList);
 
     @AutoLog(operateType = OperateTypeConstant.DELETE, moduleName = ModuleNameConstant.USER)
-    void deleteUserByUserNameList(List userNameList);
+    void deleteUserByUserNameList(List<String> userNameList);
 
     @Select("Select * from users where phone=#{phone}")
     User selectUserByPhone(@NotBlank(message = "手机号不能为空") @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式错误") String phone);
+
+    @Select("Select * from users where id= #{id}")
+    User selectUserById(Long id);
+
+    @Delete("delete from users where id= #{id}")
+    void deleteUserById(Long id);
 }

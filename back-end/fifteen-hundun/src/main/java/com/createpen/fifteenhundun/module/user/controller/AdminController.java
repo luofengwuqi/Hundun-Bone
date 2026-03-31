@@ -21,7 +21,7 @@ public class AdminController {
 
     //新建管理员
     @PostMapping("/admins")
-    public Result addAdmin(@RequestBody AddAdminDTO dto){
+    public Result<Void> addAdmin(@RequestBody AddAdminDTO dto){
         log.info("新建管理员");
         as.addAdmin(dto);
         return Result.success();
@@ -51,6 +51,14 @@ public class AdminController {
         Integer status = as.changeStatus(username);
         return Result.success(status);
     }
+    @DeleteMapping("/user/{id}")
+    public Result<Void> deleteUser(@PathVariable Long id)
+    {
+        log.info("删除用户");
+        as.deleteUserById(id);
+
+        return Result.success();
+    }
     //删除用户
 //    @DeleteMapping("/admins/users")
 //    public Result deleteUser(@RequestBody DeleteUsersDTO dto)
@@ -66,7 +74,7 @@ public class AdminController {
 
     //分页查询日志
     @GetMapping("/logs")
-    public Result SelectLog(@Valid @RequestBody GetLogsDTO dto)
+    public Result<PageVO> SelectLog(@Valid @RequestBody GetLogsDTO dto)
     {
         log.info("日志分页查询");
         PageVO vo = as.getLogs(dto);

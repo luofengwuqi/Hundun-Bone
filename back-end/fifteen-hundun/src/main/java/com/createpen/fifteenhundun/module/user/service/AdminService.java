@@ -23,4 +23,6 @@ public interface AdminService {
 //    void deleteUserByUserName(String username);
 
     PageVO getLogs(@Valid GetLogsDTO dto);
+
+    void deleteUserById(Long id);
 }

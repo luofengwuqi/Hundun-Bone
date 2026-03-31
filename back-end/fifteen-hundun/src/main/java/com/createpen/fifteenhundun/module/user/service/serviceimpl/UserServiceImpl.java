@@ -214,4 +214,7 @@ public class UserServiceImpl implements UserService {
         return userList;
     }
 
+    public User selectUserById(Long id) {
+        return um.selectUserById(id);
+    }
 }

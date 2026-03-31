@@ -17,16 +17,23 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.USERS_CACHE_EXPIRE_TIME;
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.USERS_CACHE_PATH;
 import static com.createpen.fifteenhundun.common.constant.UserStatusConstant.*;
 
 @Slf4j
@@ -40,6 +47,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private UserServiceImpl us;
+    
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public Integer getUserNumber() {
@@ -49,12 +62,6 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Transactional
-//    @Caching(
-//            evict={
-//                    @CacheEvict(cacheNames = "usersCache" ,allEntries = true),
-//                    @CacheEvict(cacheNames = "userCache" ,key = "#username")
-//            }
-//    )
     @Override
     public Integer changeStatus(String username) {
         User operateUser = um.getUserByUserName( username);
@@ -88,7 +95,7 @@ public class AdminServiceImpl implements AdminService {
                 break;
             }
             case STATUS_WUQI:{
-                throw new InsufficientPermissionsException("你干嘛 不许你这样对芜柒sama");
+                throw new InsufficientPermissionsException("你干嘛 不许你这样对芜柒 sama");
             }
             default:{
                 log.warn("用户状态未定义 系统已经将状态设为默认态");
@@ -100,17 +107,20 @@ public class AdminServiceImpl implements AdminService {
         um.updateUserByUserName(operateUser);
         log.info("用户状态已修改");
         log.info("用户状态:{}", operateUser.getStatus());
+        
+        //清除用户查询缓存
+        clearUsersCache();
+        
         return operateUser.getStatus();
     }
 
     @Override
-//    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
     public void addAdmin(AddAdminDTO dto) {
         log.info("开始添加管理员");
         log.info("开始校验是否已经存在");
         //这里的逻辑应该只有当时写代码的我还有上帝才能看得懂 这里就当是一个教训
         try{
-            us.getValidUserByUserName(dto.getUsername()).getUsername();
+            us.getValidUserByUserName(dto.getUsername());
         }catch (UserNotFoundException e)//不存在才继续 真拧巴
         {
             log.info("开始校验重要密码");
@@ -120,9 +130,6 @@ public class AdminServiceImpl implements AdminService {
                 throw new LoginException("你貌似没有被邀请 你干嘛啊??");
             }
             log.info("重要密码已校验通过");
-//            if (!PasswordUtil.check(dto.getImportantPassword(),ImportantConstant.IMPORTANTPASSWORD)) {
-//                throw new LoginException("你貌似没有被邀请 你干嘛啊??");
-//            }
 
             User u = new User();
             u.setUsername(dto.getUsername());
@@ -135,7 +142,10 @@ public class AdminServiceImpl implements AdminService {
 
             um.deleteUserByUserName("管理员待注册"+importantPassword);
             um.insertUser(u);
-//            us.cacheUser(u);
+            
+            //清除用户查询缓存
+            clearUsersCache();
+            
             return;
         }
         throw new UserExistedException("用户已存在");
@@ -148,30 +158,132 @@ public class AdminServiceImpl implements AdminService {
     public PageVO getUsers(GetUsersDTO dto) {
         log.info("开始分页查询用户");
         log.info("分页参数:{}",dto);
+        
+        //生成缓存 key
+        String cacheKey = generateUsersCacheKey(dto);
+        log.info("缓存 key:{}", cacheKey);
+        
+        //1. 先尝试从 Redis 获取缓存
+        Object cachedData = redisTemplate.opsForValue().get(cacheKey);
+        if (cachedData != null) {
+            log.info("命中缓存，从 Redis 获取数据");
+            try {
+                String json = (String) cachedData;
+
+                return objectMapper.readValue(json, PageVO.class);
+            } catch (JsonProcessingException e) {
+                log.error("反序列化缓存数据失败", e);
+            }
+        }
+        
+        log.info("缓存未命中，查询数据库");
+        
+        //2. 缓存未命中，查询数据库
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime(),dto.getLoginDays());
         Page<User> p = (Page<User>)userList;
-        return new PageVO(p.getTotal(),p.getResult());
+        PageVO pageVO = new PageVO(p.getTotal(),p.getResult());
+        
+        //3. 将结果存入 Redis 缓存
+        try {
+            String json = objectMapper.writeValueAsString(pageVO);
+            redisTemplate.opsForValue().set(cacheKey, json, USERS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+            log.info("已将查询结果存入 Redis 缓存，过期时间：{}分钟", USERS_CACHE_EXPIRE_TIME);
+        } catch (JsonProcessingException e) {
+            log.error("序列化缓存数据失败", e);
+        }
+        
+        return pageVO;
     }
+    
+    /**
+     * 生成用户查询缓存 key
+     * 根据查询条件生成唯一的 key
+     */
+    private String generateUsersCacheKey(GetUsersDTO dto) {
+        StringBuilder keyBuilder = new StringBuilder(USERS_CACHE_PATH);
+        keyBuilder.append("page_").append(dto.getPage()).append("_");
+        keyBuilder.append("size_").append(dto.getSize()).append("_");
+        
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
+            keyBuilder.append("name_").append(dto.getName()).append("_");
+        }
+        
+        if (dto.getStatus() != null) {
+            keyBuilder.append("status_").append(dto.getStatus()).append("_");
+        }
+        
+        if (dto.getBeginTime() != null) {
+            keyBuilder.append("begin_").append(dto.getBeginTime().toString()).append("_");
+        }
+        
+        if (dto.getEndTime() != null) {
+            keyBuilder.append("end_").append(dto.getEndTime().toString()).append("_");
+        }
+        
+        if (dto.getLoginDays() != null) {
+            keyBuilder.append("logindays_").append(dto.getLoginDays()).append("_");
+        }
+        
+        return keyBuilder.toString();
+    }
+
     @Override
 //todo:为分页查询日志添加缓存
     public PageVO getLogs(GetLogsDTO dto) {
         log.info("{}",dto);
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<OperateLog> l = am.getLogs(dto);
-        Page p = (Page) l;
+        Page<OperateLog> p = (Page<OperateLog>) l;
 
         return new PageVO(p.getTotal(),p.getResult());
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
+        log.info("{}",id);
+        User u =  us.selectUserById(id);
+        if(u == null){
+            throw new UserNotFoundException("用户不存在");
+        }
+        if(u.getStatus() == STATUS_WUQI ){
+            throw new InsufficientPermissionsException("不许你这样对管理员 sama");
+        }
+        um.deleteUserById(id);
+        
+        //清除用户查询缓存
+        clearUsersCache();
+    }
+    
+    /**
+     * 清除所有用户查询缓存
+     * 使用 pattern 删除匹配的所有 key
+     */
+    private void clearUsersCache() {
+        String pattern = USERS_CACHE_PATH + "*";
+        log.info("清除用户查询缓存，pattern:{}", pattern);
+        
+        try {
+            //获取所有匹配的 key
+            Set<String> keys = redisTemplate.keys(pattern);
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+                log.info("已删除 {} 个用户查询缓存 key", keys.size());
+            }
+        } catch (Exception e) {
+            log.error("清除用户查询缓存失败", e);
+        }
     }
 
     @Override
     public String makeInviteCode() {
         User u =new User();
         u.setPasswordHash(PasswordUtil.addMi("fqeqvbqeiovfbqiudbv"));
-        u.setStatus(STATUS_ADMIN);
+        u.setStatus(STATUS_ADMIN_BAN);
         //todoed: 生成邀请码
-        u.setInviteCode(RandomCodeUtil.makeComplexCode(10));
-        u.setUsername("管理员待注册"+u.getId());
+        String code = RandomCodeUtil.makeComplexCode(10);
+        u.setInviteCode(code);
+        u.setUsername("管理员待注册"+code.substring(0,2));
         um.insertUser(u);
         return u.getInviteCode();
     }

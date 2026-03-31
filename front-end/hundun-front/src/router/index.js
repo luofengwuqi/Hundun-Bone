@@ -12,11 +12,27 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to)=>{
+router.beforeEach(async (to) => {
   const userStore = useUserStore()
-  // 允许访问 login 和 help 页面
-  if(!userStore.token && to.path !=='/login' && to.path !== '/help')
+
+  // 未登录的情况
+  if (!userStore.token) {
+    // 如果访问的是 login 或 help 页面，直接放行
+    if (to.path === '/login' || to.path === '/help') {
+      return true
+    }
+    // 其他页面重定向到登录页
     return '/login'
+  }
+
+  // 已登录的情况
+  // 如果访问登录页，那就把pinia清空
+  if (to.path === '/login') {
+    useUserStore().setUserInfo({})
+    useUserStore().setToken('')
+  }
+  // 放行
+  return true
 })
 
 export default router

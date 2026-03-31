@@ -9,5 +9,5 @@ export const logout = async ()=> {
   userStore.setToken('')
   userStore.setUserInfo({})
   ElMessage.success('ヾ(￣▽￣)Bye~Bye~')
-  await router.push('/login')
+  await router.replace('/login')
 }

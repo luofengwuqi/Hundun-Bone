@@ -13,19 +13,27 @@ import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import com.createpen.fifteenhundun.module.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_EXPIRE_TIME;
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_PATH;
 
 @Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
+    private final RedisTemplate<String, Object> redisTemplate;
+
     private final UserMapper userMapper;
 
-    public LoginServiceImpl(UserMapper userMapper) {
+    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate) {
         this.userMapper = userMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -41,6 +49,7 @@ public class LoginServiceImpl implements LoginService {
         }
         //创建token
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
+        saveTokenInRedis(token,u.getId());
         //塞进vo
         return new LoginRequestVO(token,u);
     }
@@ -60,29 +69,36 @@ public class LoginServiceImpl implements LoginService {
         }
         //校验密码
         String password = l.getPassword() ;
-        //逻辑有误 增补:
-        log.info("已经查询到当前登录而存在的用户信息:{}",u);
-        log.info("即将进行密码校验 传递密码:{},查询到的加密密码:{}",password,u.getPasswordHash());
         if (!PasswordUtil.check(password,u.getPasswordHash())) {
             throw new LoginException("密码错误");
         }
         log.info("已经通过密码校验");
-        LoginRequestVO r = new LoginRequestVO();
+        //设置loginTime
+        u.setLastLoginAt(LocalDateTime.now());
+        userMapper.updateUserByUserName(u);
         //生成token往token里面塞点信息
         Map<String,Object> tokenDatamap = new HashMap<>();
         tokenDatamap.put("id",u.getId());
         tokenDatamap.put("username",u.getUsername());
+        //生成token 并存入redis(方便过期)
+        String token = JwtUtil.makeToken(tokenDatamap);
+        saveTokenInRedis(token,u.getId());
         //处理vo
-        r.setToken(JwtUtil.makeToken(tokenDatamap));
-        r.setUser(u);
+        LoginRequestVO vo = new LoginRequestVO();
+        vo.setToken(token);
+        vo.setUser(u);
 
-        //设置loginTime
-        u.setLastLoginAt(LocalDateTime.now());
-        userMapper.updateUserByUserName(u);
-
-        return r;
+        return vo;
 
     }
+    //共用方法：在 redis 中存储 token
+    public void saveTokenInRedis(String token,Long userId)
+    {
+        log.info("开始在redis存储token:{}",token);
+        redisTemplate.opsForValue().set(TOKEN_PATH+userId,token,TOKEN_EXPIRE_TIME, TimeUnit.MINUTES);
+    }
+
+    //辅助方法 校验用户存在性userService携带过来的...
     public User getValidUserByUserName(String username)
     {
         log.info("单个用户校验存在性开始");

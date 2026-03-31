@@ -7,6 +7,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -14,12 +15,16 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_PATH;
+
 /**
  * 登录校验过滤器（修复核心问题：放行注册接口、规范响应、处理空指针、避免重复注册）
  */
 @Slf4j
 @Component // 仅用Spring管理，去掉@WebFilter避免重复注册
 public class LoginFilter implements Filter {
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
@@ -37,6 +42,11 @@ public class LoginFilter implements Filter {
             "",                   // 邮箱 + 密码：允许所有方法
             "POST"                // 注册接口：仅允许 POST
     );
+
+    public LoginFilter(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         log.info("进入登录校验过滤器");
@@ -90,10 +100,17 @@ public class LoginFilter implements Filter {
             returnJson(res, 401, "登录已过期");
             return;
         }
+        //2.3 检验token在redis是否过期
+        Integer id = claims.get("id", Integer.class);
+        String redisToken = (String) redisTemplate.opsForValue().get(TOKEN_PATH + id);
+        if (redisToken == null || !redisToken.equals(token)) {
+            log.info("检查到token已过期，返回401");
+            returnJson(res, 401, "登录已过期...");
+            return;
+        }
 
         // ========== 3. 解析token中的用户信息（处理空指针） ==========
         log.info("token解析成功，提取用户信息");
-        Integer id = claims.get("id", Integer.class);
         String username = claims.get("username", String.class);
 
         // 空指针防护：id/username为空则返回401
@@ -109,6 +126,8 @@ public class LoginFilter implements Filter {
         log.info("用户信息已存入线程上下文，放行请求");
 
         // ========== 4. 放行请求 ==========
+        //更新redis中token过期时间
+        redisTemplate.expire(TOKEN_PATH + id, 30, java.util.concurrent.TimeUnit.MINUTES);
         chain.doFilter(request, response);
         log.info("请求已放行");
     }

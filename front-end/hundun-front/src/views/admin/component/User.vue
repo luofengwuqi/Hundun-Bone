@@ -229,8 +229,14 @@ const handleChangeStatus = async (username, targetStatus) => {
 
 //删除用户
 const handleDeleteUser = async (id) => {
+  // 弹出警告框
+  await ElMessageBox.confirm('确定要删除该用户吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  })
   await deleteSingleUser(id)
   await fetchUsers()
+  ElMessage.success(`ID${id}永远的消失了...`)
 }
 // 初始化加载
 onMounted(() => {

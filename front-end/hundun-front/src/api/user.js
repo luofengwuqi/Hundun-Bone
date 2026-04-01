@@ -37,4 +37,6 @@ export const deleteSingleUser = async (id)=> {
   return await request.delete(`/user/${id}`)
 }
 
-
+export const addAdmin = async (admin)=>{
+  return await request.post('/admin',admin)
+}

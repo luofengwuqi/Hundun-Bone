@@ -3,6 +3,8 @@ import { reactive, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, QuestionFilled, Message } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { addAdmin } from '@/api/user.js'
 
 // 定义 emits
 const emit = defineEmits(['changeLoginType','changeDialogShow'])
@@ -28,45 +30,60 @@ const rules = {
     { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' },
   ],
   importantPassword: [
-    { min: 6,max:20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6,max:20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
   ],
-  passwordAgain:[
+  passwordAgain: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { min: 6,max:20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
-    { validator: (rule, value, callback) => {
-      if (value !== form.password) {
-        callback(new Error('两次输入的密码不一致'))
-      } else {
-        callback()
+    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== form.password) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
       }
-      }}
+    }
   ],
 
   phone: [
-    { min: 11,max:11, message: '请输入11位手机号', trigger: 'blur' },
-    { validator: (rule, value, callback) => {
-      if (!/^1[3456789]\d{8}$/.test(value)) {
-        callback(new Error('请输入正确的手机号'))
-      } else {
-        callback()
+    {
+      validator: (rule, value, callback) => {
+        // 如果为空，直接通过验证
+        if (!value) {
+          callback()
+          return
+        }
+        if (!/^1[3456789]\d{8}$/.test(value)) {
+          callback(new Error('请输入正确的手机号'))
+        } else {
+          callback()
+        }
       }
-    }}
+    }
   ],
   email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { validator: (rule, value, callback) => {
-      if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(value)) {
-        callback(new Error('请输入正确的邮箱'))
-      } else {
-        callback()
+    {
+      validator: (rule, value, callback) => {
+        // 如果为空，直接通过验证
+        if (!value) {
+          callback()
+          return
+        }
+        if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(value)) {
+          callback(new Error('请输入正确的邮箱'))
+        } else {
+          callback()
+        }
       }
-    }}
+    }
   ]
 }
+
 //按钮相关
 const userStore = useUserStore()
 const router = useRouter()
@@ -83,7 +100,35 @@ watch(dialogVisible, (newVal) => {
 
 
 const handleRegister = async () => {
-
+  const valid = await formRef.value.validate()
+  if (!valid) {
+    console.log('表单验证失败')
+    return false
+  }
+  //管理员注册
+  if (adminOrNot){
+    const dto = {
+      username: form.username,
+      password: form.password,
+      phone: form.phone,
+      email: form.email,
+      importantPassword: form.importantPassword
+    }
+    await addAdmin(dto)
+  }
+  //用户注册
+  else {
+    const dto = {
+      username: form.username,
+      password: form.password,
+      phone: form.phone,
+      email: form.email
+    }
+    await addAdmin(dto)
+  }
+  ElMessage.success(`欢迎!${form.username}`)
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  handleBack()
 }
 </script>
 <template>

@@ -8,6 +8,7 @@ import com.createpen.fifteenhundun.common.exception.MyException.UserExistedExcep
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.RandomCodeUtil;
+import com.createpen.fifteenhundun.common.util.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
@@ -29,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.USERS_CACHE_EXPIRE_TIME;
@@ -53,6 +53,9 @@ public class AdminServiceImpl implements AdminService {
     
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private UserRedisUtil userRedisUtil;
+
 
     @Override
     public Integer getUserNumber() {
@@ -109,7 +112,7 @@ public class AdminServiceImpl implements AdminService {
         log.info("用户状态:{}", operateUser.getStatus());
         
         //清除用户查询缓存
-        clearUsersCache();
+        userRedisUtil.clearUsersCache();
         
         return operateUser.getStatus();
     }
@@ -142,7 +145,7 @@ public class AdminServiceImpl implements AdminService {
             um.insertUser(u);
             
             //清除用户查询缓存
-            clearUsersCache();
+            userRedisUtil.clearUsersCache();
             
             return;
         }
@@ -250,28 +253,14 @@ public class AdminServiceImpl implements AdminService {
         um.deleteUserById(id);
         
         //清除用户查询缓存
-        clearUsersCache();
+        userRedisUtil.clearUsersCache();
     }
     
     /**
      * 清除所有用户查询缓存
      * 使用 pattern 删除匹配的所有 key
      */
-    private void clearUsersCache() {
-        String pattern = USERS_CACHE_PATH + "*";
-        log.info("清除用户查询缓存，pattern:{}", pattern);
-        
-        try {
-            //获取所有匹配的 key
-            Set<String> keys = redisTemplate.keys(pattern);
-            if (keys != null && !keys.isEmpty()) {
-                redisTemplate.delete(keys);
-                log.info("已删除 {} 个用户查询缓存 key", keys.size());
-            }
-        } catch (Exception e) {
-            log.error("清除用户查询缓存失败", e);
-        }
-    }
+
 
     @Override
     public String makeInviteCode() {

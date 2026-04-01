@@ -20,12 +20,10 @@ public class GetUsersDTO {
 
     private Integer status;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    //设置默认值为很久以前
-    private LocalDateTime beginTime = LocalDateTime.of(1900,1,1,0,0,0);
+    private LocalDateTime beginTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    //设置默认值为现在
-    private LocalDateTime endTime = LocalDateTime.now();
+    private LocalDateTime endTime;
 
     //最近一次登录时间距今天数
     private Integer loginDays;

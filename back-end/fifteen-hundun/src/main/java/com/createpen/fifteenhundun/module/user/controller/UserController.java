@@ -22,10 +22,6 @@ public class UserController {
     private UserService us;
     @Autowired
     private AdminService as;
-
-
-
-
     @PostMapping
     public Result<RegisterVO> register(@Valid @RequestBody RegisterDTO dto)
     {

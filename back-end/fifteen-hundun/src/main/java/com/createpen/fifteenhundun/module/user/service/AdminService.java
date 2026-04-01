@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 
 public interface AdminService {
 
+
+
     Integer getUserNumber();
 
 

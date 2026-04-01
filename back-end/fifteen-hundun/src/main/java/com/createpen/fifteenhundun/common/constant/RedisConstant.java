@@ -5,7 +5,7 @@ public class RedisConstant {
     //token:${token}
     public static final String TOKEN_PATH = "token:";
     //30 个单位时间后自动过期 (三十分钟)
-    public static final Integer TOKEN_EXPIRE_TIME = 3;
+    public static final Integer TOKEN_EXPIRE_TIME = 30;
     
     //用户查询缓存前缀
     public static final String USERS_CACHE_PATH = "admin:users:";

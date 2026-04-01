@@ -117,13 +117,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void addAdmin(AddAdminDTO dto) {
         log.info("开始添加管理员");
-        log.info("开始校验是否已经存在");
         //这里的逻辑应该只有当时写代码的我还有上帝才能看得懂 这里就当是一个教训
         try{
             us.getValidUserByUserName(dto.getUsername());
         }catch (UserNotFoundException e)//不存在才继续 真拧巴
         {
-            log.info("开始校验重要密码");
             String importantPassword = am.selectInvitePassword(dto.getImportantPassword());
             log.info("检索到的邀请码#{}",importantPassword);
             if(importantPassword==null){

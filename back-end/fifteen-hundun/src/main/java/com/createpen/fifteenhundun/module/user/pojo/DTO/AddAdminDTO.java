@@ -18,9 +18,10 @@ public class AddAdminDTO {
     @Size(min = 6, max = 20, message = "密码长度在6-20之间")
     private String password;
 
-    @NotBlank(message = "测试密码不能为空")
-    @Size(min = 6, max = 20, message = "密码长度在6-20之间")
-    private String checkPassword;
+//    密码校验已在前端完成 后端不再接受而第二次输入的密码
+//    @NotBlank(message = "测试密码不能为空")
+//    @Size(min = 6, max = 20, message = "密码长度在6-20之间")
+//    private String checkPassword;
 
     private String avatarUrl;
 
@@ -42,7 +43,6 @@ public class AddAdminDTO {
         return "RegisterDTO{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", checkPassword='" + checkPassword + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 '}';

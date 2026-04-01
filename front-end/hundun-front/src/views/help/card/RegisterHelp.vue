@@ -9,7 +9,7 @@ import Card from '@/views/help/component/Card.vue'
       芜师傅的留言...
     </template>
     <template #main>
-      为了尽可能避免您在注册时产生不必要的麻烦<br>
+      为了尽可能避免在注册时给您带来不必要的麻烦<br>
       所以表单只有<b>用户名和密码</b>是<b>必须填写</b>的<br>
       但是还是推荐您尽可能多的填写该表单<br>
       以便后续登录有更多的选择 并防止账号丢失<br>

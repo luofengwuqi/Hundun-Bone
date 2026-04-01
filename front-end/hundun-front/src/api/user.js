@@ -40,3 +40,7 @@ export const deleteSingleUser = async (id)=> {
 export const addAdmin = async (admin)=>{
   return await request.post('/admin',admin)
 }
+
+export const addUser = async (user)=>{
+  return await request.post('/user',user)
+}

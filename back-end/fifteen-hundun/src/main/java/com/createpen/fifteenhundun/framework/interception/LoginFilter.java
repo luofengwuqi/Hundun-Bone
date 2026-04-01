@@ -32,7 +32,7 @@ public class LoginFilter implements Filter {
             "/user/login/phone-password",   //手机号 + 密码登录
             "/user/login/email-code",       //邮箱 + 验证码登录
             "/user/login/email-password",   //邮箱 + 密码登录
-            "/users",                        //注册接口
+            "/user",                        //注册接口
             "/admin"
     );
     //对应 SKIP_URIS 中需要限制方法的路径（索引对应

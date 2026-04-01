@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, QuestionFilled, Message } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { addAdmin } from '@/api/user.js'
+import { addAdmin, addUser } from '@/api/user.js'
 
 // 定义 emits
 const emit = defineEmits(['changeLoginType','changeDialogShow'])
@@ -105,14 +105,20 @@ const handleRegister = async () => {
     console.log('表单验证失败')
     return false
   }
+  console.log(form.importantPassword)
+  console.log(adminOrNot.value)
   //管理员注册
-  if (adminOrNot){
+  if (adminOrNot.value){
     const dto = {
       username: form.username,
       password: form.password,
-      phone: form.phone,
-      email: form.email,
       importantPassword: form.importantPassword
+    }
+    if (form.phone) {
+      dto.phone = form.phone
+    }
+    if (form.email) {
+      dto.email = form.email
     }
     await addAdmin(dto)
   }
@@ -120,11 +126,20 @@ const handleRegister = async () => {
   else {
     const dto = {
       username: form.username,
-      password: form.password,
-      phone: form.phone,
-      email: form.email
+      password: form.password
     }
-    await addAdmin(dto)
+
+    // 只有当手机号不为空时才添加
+    if (form.phone) {
+      dto.phone = form.phone
+    }
+
+    // 只有当邮箱不为空时才添加
+    if (form.email) {
+      dto.email = form.email
+    }
+    await addUser(dto)
+
   }
   ElMessage.success(`欢迎!${form.username}`)
   await new Promise(resolve => setTimeout(resolve, 1000))

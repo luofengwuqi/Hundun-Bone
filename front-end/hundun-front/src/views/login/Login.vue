@@ -6,12 +6,23 @@ import EmailPasswordForm from '@/views/login/component/EmailPasswordForm.vue'
 import UsernamePasswordForm from '@/views/login/component/UsernamePasswordForm.vue'
 import PhonePasswordForm from '@/views/login/component/PhonePasswordForm.vue'
 import Register from '@/views/login/component/Register.vue'
+import AdminRegisterWarn from '@/views/help/warn/AdminRegisterWarn.vue'
+import RegisterHelp from '@/views/help/card/RegisterHelp.vue'
 //登录模式选择器相关的东西(子传父)
 const loginType = ref(`username-password`)
 const changeLoginType = (type) => {
   console.log(`登录模式切换:${type}`)
   loginType.value = type
 }
+//提示相关的东西
+// (这里的逻辑写的比较糟糕 一用数组基本上就完蛋了哈哈哈 希望以后还能看懂)
+const changeDialogShow = ([index, value])=>{
+  dialogShow.value[index] = value
+}
+//index: 0:管理员警告 1:管理员提示
+//value: false禁用 true启用
+
+const dialogShow=ref([false,false])
 
 
 </script>
@@ -31,11 +42,24 @@ const changeLoginType = (type) => {
       <EmailPasswordForm></EmailPasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='register'">
-      <Register></Register>
+      <Register
+        @changeLoginType="changeLoginType"
+        @changeDialogShow="changeDialogShow"
+      ></Register>
     </div>
     <div class="loginForm" v-else>
       纳尼
     </div>
+    <div class="help">
+      <div class="admin-register_warn" v-if="loginType==='register' && dialogShow[0]">
+        <AdminRegisterWarn/>
+      </div>
+      <div class="register_help" v-if="loginType==='register' && dialogShow[1]">
+        <RegisterHelp/>
+      </div>
+    </div>
+
+
   </div>
 
 
@@ -54,4 +78,19 @@ const changeLoginType = (type) => {
     transform:translate(-50%,-50%);
   }
 }
+.help{
+  //注册相关提示
+  .admin-register_warn{
+    width: 25%;
+    position:absolute;
+    bottom:10%;
+    right:5%;
+  }
+  .register_help{
+    width: 25%;
+    position:absolute;
+    top:10%;
+    right:5%;
+  }
+ }
 </style>

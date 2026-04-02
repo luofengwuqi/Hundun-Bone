@@ -50,3 +50,10 @@ export const sendEmailCode = async (email)=>{
     email:email
   })
 }
+
+export const loginByEmailAndCode = async (email,code)=>{
+  return await request.post('/user/login/email-code',{
+    email,
+    code
+  })
+}

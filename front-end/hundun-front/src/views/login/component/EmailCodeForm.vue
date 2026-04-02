@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { loginByUsernameAndPassword, sendEmailCode } from '@/api/user.js'
+import { loginByEmailAndCode, sendEmailCode } from '@/api/user.js'
 import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -32,7 +32,7 @@ const handleLogin = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       console.log('验证通过，提交登录', form)
-      const res = await loginByUsernameAndPassword(form.username, form.password)
+      const res = await loginByEmailAndCode(form.email, form.code)
 
       //操作pinia
       userStore.setToken(res.data.token)
@@ -52,15 +52,47 @@ const handleRegister = async () => {
   // 通知父组件切换到注册模式
   emit('changeLoginType', 'register')
 }
+
+
+const isWaiting = ref(false)
+const countdown = ref(60)
+let timer = null
+
 const handleSend = async (email) => {
   if(!email){
     ElMessage.warning('请先输入邮箱哦/w\\')
     return
   }
+
+  // 防止重复点击
+  if (isWaiting.value) return
+
   emit('changeDialogShow', [2,true])
-  // 获取验证码
-  await sendEmailCode(email)
-  ElMessage.success('验证发送成功(∠・ω< )⌒★')
+  isWaiting.value = true
+  countdown.value = 60
+
+  try {
+    // 启动倒计时
+    timer = setInterval(() => {
+      countdown.value--
+      if (countdown.value <= 0) {
+        clearInterval(timer)
+        isWaiting.value = false
+        timer = null
+      }
+    }, 1000)
+    // 获取验证码
+    await sendEmailCode(email)
+    ElMessage.success('验证码发送成功 (∠・ω< )⌒★')
+  } catch (error) {
+    ElMessage.error('发送失败，请稍后重试')
+    isWaiting.value = false
+    countdown.value = 60
+    if (timer) {
+      clearInterval(timer)
+      timer = null
+    }
+  }
 }
 
 
@@ -84,7 +116,10 @@ const handleSend = async (email) => {
       </el-form-item>
       <el-form-item prop="password" class="send-box">
         <el-input v-model="form.code" placeholder="请输入验证码" prefix-icon="lock"></el-input>
-        <button type="button" class="send" @click="handleSend(form.email)">发送邀请码</button>
+        <button type="button" class="send" @click="handleSend(form.email)" :disabled="isWaiting">
+          <span v-if="isWaiting">请耐心等待 ({{ countdown }}秒)</span>
+          <span v-else>发送邀请码</span>
+        </button>
       </el-form-item>
       <div class="buttons">
         <el-form-item class="button-group">
@@ -140,6 +175,10 @@ const handleSend = async (email) => {
 
       color: #fff;
       text-align: center;
+    }
+    .send:disabled{
+      background-color: #ccc;
+      cursor: not-allowed;
     }
 
   }

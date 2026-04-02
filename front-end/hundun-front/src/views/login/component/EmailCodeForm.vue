@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { loginByUsernameAndPassword } from '@/api/user.js'
+import { loginByUsernameAndPassword, sendEmailCode } from '@/api/user.js'
 import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -52,6 +52,15 @@ const handleRegister = async () => {
   // 通知父组件切换到注册模式
   emit('changeLoginType', 'register')
 }
+const handleSend = async (email) => {
+  if(!email){
+    ElMessage.warning('请先输入邮箱哦/w\\')
+    return
+  }
+  // 获取验证码
+  await sendEmailCode(email)
+  ElMessage.success('验证码已发送')
+}
 
 
 
@@ -74,7 +83,7 @@ const handleRegister = async () => {
       </el-form-item>
       <el-form-item prop="password" class="send-box">
         <el-input v-model="form.code" placeholder="请输入验证码" prefix-icon="lock"></el-input>
-        <button class="send">发送邀请码</button>
+        <button type="button" class="send" @click="handleSend(form.email)">发送邀请码</button>
       </el-form-item>
       <div class="buttons">
         <el-form-item class="button-group">
@@ -130,9 +139,9 @@ const handleRegister = async () => {
 
       color: #fff;
       text-align: center;
-  }
+    }
 
-}
+  }
   /* 专门放大表单标签字体 */
   :deep(.el-form-item) {
     margin-bottom: 24px;

@@ -44,3 +44,9 @@ export const addAdmin = async (admin)=>{
 export const addUser = async (user)=>{
   return await request.post('/user',user)
 }
+
+export const sendEmailCode = async (email)=>{
+  return await request.post('/user/login/email-code/send',{
+    email:email
+  })
+}

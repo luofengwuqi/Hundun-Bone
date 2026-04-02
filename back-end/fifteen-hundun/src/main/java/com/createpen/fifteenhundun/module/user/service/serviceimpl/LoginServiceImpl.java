@@ -98,11 +98,18 @@ public class LoginServiceImpl implements LoginService {
             throw new UserExistedException("没找到这个邮箱...");
         }
         //2校验验证码
-        //todo:在缓存里拿到真的验证码
-        //todo:校验验证码
+        String trueCode = (String) redisTemplate.opsForValue().get(EMAIL_CODE_PATH+dto.getEmail());
+        if(trueCode == null){
+            throw new RuntimeException("验证码似乎过期了...");
+        }
+        if (!trueCode.equals(dto.getCode())) {
+            throw new PasswordException("验证码不对的...");
+        }
         //3通过 生成token 删除redis存的验证码 封装vo返回
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
+//        删除redis里面的验证码(设置一个立即过期的存储对象)
+        redisTemplate.opsForValue().set(EMAIL_CODE_PATH+dto.getEmail(),"123456",1,TimeUnit.MILLISECONDS);
 
 
 
@@ -121,12 +128,14 @@ public class LoginServiceImpl implements LoginService {
         }
         //2生成验证码并把他塞进redis
         String code = EmailCodeUtil.generateCode();
-        redisTemplate.opsForValue().set(EMAIL_CODE_PATH+email,code,EMAIL_CODE_EXPIRE_TIME,TimeUnit.MINUTES);
         //3发送验证码
         boolean result =  EmailCodeUtil.sendEmailCode(email,code);
         if(!result){
             throw new SendCodeException("验证码发送失败了QAQ(疑似并不是程序的问题...)");
         }
+        //4执行无误 塞进redis
+        redisTemplate.opsForValue().set(EMAIL_CODE_PATH+email,code,EMAIL_CODE_EXPIRE_TIME,TimeUnit.MINUTES);
+
     }
 
     //共用方法：在 redis 中存储 token

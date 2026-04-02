@@ -14,4 +14,6 @@ public class RedisConstant {
 
     //邮箱验证码(user:email:code:${email})
     public static final String EMAIL_CODE_PATH = "user:email:code:";
+    //5分钟过期
+    public static final long EMAIL_CODE_EXPIRE_TIME = 5;
 }

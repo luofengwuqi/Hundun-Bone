@@ -10,6 +10,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Objects;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -17,7 +19,7 @@ public class GlobalExceptionHandler {
     //DTO属性异常处理
     @ExceptionHandler
     public Result<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        String msg = e.getBindingResult().getFieldError().getDefaultMessage();
+        String msg = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
         log.info("DTO接收异常信息:{}",msg);
         return Result.fail(400,msg);
     }
@@ -91,10 +93,16 @@ public class GlobalExceptionHandler {
         String msg = e.getMessage();
         return Result.fail(400,msg);
     }
+    //验证码相关的异常
+    @ExceptionHandler
+    public Result<Void> handleSendCodeException(SendCodeException e) {
+        String msg = e.getMessage();
+        return Result.fail(400,msg);
+    }
 
     @ExceptionHandler
     public Result<Void> RedisConnectionFailureException(RedisConnectionFailureException e) {
-        return Result.fail(503,"redis似乎没有启动哦...");
+        return Result.fail(503,e.getMessage());
     }
 
 //    未知异常处理

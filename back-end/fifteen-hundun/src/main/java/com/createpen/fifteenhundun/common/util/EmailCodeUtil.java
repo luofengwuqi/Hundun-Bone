@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -11,6 +12,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 import java.util.Random;
 
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.EMAIL_CODE_EXPIRE_TIME;
+
+@Slf4j
 public class EmailCodeUtil {
     // 邮箱配置（修改为你的 QQ 邮箱 + 授权码）
     private static final String EMAIL_FROM = "luofengwuqi@qq.com";
@@ -48,7 +52,7 @@ public class EmailCodeUtil {
 
         try {
             // 3. 构建邮件内容
-            String content = "Ciallo～(∠・ω< )⌒★\n\n您期待已久的验证码是------\n\n" + code + "\n\n只在5 分钟内有效!\n\n祝您今天也有好心情!";
+            String content = "Ciallo～(∠・ω< )⌒★\n\n您期待已久的验证码是------\n\n" + code + "\n\n只在"+EMAIL_CODE_EXPIRE_TIME+" 分钟内有效!\n\n祝您今天也有好心情!";
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(EMAIL_FROM)); // 发件人
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail)); // 收件人
@@ -60,7 +64,7 @@ public class EmailCodeUtil {
             System.out.println("验证码发送成功！验证码：" + code);
             return true;
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.error("发送邮件失败，邮箱：{}", toEmail, e);
             return false;
         }
     }

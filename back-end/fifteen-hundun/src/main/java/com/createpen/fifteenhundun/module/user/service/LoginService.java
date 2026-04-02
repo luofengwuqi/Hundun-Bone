@@ -12,4 +12,6 @@ public interface LoginService {
     LoginRequestVO loginUsernamePassword(@Valid LoginUsernamePasswordRequestDTO l);
 
     LoginRequestVO loginEmailCode(LoginEmailCodeDTO dto);
+
+    void sendEmailCode(String email);
 }

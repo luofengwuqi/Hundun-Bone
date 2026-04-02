@@ -31,6 +31,7 @@ public class LoginFilter implements Filter {
             "/user/login/username-password",//用户名 + 密码登录
             "/user/login/phone-password",   //手机号 + 密码登录
             "/user/login/email-code",       //邮箱 + 验证码登录
+            "/user/login/email-code/send",   //邮箱验证码
             "/user/login/email-password",   //邮箱 + 密码登录
             "/user",                        //注册接口
             "/admin"
@@ -39,6 +40,7 @@ public class LoginFilter implements Filter {
     private static final List<String> SKIP_URIS_METHODS = Arrays.asList(
             "",                   // 用户名 + 密码：允许所有方法
             "",                   // 手机号 + 密码：允许所有方法
+            "",                   // 邮箱 + 验证码：允许所有方法
             "",                   // 邮箱 + 验证码：允许所有方法
             "",                   // 邮箱 + 密码：允许所有方法
             "POST",                // 注册接口：仅允许 POST
@@ -85,7 +87,7 @@ public class LoginFilter implements Filter {
             // 兼容旧的 token 头方式
             token = req.getHeader("token");
         }
-                
+
         // 2.1 token 为空 → 返回 401（规范响应流）
         if (token == null || token.isEmpty()) {
             log.info("检查到 token 为空，返回 401");

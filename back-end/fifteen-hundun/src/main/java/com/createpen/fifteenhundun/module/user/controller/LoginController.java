@@ -46,10 +46,13 @@ public class LoginController {
         return Result.success(vo);
     }
     //和上一个方法配套的验证码发送方法
-    @PostMapping("/email-code")
+    @PostMapping("/email-code/send")
     public Result<Void> sendEmailCode(@RequestBody String email)
     {
         log.info("开始发送邮箱验证码");
+        email= email.substring(10,email.length()-2);
+        log.info("接收到的邮箱为{}",email);
+        loginService.sendEmailCode(email);
         return Result.success();
     }
 }

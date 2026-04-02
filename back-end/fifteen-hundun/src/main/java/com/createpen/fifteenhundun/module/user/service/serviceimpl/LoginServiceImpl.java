@@ -1,9 +1,7 @@
 package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
-import com.createpen.fifteenhundun.common.exception.MyException.LoginException;
-import com.createpen.fifteenhundun.common.exception.MyException.PasswordException;
-import com.createpen.fifteenhundun.common.exception.MyException.UserExistedException;
-import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
+import com.createpen.fifteenhundun.common.exception.MyException.*;
+import com.createpen.fifteenhundun.common.util.EmailCodeUtil;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
@@ -22,8 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_EXPIRE_TIME;
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_PATH;
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 
 @Slf4j
 @Service
@@ -113,6 +110,23 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         return vo;
+    }
+
+    @Override
+    public void sendEmailCode(String email) {
+        //1校验邮箱是否存在
+        User u = userMapper.selectUserByEmail(email);
+        if(u==null){
+            throw new UserExistedException("邮箱不存在...");
+        }
+        //2生成验证码并把他塞进redis
+        String code = EmailCodeUtil.generateCode();
+        redisTemplate.opsForValue().set(EMAIL_CODE_PATH+email,code,EMAIL_CODE_EXPIRE_TIME,TimeUnit.MINUTES);
+        //3发送验证码
+        boolean result =  EmailCodeUtil.sendEmailCode(email,code);
+        if(!result){
+            throw new SendCodeException("验证码发送失败了QAQ(疑似并不是程序的问题...)");
+        }
     }
 
     //共用方法：在 redis 中存储 token

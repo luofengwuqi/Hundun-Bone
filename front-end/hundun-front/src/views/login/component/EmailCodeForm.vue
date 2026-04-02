@@ -7,7 +7,7 @@ import { ElMessage } from 'element-plus'
 import { loginRouterPush } from '@/utils/login/loginRouterPush.js'
 
 // 定义 emits
-const emit = defineEmits(['changeLoginType'])
+const emit = defineEmits(['changeLoginType','changeDialogShow'])
 
 //表单相关
 const form = reactive({
@@ -57,9 +57,10 @@ const handleSend = async (email) => {
     ElMessage.warning('请先输入邮箱哦/w\\')
     return
   }
+  emit('changeDialogShow', [2,true])
   // 获取验证码
   await sendEmailCode(email)
-  ElMessage.success('验证码已发送')
+  ElMessage.success('验证发送成功(∠・ω< )⌒★')
 }
 
 

@@ -8,6 +8,7 @@ import PhonePasswordForm from '@/views/login/component/PhonePasswordForm.vue'
 import Register from '@/views/login/component/Register.vue'
 import AdminRegisterWarn from '@/views/help/warn/AdminRegisterWarn.vue'
 import RegisterHelp from '@/views/help/card/RegisterHelp.vue'
+import SendEmailCodeHelp from '@/views/help/card/SendEmailCodeHelp.vue'
 //登录模式选择器相关的东西(子传父)
 const loginType = ref(`username-password`)
 const changeLoginType = (type) => {
@@ -17,12 +18,14 @@ const changeLoginType = (type) => {
 //提示相关的东西
 // (这里的逻辑写的比较糟糕 一用数组基本上就完蛋了哈哈哈 希望以后还能看懂)
 const changeDialogShow = ([index, value])=>{
+  console.log(`提示框切换:[${index},${value}]`)
+
   dialogShow.value[index] = value
 }
-//index: 0:管理员警告 1:管理员提示
+//index: 0:管理员警告 1:管理员提示 2:验证码发送提示
 //value: false禁用 true启用
 
-const dialogShow=ref([false,false])
+const dialogShow=ref([false,false,false])
 
 
 </script>
@@ -36,10 +39,14 @@ const dialogShow=ref([false,false])
       <PhonePasswordForm @changeLoginType="changeLoginType"></PhonePasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='email-code'">
-      <EmailCodeForm></EmailCodeForm>
+      <EmailCodeForm
+        @changeLoginType="changeLoginType"
+        @changeDialogShow="changeDialogShow"></EmailCodeForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='email-password'">
-      <EmailPasswordForm></EmailPasswordForm>
+      <EmailPasswordForm
+        @changeLoginType="changeLoginType"
+        @changeDialogShow="changeDialogShow"></EmailPasswordForm>
     </div>
     <div class="loginForm" v-else-if="loginType==='register'">
       <Register
@@ -51,11 +58,14 @@ const dialogShow=ref([false,false])
       纳尼
     </div>
     <div class="help">
-      <div class="admin-register_warn" v-if="loginType==='register' && dialogShow[0]">
+      <div class="admin-register-warn" v-if="loginType==='register' && dialogShow[0]">
         <AdminRegisterWarn/>
       </div>
-      <div class="register_help" v-if="loginType==='register' && dialogShow[1]">
+      <div class="register-help" v-if="loginType==='register' && dialogShow[1]">
         <RegisterHelp/>
+      </div>
+      <div class="send-email-code-help" v-if="loginType==='email-code' && dialogShow[2]">
+        <SendEmailCodeHelp/>
       </div>
     </div>
 
@@ -80,16 +90,23 @@ const dialogShow=ref([false,false])
 }
 .help{
   //注册相关提示
-  .admin-register_warn{
+  .admin-register-warn{
     width: 25%;
     position:absolute;
     bottom:10%;
     right:5%;
   }
-  .register_help{
+  .register-help{
     width: 25%;
     position:absolute;
     top:10%;
+    right:5%;
+  }
+  //登录相关提示
+  .send-email-code-help{
+    width: 25%;
+    position:absolute;
+    bottom:10%;
     right:5%;
   }
  }

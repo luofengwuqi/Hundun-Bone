@@ -6,7 +6,9 @@ import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
 import com.createpen.fifteenhundun.common.constant.OperateTypeConstant;
 import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
@@ -48,4 +50,6 @@ public interface UserMapper {
 
     @Delete("delete from users where id= #{id}")
     void deleteUserById(Long id);
+    @Select("Select * from users where email= #{email}")
+    User selectUserByEmail(@NotEmpty @Email String email);
 }

@@ -11,4 +11,7 @@ public class RedisConstant {
     public static final String USERS_CACHE_PATH = "admin:users:";
     //用户查询缓存过期时间（5 分钟）
     public static final Long USERS_CACHE_EXPIRE_TIME = 5L;
+
+    //邮箱验证码(user:email:code:${email})
+    public static final String EMAIL_CODE_PATH = "user:email:code:";
 }

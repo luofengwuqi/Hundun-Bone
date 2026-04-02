@@ -26,17 +26,14 @@ public class RegisterDTO {
 
     private String avatarUrl;
 
-    /**
-     * 手机号（可选，唯一）
-     */
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式错误")
-    private String phone;
+  // 手机号（可选）
+@Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式错误")
+private String phone;
 
-    /**
-     * 邮箱（可选，唯一）
-     */
-    @Email(message = "邮箱格式错误")
-    private String email;
+// 邮箱（可选，唯一）
+@Email(message = "邮箱格式错误")
+private String email;
+
 
     //重写toString方法
     @Override
@@ -48,5 +45,4 @@ public class RegisterDTO {
                 ", email='" + email + '\'' +
                 '}';
     }
-
 }

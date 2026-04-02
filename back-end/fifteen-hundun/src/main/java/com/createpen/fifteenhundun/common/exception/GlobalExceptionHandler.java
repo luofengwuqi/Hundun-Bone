@@ -41,6 +41,7 @@ public class GlobalExceptionHandler {
         String msg = e.getMessage();
         return Result.fail(404,msg);
     }
+    @ExceptionHandler
     public Result<Void> handleUserExistedException(UserExistedException e) {
         String msg = e.getMessage();
         log.info("已接受到用户已存在异常");
@@ -93,8 +94,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public Result<Void> RedisConnectionFailureException(RedisConnectionFailureException e) {
-        String msg = e.getMessage();
-        return Result.fail(503,msg);
+        return Result.fail(503,"redis似乎没有启动哦...");
     }
 
 //    未知异常处理

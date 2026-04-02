@@ -1,6 +1,7 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -35,5 +36,20 @@ public class LoginController {
         LoginRequestVO  vo= loginService.loginPhonePassword(dto);
         log.info("手机密码登录成功");
         return Result.success(vo);
+    }
+
+    @PostMapping("/email-code")
+    public Result<LoginRequestVO> loginEmailCode(@RequestBody LoginEmailCodeDTO dto)
+    {
+        LoginRequestVO  vo= loginService.loginEmailCode(dto);
+        log.info("邮箱验证码登录成功");
+        return Result.success(vo);
+    }
+    //和上一个方法配套的验证码发送方法
+    @PostMapping("/email-code")
+    public Result<Void> sendEmailCode(@RequestBody String email)
+    {
+        log.info("开始发送邮箱验证码");
+        return Result.success();
     }
 }

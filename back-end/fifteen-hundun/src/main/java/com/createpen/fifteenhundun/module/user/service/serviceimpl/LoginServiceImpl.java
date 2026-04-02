@@ -7,6 +7,7 @@ import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundExce
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
@@ -91,6 +92,29 @@ public class LoginServiceImpl implements LoginService {
         return vo;
 
     }
+
+    @Override
+    public LoginRequestVO loginEmailCode(LoginEmailCodeDTO dto) {
+        //1查询是否存在
+        User u = userMapper.selectUserByEmail(dto.getEmail());
+        if(u==null){
+            throw new UserExistedException("没找到这个邮箱...");
+        }
+        //2校验验证码
+        //todo:在缓存里拿到真的验证码
+        //todo:校验验证码
+        //3通过 生成token 删除redis存的验证码 封装vo返回
+        String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
+        saveTokenInRedis(token,u.getId());
+
+
+
+        LoginRequestVO vo = new LoginRequestVO();
+        vo.setToken(token);
+        vo.setUser(u);
+        return vo;
+    }
+
     //共用方法：在 redis 中存储 token
     public void saveTokenInRedis(String token,Long userId)
     {

@@ -49,22 +49,23 @@
     WHERE username = #{username,jdbcType=VARCHAR}
 </update>
     <delete id="deleteUserByUserNameList">
-        DELETE
-
-        FROM users
-        WHERE 1=1
-        <!-- 核心：遍历用户名列表，拼接IN条件 -->
-        <if test="userNameList != null and userNameList.size() > 0">
-            AND username IN
-            <foreach collection="userNameList"
-                     item="username"
-                     index="index"
-                     open="("
-                     close=")"
-                     separator=",">
-                #{username}
-            </foreach>
-        </if>
+        DELETE FROM users
+        <where>
+            <if test="userNameList != null and userNameList.size() > 0">
+                username IN
+                <foreach collection="userNameList"
+                         item="username"
+                         index="index"
+                         open="("
+                         close=")"
+                         separator=",">
+                    #{username}
+                </foreach>
+            </if>
+            <if test="userNameList == null or userNameList.size() == 0">
+                1 = 0
+            </if>
+        </where>
     </delete>
 
 
@@ -98,19 +99,19 @@
         updated_at AS updatedAt,
         last_login_at AS lastLoginAt
         FROM users
-        WHERE 1=1
-        <!-- 核心：遍历用户名列表，拼接IN条件 -->
-        <if test="userNameList != null and userNameList.size() > 0">
-            AND username IN
-            <foreach collection="userNameList"
-                item="username"
-                index="index"
-                open="("
-                close=")"
-                separator=",">
-                #{username}
-            </foreach>
-        </if>
+        <where>
+            <if test="userNameList != null and userNameList.size() > 0">
+                username IN
+                <foreach collection="userNameList"
+                    item="username"
+                    index="index"
+                    open="("
+                    close=")"
+                    separator=",">
+                    #{username}
+                </foreach>
+            </if>
+        </where>
     </select>
     <select id="checkUserNotExists" resultType="java.lang.Integer">
         SELECT COUNT(*) AS count

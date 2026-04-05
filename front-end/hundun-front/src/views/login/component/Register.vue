@@ -40,6 +40,7 @@ const rules = {
     { required: true, message: '请再次输入密码', trigger: 'blur' },
     { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
     {
+      trigger: 'blur',
       validator: (rule, value, callback) => {
         if (value !== form.password) {
           callback(new Error('两次输入的密码不一致'))
@@ -52,13 +53,15 @@ const rules = {
 
   phone: [
     {
+      trigger: 'blur',
       validator: (rule, value, callback) => {
         // 如果为空，直接通过验证
-        if (!value) {
+        if (!value || value === '') {
           callback()
           return
         }
-        if (!/^1[3456789]\d{8}$/.test(value)) {
+        const phoneStr = String(value).replace(/\s+/g, '')
+        if (!/^1[3456789]\d{9}$/.test(phoneStr)) {
           callback(new Error('请输入正确的手机号'))
         } else {
           callback()
@@ -68,6 +71,7 @@ const rules = {
   ],
   email: [
     {
+      trigger: 'blur',
       validator: (rule, value, callback) => {
         // 如果为空，直接通过验证
         if (!value) {
@@ -163,23 +167,23 @@ const handleRegister = async () => {
       </div>
 <!--   表单项   -->
       <el-form-item prop="importantPassword" v-if="adminOrNot">
-        <el-input v-model="form.importantPassword" placeholder="请输入管理员邀请码" prefix-icon="lock"></el-input>
+        <el-input v-model.trim="form.importantPassword" placeholder="请输入管理员邀请码" prefix-icon="lock"></el-input>
       </el-form-item>
       <el-form-item prop="username">
-        <el-input v-model="form.username" placeholder="请输入用户名" prefix-icon="user" >
+        <el-input v-model.trim="form.username" placeholder="请输入用户名" prefix-icon="user" >
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input v-model="form.password" placeholder="请输入密码" prefix-icon="lock"></el-input>
+        <el-input v-model.trim="form.password" placeholder="请输入密码" prefix-icon="lock"></el-input>
       </el-form-item>
       <el-form-item prop="passwordAgain">
-        <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" prefix-icon="lock"></el-input>
+        <el-input v-model.trim="form.passwordAgain" placeholder="请再次输入密码" prefix-icon="lock"></el-input>
       </el-form-item>
       <el-form-item prop="phone">
-        <el-input v-model="form.phone" placeholder="请输入手机号" prefix-icon="phone"></el-input>
+        <el-input v-model.trim="form.phone" placeholder="请输入手机号" prefix-icon="phone"></el-input>
       </el-form-item>
       <el-form-item prop="email">
-        <el-input v-model="form.email" placeholder="请输入邮箱" :prefix-icon="Message"></el-input>
+        <el-input v-model.trim="form.email" placeholder="请输入邮箱" :prefix-icon="Message"></el-input>
       </el-form-item>
 <!--   管理员注册开关   -->
       <el-switch

@@ -74,7 +74,7 @@ const rules = {
           callback()
           return
         }
-        if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(value)) {
+        if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(value)) {
           callback(new Error('请输入正确的邮箱'))
         } else {
           callback()

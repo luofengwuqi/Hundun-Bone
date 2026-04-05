@@ -18,7 +18,6 @@ const form = reactive({
 const rules = {
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
-
   ],
   code: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
@@ -111,7 +110,7 @@ const handleSend = async (email) => {
       label-width="auto"
       style="max-width: 600px">
       <el-form-item prop="username">
-        <el-input v-model="form.email" placeholder="请输入邮箱" prefix-icon="user" >
+        <el-input v-model="form.email" placeholder="请输入邮箱" prefix-icon="message" >
         </el-input>
       </el-form-item>
       <el-form-item prop="password" class="send-box">

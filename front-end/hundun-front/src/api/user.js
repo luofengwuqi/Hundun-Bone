@@ -57,3 +57,10 @@ export const loginByEmailAndCode = async (email,code)=>{
     code
   })
 }
+
+export const loginByEmailAndPassword = async (email,password)=>{
+  return await request.post('/user/login/email-password',{
+    email,
+    password
+  })
+}

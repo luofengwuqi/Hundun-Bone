@@ -28,23 +28,15 @@ public class LoginFilter implements Filter {
 
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
-            "/user/login/username-password",//用户名 + 密码登录
-            "/user/login/phone-password",   //手机号 + 密码登录
-            "/user/login/email-code",       //邮箱 + 验证码登录
-            "/user/login/email-code/send",   //邮箱验证码
-            "/user/login/email-password",   //邮箱 + 密码登录
-            "/user",                        //注册接口
+            "/user/login",                        // /user/login 下的所有接口
+            "/user",                              // 注册接口
             "/admin"
     );
     //对应 SKIP_URIS 中需要限制方法的路径（索引对应
     private static final List<String> SKIP_URIS_METHODS = Arrays.asList(
-            "",                   // 用户名 + 密码：允许所有方法
-            "",                   // 手机号 + 密码：允许所有方法
-            "",                   // 邮箱 + 验证码：允许所有方法
-            "",                   // 邮箱 + 验证码：允许所有方法
-            "",                   // 邮箱 + 密码：允许所有方法
-            "POST",                // 注册接口：仅允许 POST
-            "POST"                // 注册接口：仅允许 POST
+            "",                   // /user/login/*：允许所有方法
+            "POST",               // 注册接口：仅允许 POST
+            "POST"                // 管理员接口：仅允许 POST
     );
 
     public LoginFilter(RedisTemplate<String, Object> redisTemplate) {
@@ -166,7 +158,11 @@ public class LoginFilter implements Filter {
     private boolean isSkipUrl(String uri,String method) {
         for(int i = 0 ; i < SKIP_URIS.size(); i++)
         {
-            if(!uri.equals(SKIP_URIS.get(i)))
+            String skipUri = SKIP_URIS.get(i);
+            // 判断是否为子路径匹配（如 /user/login/email-password 匹配 /user/login）
+            boolean isMatch = uri.equals(skipUri) || uri.startsWith(skipUri + "/");
+            
+            if(!isMatch)
             {//不匹配 下一条校验
                 continue;
             }
@@ -178,10 +174,8 @@ public class LoginFilter implements Filter {
             }
             else
             {//有额外的限定 比如注册是POST
-//                log.warn("你好 拦你");
                 if(method.equals(currentMethod))
                 {
-//                    log.warn("你过关!");
                     return true;
                 }
             }

@@ -6,6 +6,7 @@ import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
@@ -136,6 +137,26 @@ public class LoginServiceImpl implements LoginService {
         //4执行无误 塞进redis
         redisTemplate.opsForValue().set(EMAIL_CODE_PATH+email,code,EMAIL_CODE_EXPIRE_TIME,TimeUnit.MINUTES);
 
+    }
+
+    @Override
+    public LoginRequestVO loginEmailPassword(LoginEmailPassWordDTO dto) {
+        //1校验邮箱是否存在
+        User u = userMapper.selectUserByEmail(dto.getEmail());
+        if(u==null){
+            throw new UserExistedException("邮箱不存在...");
+        }
+        //2校验密码
+        if(!PasswordUtil.check(dto.getPassword(),u.getPasswordHash())){
+            throw new PasswordException("密码输错了...");
+        }
+        //3通过 封装vo返回
+        String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
+        saveTokenInRedis(token,u.getId());
+        LoginRequestVO vo = new LoginRequestVO();
+        vo.setToken(token);
+        vo.setUser(u);
+        return vo;
     }
 
     //共用方法：在 redis 中存储 token

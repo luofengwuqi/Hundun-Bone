@@ -1,6 +1,7 @@
 package com.createpen.fifteenhundun.module.user.service;
 
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -14,4 +15,6 @@ public interface LoginService {
     LoginRequestVO loginEmailCode(LoginEmailCodeDTO dto);
 
     void sendEmailCode(String email);
+
+    LoginRequestVO loginEmailPassword(LoginEmailPassWordDTO dto);
 }

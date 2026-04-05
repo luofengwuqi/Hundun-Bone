@@ -2,6 +2,7 @@ package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
@@ -54,5 +55,14 @@ public class LoginController {
         log.info("接收到的邮箱为{}",email);
         loginService.sendEmailCode(email);
         return Result.success();
+    }
+
+    //邮箱+验证码登录
+    @PostMapping("/email-password")
+    public Result<LoginRequestVO> loginEmailCode(@RequestBody LoginEmailPassWordDTO dto)
+    {
+        LoginRequestVO  vo= loginService.loginEmailPassword(dto);
+        log.info("邮箱验证码登录成功");
+        return Result.success(vo);
     }
 }

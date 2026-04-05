@@ -112,4 +112,20 @@
             </foreach>
         </if>
     </select>
+    <select id="checkUserNotExists" resultType="java.lang.Integer">
+        SELECT COUNT(*) AS count
+        FROM users
+        <where>
+            <if test="username != null">
+                username = #{username}
+            </if>
+            <if test="email != null">
+                OR email = #{email}
+            </if>
+            <if test="phone != null">
+                OR phone = #{phone}
+            </if>
+        </where>
+    </select>
+
 </mapper>

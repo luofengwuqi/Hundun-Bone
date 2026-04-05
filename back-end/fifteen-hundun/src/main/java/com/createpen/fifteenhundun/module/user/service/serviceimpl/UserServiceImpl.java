@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public RegisterVO register(RegisterDTO dto) {
         //1检验用户是否已经存在
-        checkUserNotExists(dto.getUsername());
+        checkUserNotExists(dto.getUsername(),dto.getPhone(),dto.getEmail());
         //2 不存在 插入
         User u = new User();
         BeanUtils.copyProperties(dto,u);
@@ -78,16 +79,22 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    //辅助性方法 用户存在报错
-    public void checkUserNotExists(String username)
+    //辅助性方法 注册时候验证username  email phone 的唯一性
+    public void checkUserNotExists(String username,String phone,String email)
     {
-        User u = um.getUserByUserName(username);
-        if(u!=null)
-        {
-            throw new UserExistedException("用户已存在");
+        Integer id = um.checkUserNotExists(username,phone,email);
+        //无事发生
+        if(id == null || id == 0) {
+            return;
         }
-
+        //出逝了
+        List<String> occupiedFields = new ArrayList<>();
+        if(phone != null) occupiedFields.add("手机号");
+        if(email != null) occupiedFields.add("邮箱");
+        
+        throw new UserExistedException("提交的用户名/" + String.join("/", occupiedFields) + "已被占用...");
     }
+
 
     //辅助性方法 用户是否存在
     //1 单个用户

@@ -45,7 +45,6 @@ public class UserController {
     }
 
     @DeleteMapping
-//    @CacheEvict(cacheNames = "usersCache" ,allEntries = true)
     public Result<Void> deleteUsers(@Valid @RequestBody DeleteUsersDTO dto) throws Exception {
         log.info("用户删除");
 //        log.info("即将进行用户删除 捕获到信息:{}",dto);

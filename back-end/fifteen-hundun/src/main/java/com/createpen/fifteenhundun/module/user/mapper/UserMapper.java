@@ -52,4 +52,6 @@ public interface UserMapper {
     void deleteUserById(Long id);
     @Select("Select * from users where email= #{email}")
     User selectUserByEmail(@NotEmpty @Email String email);
+
+    Integer checkUserNotExists(String username, String phone, String email);
 }

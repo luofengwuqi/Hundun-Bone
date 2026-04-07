@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.util;
+package com.createpen.fifteenhundun.common.util.Redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

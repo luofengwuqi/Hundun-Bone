@@ -3,7 +3,7 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
-import com.createpen.fifteenhundun.common.util.UserRedisUtil;
+import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;

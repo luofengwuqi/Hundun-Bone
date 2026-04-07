@@ -1,9 +1,16 @@
 package com.createpen.fifteenhundun.module.user.service;
 
+import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateFeedbackStatusDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.Feedback;
 
 import java.util.List;
 
 public interface FeedbackService {
     List<Feedback> selectAllFeedback();
+    
+    /**
+     * 更新反馈状态
+     * @param dto 包含反馈ID和新状态的DTO
+     */
+    void updateFeedbackStatus(UpdateFeedbackStatusDTO dto);
 }

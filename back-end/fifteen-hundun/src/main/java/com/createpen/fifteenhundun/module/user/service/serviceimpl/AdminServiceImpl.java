@@ -8,7 +8,7 @@ import com.createpen.fifteenhundun.common.exception.MyException.UserExistedExcep
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.RandomCodeUtil;
-import com.createpen.fifteenhundun.common.util.UserRedisUtil;
+import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;

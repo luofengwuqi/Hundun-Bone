@@ -4,6 +4,7 @@ import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.InsufficientPermissionsException;
 import com.createpen.fifteenhundun.module.user.mapper.FeedbackMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateFeedbackStatusDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.Feedback;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.FeedbackService;
@@ -70,6 +71,25 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
         
         return feedbacks;
+    }
+
+    @Override
+    public void updateFeedbackStatus(UpdateFeedbackStatusDTO dto) {
+        // 1. 判断权限是否允许
+        isAllowed();
+        
+        // 2. 更新反馈状态
+        int rows = feedbackMapper.updateFeedbackStatus(dto.getId(), dto.getStatus());
+        
+        if(rows == 0){
+            throw new RuntimeException("反馈不存在或更新失败");
+        }
+        
+        log.info("成功更新反馈状态，反馈ID：{}，新状态：{}", dto.getId(), dto.getStatus());
+        
+        // 3. 清除缓存，确保下次查询获取最新数据
+        redisTemplate.delete(FEEDBACK_CACHE_PATH);
+        log.info("已清除反馈缓存，确保数据一致性");
     }
 
 

@@ -59,7 +59,7 @@ public class LoginFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
-        if (isSkipUrl(uri,method)) {
+        if (isSkipUrl(uri,method) && !uri.equals("/user/login/logout")) {
             log.info("检查到无需登录的请求（登录/注册），直接放行");
             BaseContext.setCurrentUsername("login");
             BaseContext.setCurrentId(0L);

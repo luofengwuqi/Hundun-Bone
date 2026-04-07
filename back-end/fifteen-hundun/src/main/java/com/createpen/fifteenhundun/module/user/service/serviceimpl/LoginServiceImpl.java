@@ -1,9 +1,11 @@
 package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
+import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.EmailCodeUtil;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
+import com.createpen.fifteenhundun.common.util.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;
@@ -13,6 +15,7 @@ import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import com.createpen.fifteenhundun.module.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,10 @@ import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 @Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
+
+    @Autowired
+    private UserRedisUtil userRedisUtil;
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final UserMapper userMapper;
@@ -39,8 +46,8 @@ public class LoginServiceImpl implements LoginService {
     public LoginRequestVO loginPhonePassword(LoginPhonePasswordDTO dto) {
         //检验存在性
         User u = userMapper.selectUserByPhone(dto.getPhone());
-        if( u==null ){
-            throw new UserExistedException("貌似没有这个手机号的...");
+        if( u== null ){
+            throw new UserNotFoundException("貌似没有这个手机号的...");
         }
         //校验密码
         if(!PasswordUtil.check(dto.getPassword(),u.getPasswordHash())){
@@ -96,7 +103,7 @@ public class LoginServiceImpl implements LoginService {
         //1查询是否存在
         User u = userMapper.selectUserByEmail(dto.getEmail());
         if(u==null){
-            throw new UserExistedException("没找到这个邮箱...");
+            throw new UserNotFoundException("没找到这个邮箱...");
         }
         //2校验验证码
         String trueCode = (String) redisTemplate.opsForValue().get(EMAIL_CODE_PATH+dto.getEmail());
@@ -109,8 +116,8 @@ public class LoginServiceImpl implements LoginService {
         //3通过 生成token 删除redis存的验证码 封装vo返回
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
-//        删除redis里面的验证码(设置一个立即过期的存储对象)
-        redisTemplate.opsForValue().set(EMAIL_CODE_PATH+dto.getEmail(),"123456",1,TimeUnit.MILLISECONDS);
+//        删除redis里面的验证码
+        redisTemplate.delete(EMAIL_CODE_PATH+dto.getEmail());
 
 
 
@@ -125,7 +132,7 @@ public class LoginServiceImpl implements LoginService {
         //1校验邮箱是否存在
         User u = userMapper.selectUserByEmail(email);
         if(u==null){
-            throw new UserExistedException("邮箱不存在...");
+            throw new UserNotFoundException("邮箱不存在...");
         }
         //2生成验证码并把他塞进redis
         String code = EmailCodeUtil.generateCode();
@@ -144,7 +151,7 @@ public class LoginServiceImpl implements LoginService {
         //1校验邮箱是否存在
         User u = userMapper.selectUserByEmail(dto.getEmail());
         if(u==null){
-            throw new UserExistedException("邮箱不存在...");
+            throw new UserNotFoundException("邮箱不存在...");
         }
         //2校验密码
         if(!PasswordUtil.check(dto.getPassword(),u.getPasswordHash())){
@@ -157,6 +164,12 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         return vo;
+    }
+
+    @Override
+    public void logout() {
+        Long currentId = BaseContext.getCurrentId();
+        userRedisUtil.clearUserToken(currentId);
     }
 
     //共用方法：在 redis 中存储 token

@@ -65,4 +65,12 @@ public class LoginController {
         log.info("邮箱验证码登录成功");
         return Result.success(vo);
     }
+
+    //登出
+    @PostMapping("/logout")
+    public Result<Void> logout(){
+        log.info("开始登出");
+        loginService.logout();
+        return Result.success();
+    }
 }

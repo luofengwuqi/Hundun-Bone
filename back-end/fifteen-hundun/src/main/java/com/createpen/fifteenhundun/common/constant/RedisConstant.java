@@ -2,7 +2,7 @@ package com.createpen.fifteenhundun.common.constant;
 
 
 public class RedisConstant {
-    //token:${token}
+    //token:${userId}
     public static final String TOKEN_PATH = "token:";
     //30 个单位时间后自动过期 (三十分钟)
     public static final Integer TOKEN_EXPIRE_TIME = 30;

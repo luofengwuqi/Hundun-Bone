@@ -17,4 +17,6 @@ public interface LoginService {
     void sendEmailCode(String email);
 
     LoginRequestVO loginEmailPassword(LoginEmailPassWordDTO dto);
+
+    void logout();
 }

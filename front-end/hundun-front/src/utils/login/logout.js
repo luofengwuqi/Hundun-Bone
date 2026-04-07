@@ -9,15 +9,14 @@ export const logout = async ()=> {
   } catch (error) {
     console.error('Logout API error:', error)
   }
-  
+
   const userStore = useUserStore()
-  userStore.$patch({
-    token: '',
-    userInfo: {}
-  })
-  
+
+  userStore.setToken('')
+  userStore.setUserInfo({})
+
   ElMessage.success('ヾ(￣▽￣)Bye~Bye~')
-  
+
   // 使用 push 而不是 replace，并添加时间戳确保路由变化
   if (router.currentRoute.value.path === '/login') {
     // 如果当前已经在登录页，使用 window.location 强制刷新

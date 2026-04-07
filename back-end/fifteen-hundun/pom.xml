@@ -102,13 +102,6 @@
 			<artifactId>jbcrypt</artifactId>
 			<version>0.4</version>
 		</dependency>
-<!--		修复lombok又(脏话)用不了的问题 修好了 (脏话)!-->
-<!--		<dependency>-->
-<!--			<groupId>org.projectlombok</groupId>-->
-<!--			<artifactId>lombok</artifactId>-->
-<!--			<version>1.18.30</version> &lt;!&ndash; 建议用最新稳定版 &ndash;&gt;-->
-<!--			<scope>provided</scope> &lt;!&ndash; 必须是provided，编译期生效 &ndash;&gt;-->
-<!--		</dependency>-->
 
 		<!-- JWT核心库 -->
 		<dependency>
@@ -164,16 +157,11 @@
 			<artifactId>jaxb-api</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-<!--		redis依赖-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
 <!--		引入PageHelper依赖-->
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
-			<version>1.4.7</version> <!-- 版本可按需更 -->
+			<version>1.4.7</version>
 		</dependency>
 <!--		引入SpringCaChe依赖-->
 		<dependency>
@@ -185,6 +173,18 @@
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.6.2</version>
+		</dependency>
+
+		<!-- 显式声明安全版本的 Logback -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.5.25</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.5.25</version>
 		</dependency>
 
 

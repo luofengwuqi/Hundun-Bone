@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import Aside from '@/views/admin/Aside.vue'
 import User from '@/views/admin/component/User.vue'
 import InviteAdmin from '@/views/admin/component/InviteAdmin.vue'
+import HandleFeedback from '@/views/admin/component/HandleFeedback.vue'
 
 const header = ref('用户管理');
 const menu = ref(0);
@@ -27,6 +28,7 @@ const changeMenu = (index) => {
         <el-main :span="18">
           <div v-if="menu===0"><User/></div>
           <div v-else-if="menu===1"><InviteAdmin/></div>
+          <div v-else-if="menu===2"><HandleFeedback/></div>
           <!--     TODO:这里日后会放管理员的其他功能组件     -->
         </el-main>
       </el-container>

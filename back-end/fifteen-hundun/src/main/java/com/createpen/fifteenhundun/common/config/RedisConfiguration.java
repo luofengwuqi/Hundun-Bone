@@ -15,9 +15,9 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate getRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> getRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         log.info("开始创建 redis 模版对象.............");
-        RedisTemplate redisTemplate = new RedisTemplate();
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         //设置连接工厂对象
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         //设置 key 的序列化器

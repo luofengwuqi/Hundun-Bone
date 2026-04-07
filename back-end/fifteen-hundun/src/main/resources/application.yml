@@ -8,6 +8,13 @@ spring:
     username: ${fifteen-hundun.mysql.username}
     password: ${fifteen-hundun.mysql.password}
     driver-class-name: ${fifteen-hundun.mysql.driver-class-name}
+  data:
+    redis:
+      host: ${fifteen-hundun.redis.host}
+      port: ${fifteen-hundun.redis.port}
+      password: ${fifteen-hundun.redis.password}
+      database: ${fifteen-hundun.redis.database}
+      timeout: ${fifteen-hundun.redis.timeout}
 
 ## JWT配置
 #jwt:
@@ -22,13 +29,6 @@ aliyun:
   bucket-name: ${fifteen-hundun.alioss.bucket-name}
   domain: ${fifteen-hundun.alioss.domain}
 
-#redis配置
-redis:
-  host: ${fifteen-hundun.redis.host}
-  port: ${fifteen-hundun.redis.port}
-  password: ${fifteen-hundun.redis.password}
-  database: ${fifteen-hundun.redis.database}
-  timeout: ${fifteen-hundun.redis.timeout}
 
 #mybatis配置
 mybatis:

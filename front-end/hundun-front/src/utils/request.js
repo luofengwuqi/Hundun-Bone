@@ -69,7 +69,7 @@ request.interceptors.response.use(
       ElMessage.warning("登录已过期，请重新登录");
 
       if (router.currentRoute.value.path !== "/login") {
-        await router.push("/login");
+        await router.replace("/login");
       }
       // 也要 reject 这个错误
       return Promise.reject(error.response?.data || error);

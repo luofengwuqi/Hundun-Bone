@@ -6,7 +6,7 @@ import InviteAdmin from '@/views/admin/component/InviteAdmin.vue'
 
 const header = ref('用户管理');
 const menu = ref(0);
-const menuItems = ['用户管理', '邀请管理员','敬请期待']
+const menuItems = ['用户管理','邀请管理','处理反馈','敬请期待']
 
 const changeMenu = (index) => {
   // console.log('切换菜单:', index);

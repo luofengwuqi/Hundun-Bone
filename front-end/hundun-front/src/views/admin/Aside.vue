@@ -7,7 +7,7 @@ import { logout } from '@/utils/login/logout.js'
 const emit = defineEmits(['changeMenu']);
 
 const activeIndex = ref(0);
-const menuItems = ref(['用户管理', '邀请管理员','敬请期待']);
+const menuItems = ref(['用户管理', '邀请管理','处理反馈','敬请期待']);
 
 const handleChoose = (index) => {
   activeIndex.value = index;

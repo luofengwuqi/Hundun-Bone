@@ -66,4 +66,11 @@ const changeMenu = (index) => {
   margin: 20px;
   background-color: #FFF8E8;
 }
+
+// 右侧主内容区域 - 设置高度以便子组件内部滚动
+.el-main {
+  height: calc(100vh - 137px); /* 100vh - header高度(57px) - header上下margin(40px) - main上下margin(40px) */
+  overflow: hidden;
+  padding: 0;
+}
 </style>

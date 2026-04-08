@@ -33,7 +33,8 @@
             <div class="info-item">
               <span class="label">反馈内容：</span>
               <div class="value text-content">
-                <div v-if="isTextLong(item.text)" class="text-collapsed">
+                <!-- 文本超过100字符且未展开时显示截断版本 -->
+                <div v-if="isTextLong(item.text) && !item.expanded" class="text-collapsed">
                   {{ truncateText(item.text) }}
                   <el-button
                     type="primary"
@@ -41,9 +42,22 @@
                     size="small"
                     @click="toggleText(item)"
                   >
-                    {{ item.expanded ? '收起' : '展开' }}
+                    展开
                   </el-button>
                 </div>
+                <!-- 文本超过100字符且已展开时显示完整版本 -->
+                <div v-else-if="isTextLong(item.text) && item.expanded" class="text-full">
+                  {{ item.text }}
+                  <el-button
+                    type="primary"
+                    link
+                    size="small"
+                    @click="toggleText(item)"
+                  >
+                    收起
+                  </el-button>
+                </div>
+                <!-- 文本不超过100字符时直接显示 -->
                 <div v-else class="text-full">
                   {{ item.text }}
                 </div>
@@ -59,6 +73,14 @@
               <span class="label">处理时间：</span>
               <span class="value">{{ formatDate(item.finishedAt) }}</span>
             </div>
+            <div class="button-group">
+              <el-button type="primary" @click="handleFeedback(item, 1)">
+                完成
+              </el-button>
+              <el-button type="danger" @click="handleFeedback(item, -1)">
+                驳回
+              </el-button>
+            </div>
           </div>
         </el-card>
       </transition-group>
@@ -67,11 +89,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import request from '@/utils/request.js'
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useFeedbackStore } from '@/stores/feedback.js'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
-const loading = ref(false)
-const feedbackList = ref([])
+const feedbackStore = useFeedbackStore()
+
+// 使用 storeToRefs 保持响应性
+const { feedbackList, loading } = storeToRefs(feedbackStore)
+const { fetchFeedback, handleFeedback: updateFeedback } = feedbackStore
 
 // 状态映射
 const statusMap = {
@@ -120,28 +147,34 @@ const toggleText = (item) => {
   item.expanded = !item.expanded
 }
 
-// 获取反馈列表
-const fetchFeedback = async () => {
-  loading.value = true
+// 处理反馈（完成/驳回）
+const handleFeedback = async (item, status) => {
   try {
-    const res = await request.get('/feedback')
+    // 确认操作
+    const actionText = status === 1 ? '完成' : '驳回'
+    await ElMessageBox.confirm(
+      `确定要${actionText}这条反馈吗？`,
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
 
-    if (res.code === 200 || res.code === 0) {
-      feedbackList.value = (res.data || []).map(item => ({
-        ...item,
-        expanded: false
-      }))
-    }
+    // 调用 store 方法更新反馈状态
+    await updateFeedback(item.id, status)
+    ElMessage.success(`${actionText}成功(´｡• ᵕ •｡\`),`)
   } catch (error) {
-    console.error('获取反馈列表失败:', error)
-    // ElMessage.error('获取反馈列表失败')
-  } finally {
-    loading.value = false
+    if (error !== 'cancel') {
+      console.error('处理反馈失败:', error)
+      ElMessage.error('处理反馈失败，请重试')
+    }
   }
 }
 
-onMounted(() => {
-  fetchFeedback()
+onMounted( async () => {
+ await fetchFeedback()
 })
 </script>
 
@@ -149,7 +182,8 @@ onMounted(() => {
 .feedback-container {
   padding: 20px;
   background: #FFF8E8;
-  min-height: 100%;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .feedback-grid {
@@ -162,6 +196,7 @@ onMounted(() => {
   border-radius: 8px;
   transition: all 0.3s ease;
   background-color: #FFF8E8;
+  border: none;
 }
 
 .feedback-card:hover {
@@ -177,7 +212,7 @@ onMounted(() => {
 .feedback-type {
   font-size: 16px;
   font-weight: 600;
-  color: #409eff;
+  color: #C3272B;
 }
 
 .card-body {

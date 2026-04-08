@@ -2,6 +2,9 @@ package com.createpen.fifteenhundun.common.constant;
 
 
 public class RedisConstant {
+    //防止穿透 存空的有效时间 n 分钟
+    public static final Integer NULL_EXPIRE_TIME = 1;
+
     //token:${userId}
     public static final String TOKEN_PATH = "token:";
     //30 个单位时间后自动过期 (三十分钟)

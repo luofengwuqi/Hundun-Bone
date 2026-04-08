@@ -22,7 +22,7 @@ public class UserController {
     private UserService us;
     @Autowired
     private AdminService as;
-    @PostMapping
+    @PostMapping("/register")
     public Result<RegisterVO> register(@Valid @RequestBody RegisterDTO dto)
     {
         log.info("用户注册");

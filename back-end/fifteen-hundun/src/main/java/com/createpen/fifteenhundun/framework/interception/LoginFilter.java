@@ -29,7 +29,7 @@ public class LoginFilter implements Filter {
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
             "/user/login",                        // /user/login 下的所有接口
-            "/user",                              // 注册接口
+            "/user/register",                              // 注册接口
             "/admin"
     );
     //对应 SKIP_URIS 中需要限制方法的路径（索引对应

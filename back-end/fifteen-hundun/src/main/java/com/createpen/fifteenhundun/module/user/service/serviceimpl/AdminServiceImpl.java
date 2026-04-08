@@ -32,8 +32,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.USERS_CACHE_EXPIRE_TIME;
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.USERS_CACHE_PATH;
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 import static com.createpen.fifteenhundun.common.constant.UserStatusConstant.*;
 
 @Slf4j
@@ -118,6 +117,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public void addAdmin(AddAdminDTO dto) {
         log.info("开始添加管理员");
         //这里的逻辑应该只有当时写代码的我还有上帝才能看得懂 这里就当是一个教训
@@ -155,7 +155,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-//todo:为分页查询用户添加缓存
     public PageVO getUsers(GetUsersDTO dto) {
         log.info("开始分页查询用户");
         log.info("分页参数:{}",dto);
@@ -170,7 +169,9 @@ public class AdminServiceImpl implements AdminService {
             log.info("命中缓存，从 Redis 获取数据");
             try {
                 String json = (String) cachedData;
-
+                if (json.isEmpty()) {
+                    return new PageVO(0L, null);
+                }
                 return objectMapper.readValue(json, PageVO.class);
             } catch (JsonProcessingException e) {
                 log.error("反序列化缓存数据失败", e);
@@ -182,9 +183,14 @@ public class AdminServiceImpl implements AdminService {
         //2. 缓存未命中，查询数据库
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<User> userList = am.getUsers(dto.getName(),dto.getStatus(),dto.getBeginTime(),dto.getEndTime(),dto.getLoginDays());
+        if (userList.isEmpty()){
+            //解决穿透问题 如果是空 那么直接在redis中设置一个空值
+            redisTemplate.opsForValue().set(cacheKey, "", NULL_EXPIRE_TIME, TimeUnit.MINUTES);
+            throw new UserNotFoundException("没有查到结果哦");
+        }
         Page<User> p = (Page<User>)userList;
         PageVO pageVO = new PageVO(p.getTotal(),p.getResult());
-        
+
         //3. 将结果存入 Redis 缓存
         try {
             String json = objectMapper.writeValueAsString(pageVO);

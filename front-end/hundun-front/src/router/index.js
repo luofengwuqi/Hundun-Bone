@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user.js'
+import { ElMessage } from 'element-plus'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,8 +29,16 @@ router.beforeEach(async (to) => {
   // 已登录的情况
   // 如果访问登录页，那就把pinia清空
   if (to.path === '/login') {
-    useUserStore().setUserInfo({})
-    useUserStore().setToken('')
+    userStore.setUserInfo({})
+    userStore.setToken('')
+  }
+  if(to.path === '/admin'){
+    if(Number(userStore.userInfo.status) <= 2){
+      ElMessage.error("您无权访问这里...请您离开...")
+      userStore.setUserInfo({})
+      userStore.setToken('')
+    }
+
   }
   // 放行
   return true

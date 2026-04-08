@@ -40,7 +40,7 @@ export const addAdmin = async (admin)=>{
 }
 
 export const addUser = async (user)=>{
-  return await request.post('/user',user)
+  return await request.post('/user/register',user)
 }
 
 export const sendEmailCode = async (email)=>{

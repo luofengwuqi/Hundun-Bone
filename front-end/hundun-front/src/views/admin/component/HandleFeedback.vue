@@ -58,24 +58,31 @@
                 </div>
               </div>
             </div>
-            <div v-if="item.handleUserId" class="info-item">
-              <span class="label">处理人ID:</span>
-              <span class="value">{{ item.handleUserId }}</span>
-            </div>
-            <div v-if="item.finishedAt" class="info-item">
-              <span class="label">处理时间：</span>
-              <span class="value">{{ formatDate(item.finishedAt) }}</span>
-            </div>
+
             <div v-if="item.createdAt" class="info-item">
               <span class="label">创建时间：</span>
               <span class="value">{{ formatDate(item.createdAt) }}</span>
             </div>
 
+            <div v-if="item.finishedAt" class="info-item">
+              <span class="label">处理时间：</span>
+              <span class="value">{{ formatDate(item.finishedAt) }}</span>
+            </div>
             <div class="button-group" v-if="item.status === '0'">
-              <el-button type="primary" @click="handleFeedback(item, 1)">
+              <el-button 
+                type="primary" 
+                @click="handleFeedback(item, 1)"
+                :loading="isProcessing(item.id)"
+                :disabled="isProcessing(item.id)"
+              >
                 完成
               </el-button>
-              <el-button type="danger" @click="handleFeedback(item, -1)">
+              <el-button 
+                type="danger" 
+                @click="handleFeedback(item, -1)"
+                :loading="isProcessing(item.id)"
+                :disabled="isProcessing(item.id)"
+              >
                 驳回
               </el-button>
             </div>
@@ -147,7 +154,16 @@ const toggleText = (item) => {
 
 // 处理反馈（完成/驳回）
 const handleFeedback = async (item, status) => {
+  // 防止重复点击：检查是否正在处理
+  if (processingIds.value.has(item.id)) {
+    ElMessage.warning('正在处理中，请勿重复点击')
+    return
+  }
+
   try {
+    // 标记为正在处理
+    processingIds.value.add(item.id)
+
     // 确认操作
     const actionText = status === 1 ? '完成' : '驳回'
     await ElMessageBox.confirm(
@@ -162,13 +178,21 @@ const handleFeedback = async (item, status) => {
 
     // 调用 store 方法更新反馈状态
     await updateFeedback(item.id, status)
-    ElMessage.success(`${actionText}成功(´｡• ᵕ •｡\`),`)
+    ElMessage.success(`${actionText}成功(´｡• ᵕ •｡\`)`)
   } catch (error) {
     if (error !== 'cancel') {
       console.error('处理反馈失败:', error)
       ElMessage.error('处理反馈失败，请重试')
     }
+  } finally {
+    // 无论成功或失败，都移除处理标记
+    processingIds.value.delete(item.id)
   }
+}
+
+// 检查是否正在处理
+const isProcessing = (id) => {
+  return processingIds.value.has(id)
 }
 
 onMounted( async () => {
@@ -180,7 +204,8 @@ onMounted( async () => {
 .feedback-container {
   padding: 20px;
   background: #FFF8E8;
-  min-height: 100%;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .feedback-grid {
@@ -190,7 +215,6 @@ onMounted( async () => {
 }
 
 .feedback-card {
-  position: relative;
   border-radius: 8px;
   transition: all 0.3s ease;
   background-color: #FFF8E8;
@@ -250,12 +274,6 @@ onMounted( async () => {
 .text-full {
   line-height: 1.8;
   white-space: pre-wrap;
-}
-
-.button-group{
-  position: absolute;
-  right:15px;
-  bottom: 15px;
 }
 
 /* 卡片列表过渡动画 */

@@ -6,9 +6,11 @@ export const getFeedbackAPI = async () => {
 }
 
 // 处理反馈（完成/驳回）
-export const handleFeedbackAPI = async (id, status) => {
+export const handleFeedbackAPI = async (id, status,handleUserId) => {
+  console.log(id, status,handleUserId)
   return await request.put('/feedback/status', {
     id,
-    status
+    status,
+    handleUserId
   })
 }

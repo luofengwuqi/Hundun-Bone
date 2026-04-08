@@ -73,7 +73,7 @@
               <span class="label">处理时间：</span>
               <span class="value">{{ formatDate(item.finishedAt) }}</span>
             </div>
-            <div class="button-group">
+            <div class="button-group" v-if="item.status === '0'">
               <el-button type="primary" @click="handleFeedback(item, 1)">
                 完成
               </el-button>

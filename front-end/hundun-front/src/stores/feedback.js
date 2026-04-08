@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getFeedbackAPI, handleFeedbackAPI } from '@/api/feedback.js'
+import { useUserStore } from '@/stores/user.js'
 
 export const useFeedbackStore = defineStore('feedback', () => {
   // 反馈列表
@@ -12,7 +13,7 @@ export const useFeedbackStore = defineStore('feedback', () => {
     loading.value = true
     try {
       const res = await getFeedbackAPI()
-      
+
       if (res.code === 200 || res.code === 0) {
         feedbackList.value = (res.data || []).map(item => ({
           ...item,
@@ -29,10 +30,12 @@ export const useFeedbackStore = defineStore('feedback', () => {
   }
 
   // 处理反馈（完成/驳回）
+  const userStore = useUserStore()
   const handleFeedback = async (id, status) => {
     try {
-      const res = await handleFeedbackAPI(id, status)
-      
+
+      const res = await handleFeedbackAPI(id, status, userStore.userInfo.id)
+
       if (res.code === 200 || res.code === 0) {
         // 更新本地状态
         const index = feedbackList.value.findIndex(item => item.id === id)

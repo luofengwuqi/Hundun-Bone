@@ -58,16 +58,19 @@
                 </div>
               </div>
             </div>
-
+            <div v-if="item.handleUserId" class="info-item">
+              <span class="label">处理人ID:</span>
+              <span class="value">{{ item.handleUserId }}</span>
+            </div>
+            <div v-if="item.finishedAt" class="info-item">
+              <span class="label">处理时间：</span>
+              <span class="value">{{ formatDate(item.finishedAt) }}</span>
+            </div>
             <div v-if="item.createdAt" class="info-item">
               <span class="label">创建时间：</span>
               <span class="value">{{ formatDate(item.createdAt) }}</span>
             </div>
 
-            <div v-if="item.finishedAt" class="info-item">
-              <span class="label">处理时间：</span>
-              <span class="value">{{ formatDate(item.finishedAt) }}</span>
-            </div>
             <div class="button-group" v-if="item.status === '0'">
               <el-button type="primary" @click="handleFeedback(item, 1)">
                 完成

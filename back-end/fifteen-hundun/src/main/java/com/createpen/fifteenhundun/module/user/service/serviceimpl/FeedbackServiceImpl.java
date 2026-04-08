@@ -11,6 +11,7 @@ import com.createpen.fifteenhundun.module.user.service.FeedbackService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -79,7 +80,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         isAllowed();
         
         // 2. 更新反馈状态
-        int rows = feedbackMapper.updateFeedbackStatus(dto.getId(), dto.getStatus());
+        int rows = feedbackMapper.updateFeedbackStatus(dto.getId(), dto.getStatus(), LocalDateTime.now());
         
         if(rows == 0){
             throw new RuntimeException("反馈不存在或更新失败");

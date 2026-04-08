@@ -80,7 +80,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         isAllowed();
         
         // 2. 更新反馈状态
-        int rows = feedbackMapper.updateFeedbackStatus(dto.getId(), dto.getStatus(), LocalDateTime.now());
+        int rows = feedbackMapper.updateFeedbackStatus(dto.getId(), dto.getStatus(), LocalDateTime.now(),dto.getHandleUserId());
         
         if(rows == 0){
             throw new RuntimeException("反馈不存在或更新失败");

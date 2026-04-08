@@ -17,4 +17,5 @@ public class Feedback {
     private String createdAt;
     private String finishedAt;
     private String status;
+    private Integer handleUserId;
 }

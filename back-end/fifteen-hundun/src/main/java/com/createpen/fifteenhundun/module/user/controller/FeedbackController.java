@@ -35,7 +35,7 @@ public class FeedbackController {
     //更新反馈状态
     @PutMapping("/status")
     public Result<Void> updateFeedbackStatus(@Valid @RequestBody UpdateFeedbackStatusDTO dto){
-        log.info("更新反馈状态，反馈ID：{}，新状态：{}", dto.getId(), dto.getStatus());
+        log.info("更新反馈状态，反馈ID：{}，新状态：{},处理人:{}", dto.getId(), dto.getStatus(),dto.getHandleUserId());
         feedbackService.updateFeedbackStatus(dto);
         return Result.success();
     }

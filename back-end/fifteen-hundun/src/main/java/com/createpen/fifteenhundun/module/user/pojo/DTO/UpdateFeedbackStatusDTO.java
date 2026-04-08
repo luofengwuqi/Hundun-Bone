@@ -14,4 +14,6 @@ public class UpdateFeedbackStatusDTO {
     private Integer id;
     @NotNull(message = "反馈状态不能为空")
     private Integer status;
+    @NotNull(message = "处理人ID不能为空")
+    private Integer handleUserId;
 }

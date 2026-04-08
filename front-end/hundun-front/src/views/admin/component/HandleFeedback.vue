@@ -26,11 +26,6 @@
             </div>
 
             <div class="info-item">
-              <span class="label">邮箱：</span>
-              <span class="value">{{ item.userEmail }}</span>
-            </div>
-
-            <div class="info-item">
               <span class="label">反馈内容：</span>
               <div class="value text-content">
                 <!-- 文本超过100字符且未展开时显示截断版本 -->
@@ -182,8 +177,7 @@ onMounted( async () => {
 .feedback-container {
   padding: 20px;
   background: #FFF8E8;
-  height: 100%;
-  overflow-y: auto;
+  min-height: 100%;
 }
 
 .feedback-grid {
@@ -193,6 +187,7 @@ onMounted( async () => {
 }
 
 .feedback-card {
+  position: relative;
   border-radius: 8px;
   transition: all 0.3s ease;
   background-color: #FFF8E8;
@@ -252,6 +247,12 @@ onMounted( async () => {
 .text-full {
   line-height: 1.8;
   white-space: pre-wrap;
+}
+
+.button-group{
+  position: absolute;
+  right:15px;
+  bottom: 15px;
 }
 
 /* 卡片列表过渡动画 */

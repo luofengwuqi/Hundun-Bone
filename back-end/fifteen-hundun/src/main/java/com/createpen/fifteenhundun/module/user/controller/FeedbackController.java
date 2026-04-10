@@ -30,6 +30,7 @@ public class FeedbackController {
     @GetMapping
     public Result<List<Feedback>> selectAllFeedback(){
         log.info("获取所有的反馈");
+        log.info("{}",Result.success(feedbackService.selectAllFeedback()));
         return Result.success(feedbackService.selectAllFeedback());
     }
     

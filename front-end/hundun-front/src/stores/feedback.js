@@ -17,6 +17,7 @@ export const useFeedbackStore = defineStore('feedback', () => {
       if (res.code === 200 || res.code === 0) {
         feedbackList.value = (res.data || []).map(item => ({
           ...item,
+          status: String(item.status),
           expanded: false
         }))
       }

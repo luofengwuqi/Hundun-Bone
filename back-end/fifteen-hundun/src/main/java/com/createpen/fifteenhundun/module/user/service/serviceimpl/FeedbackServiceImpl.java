@@ -109,6 +109,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         Feedback feedback = new Feedback();
         feedback.setType(dto.getType());
         feedback.setText(dto.getText());
+        feedback.setCreatedAt(LocalDateTime.now());
         Long currentId = BaseContext.getCurrentId();
         User user= userRedisUtil.getUserInRedis(currentId);
         if(user == null){

@@ -69,16 +69,16 @@
               <span class="value">{{ formatDate(item.finishedAt) }}</span>
             </div>
             <div class="button-group" v-if="item.status === '0'">
-              <el-button 
-                type="primary" 
+              <el-button
+                type="primary"
                 @click="handleFeedback(item, 1)"
                 :loading="isProcessing(item.id)"
                 :disabled="isProcessing(item.id)"
               >
                 完成
               </el-button>
-              <el-button 
-                type="danger" 
+              <el-button
+                type="danger"
                 @click="handleFeedback(item, -1)"
                 :loading="isProcessing(item.id)"
                 :disabled="isProcessing(item.id)"
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useFeedbackStore } from '@/stores/feedback.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -104,6 +104,9 @@ const feedbackStore = useFeedbackStore()
 // 使用 storeToRefs 保持响应性
 const { feedbackList, loading } = storeToRefs(feedbackStore)
 const { fetchFeedback, handleFeedback: updateFeedback } = feedbackStore
+
+// 正在处理的ID集合（用于防重复点击）
+const processingIds = ref(new Set())
 
 // 状态映射
 const statusMap = {
@@ -200,7 +203,7 @@ onMounted( async () => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .feedback-container {
   padding: 20px;
   background: #FFF8E8;
@@ -215,14 +218,15 @@ onMounted( async () => {
 }
 
 .feedback-card {
+  position: relative;
   border-radius: 8px;
   transition: all 0.3s ease;
   background-color: #FFF8E8;
   border: none;
-}
 
-.feedback-card:hover {
-  transform: translateY(-4px);
+  &:hover {
+    transform: translateY(-4px);
+  }
 }
 
 .card-header {
@@ -274,6 +278,12 @@ onMounted( async () => {
 .text-full {
   line-height: 1.8;
   white-space: pre-wrap;
+}
+
+.button-group {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
 }
 
 /* 卡片列表过渡动画 */

@@ -2,10 +2,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 
-// 反馈表单数据
-const feedbackForm = ref({
-  type: '',
-  content: `___________________________________________________
+const defaultContent = `___________________________________________________
 以下是一些提示信息 建议在提交时删除
 1.您的反馈将以邮件的形式发送给管理员们 在ta们处理后同样会以邮件的形式通知您
 2.我们将尽可能地处理您反馈的问题 但会驳回不合理的请求
@@ -18,6 +15,11 @@ ___________________________________________________
 3.操作流程:
 您进行了什么样的操作?
 `
+
+// 反馈表单数据
+const feedbackForm = ref({
+  type: '',
+  content: defaultContent
 })
 
 // 反馈类型选项
@@ -40,12 +42,12 @@ const submitFeedback = () => {
 
   // TODO: 调用API提交反馈
   console.log('提交反馈:', feedbackForm.value)
-  ElMessage.success('反馈提交成功！感谢您的反馈~')
+  ElMessage.success('我已收到!')
 
   // 重置表单
   feedbackForm.value = {
     type: '',
-    content: ''
+    content: defaultContent
   }
 }
 </script>
@@ -63,7 +65,7 @@ const submitFeedback = () => {
           </template>
           <div class="card-content">
             <p>Ciallo～(∠・ω&lt; )⌒★</p>
-            <p>非常抱歉...一五馄饨这个软件是芜柒sama一个人开发的 所以可能存在一些bug哦...</p>
+            <p>非常抱歉...一五馄饨这个软件是芜柒sama的小作坊开发的 技术/人手不太够 所以可能存在一些bug哦...</p>
             <p>如果您遇到问题，可以先查看以下常见问题：</p>
             <ul>
               <li>如何注册账号？</li>

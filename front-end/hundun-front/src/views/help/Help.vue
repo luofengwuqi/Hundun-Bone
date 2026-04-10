@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-
+import { addFeedbackAPI } from '@/api/feedback.js'
 const defaultContent = `___________________________________________________
 以下是一些提示信息 建议在提交时删除
 1.您的反馈将以邮件的形式发送给管理员们 在ta们处理后同样会以邮件的形式通知您
@@ -24,13 +24,13 @@ const feedbackForm = ref({
 
 // 反馈类型选项
 const feedbackTypes = [
-  { label: 'Bug反馈', value: 'bug' },
-  { label: '登录问题', value: 'login' },
+  { label: 'Bug反馈', value: 'Bug反馈' },
+  { label: '登录问题', value: '登录问题' },
   // 后续可以继续添加其他类型
 ]
 
 // 提交反馈
-const submitFeedback = () => {
+const submitFeedback = async () => {
   if (!feedbackForm.value.type) {
     ElMessage.warning('请选择反馈类型')
     return
@@ -39,8 +39,7 @@ const submitFeedback = () => {
     ElMessage.warning('请填写反馈内容')
     return
   }
-
-  // TODO: 调用API提交反馈
+  await addFeedbackAPI(feedbackForm.value.type,feedbackForm.value.content)
   console.log('提交反馈:', feedbackForm.value)
   ElMessage.success('我已收到!')
 

@@ -14,3 +14,10 @@ export const handleFeedbackAPI = async (id, status,handleUserId) => {
     handleUserId
   })
 }
+//提交反馈
+export const addFeedbackAPI = async (type, text) => {
+  return await request.post('/feedback', {
+    type,
+    text
+  })
+}

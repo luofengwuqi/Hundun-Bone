@@ -16,16 +16,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.createpen.fifteenhundun.common.constant.FeedbackStatusConstant.FEEDBACK_STATUS_UNDO;
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
-import static com.createpen.fifteenhundun.common.constant.UserStatusConstant.STATUS_ADMIN;
+import static com.createpen.fifteenhundun.common.constant.Status.FeedbackStatusConstant.*;
+import static com.createpen.fifteenhundun.common.constant.Status.UserStatusConstant.STATUS_ADMIN;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -99,10 +99,17 @@ public class FeedbackServiceImpl implements FeedbackService {
         
         // 3. 清除缓存，确保下次查询获取最新数据
         redisTemplate.delete(FEEDBACK_CACHE_PATH);
+        //TODO:4. 发送邮件给用户
+        if(Objects.equals(dto.getStatus(), FEEDBACK_STATUS_FINISH)){
+            log.info("将发送成功邮件给用户");
+        } else if (Objects.equals(dto.getStatus(), FEEDBACK_STATUS_BAN)) {
+            log.info("将发送成功邮件给用户");
+        } else{
+            throw new RuntimeException("邮件状态错误");
+        }
         log.info("已清除反馈缓存，确保数据一致性");
     }
 
-    @Transactional
     @Override
     public void addFeedback(AddFeedbackDTO dto) {
         //1 dto->entity
@@ -125,6 +132,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         //3 移除feedbacks大缓存
         feedbackRedisUtil.clearFeedbacksCache();
         //TODO 4 新开线程通知管理员处理
+
     }
 
 

@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
-import static com.createpen.fifteenhundun.common.constant.UserStatusConstant.*;
+import static com.createpen.fifteenhundun.common.constant.Status.UserStatusConstant.*;
 
 @Slf4j
 @Service

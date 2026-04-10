@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.util;
+package com.createpen.fifteenhundun.common.util.email;
 
 import lombok.extern.slf4j.Slf4j;
 import javax.mail.Authenticator;
@@ -13,13 +13,11 @@ import java.util.Properties;
 import java.util.Random;
 
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.EMAIL_CODE_EXPIRE_TIME;
+import static com.createpen.fifteenhundun.common.constant.email.Config.*;
 
 @Slf4j
 public class EmailCodeUtil {
-    // 邮箱配置（修改为你的 QQ 邮箱 + 授权码）
-    private static final String EMAIL_FROM = "luofengwuqi@qq.com";
-    private static final String EMAIL_AUTH_CODE = "wfmcxnshammdjici";
-    private static final String SMTP_HOST = "smtp.qq.com";
+
 
     /**
      * 生成 6 位随机数字验证码

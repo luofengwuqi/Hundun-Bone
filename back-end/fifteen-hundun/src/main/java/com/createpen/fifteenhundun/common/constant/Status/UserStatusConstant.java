@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.constant;
+package com.createpen.fifteenhundun.common.constant.Status;
 
 public class UserStatusConstant {
     public static final int STATUS_USER = 1;

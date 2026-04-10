@@ -2,7 +2,7 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
-import com.createpen.fifteenhundun.common.util.EmailCodeUtil;
+import com.createpen.fifteenhundun.common.util.email.EmailCodeUtil;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;

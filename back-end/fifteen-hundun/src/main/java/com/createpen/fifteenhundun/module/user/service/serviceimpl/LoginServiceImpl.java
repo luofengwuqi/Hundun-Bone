@@ -56,6 +56,8 @@ public class LoginServiceImpl implements LoginService {
         //创建token
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
+        //4 存进缓存
+        saveUserInRedis(u);
         //塞进vo
         return new LoginRequestVO(token,u);
     }
@@ -93,7 +95,8 @@ public class LoginServiceImpl implements LoginService {
         LoginRequestVO vo = new LoginRequestVO();
         vo.setToken(token);
         vo.setUser(u);
-
+        //存进缓存
+        saveUserInRedis(u);
         return vo;
 
     }
@@ -118,12 +121,11 @@ public class LoginServiceImpl implements LoginService {
         saveTokenInRedis(token,u.getId());
 //        删除redis里面的验证码
         redisTemplate.delete(EMAIL_CODE_PATH+dto.getEmail());
-
-
-
         LoginRequestVO vo = new LoginRequestVO();
         vo.setToken(token);
         vo.setUser(u);
+        //4 存进缓存
+        saveUserInRedis(u);
         return vo;
     }
 
@@ -163,6 +165,9 @@ public class LoginServiceImpl implements LoginService {
         LoginRequestVO vo = new LoginRequestVO();
         vo.setToken(token);
         vo.setUser(u);
+        //4 存进缓存
+        saveUserInRedis(u);
+        //5 返回
         return vo;
     }
 
@@ -170,6 +175,7 @@ public class LoginServiceImpl implements LoginService {
     public void logout() {
         Long currentId = BaseContext.getCurrentId();
         userRedisUtil.clearUserToken(currentId);
+        userRedisUtil.clearUserdata(currentId);
     }
 
     //共用方法：在 redis 中存储 token
@@ -191,4 +197,10 @@ public class LoginServiceImpl implements LoginService {
         log.info("已经查询到当前使用而存在的用户信息:{}",u);
         return u;
     }
+    //辅助方法 把登录的用户对象塞进redis
+    public void saveUserInRedis(User u){
+        redisTemplate.opsForValue().set(USER_DATA_PATH+u.getId(),u,TOKEN_EXPIRE_TIME,TimeUnit.MINUTES);
+    }
+
 }
+

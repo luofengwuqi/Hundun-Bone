@@ -6,8 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_PATH;
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.USERS_CACHE_PATH;
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 
 @Slf4j
 @Component
@@ -43,6 +42,17 @@ public class UserRedisUtil {
             log.info("已删除用户查询缓存 key:{}", key);
         } catch (Exception e) {
             log.error("清除用户token失败", e);
+        }
+    }
+
+    public void clearUserdata(Long userId) {
+        String key = USER_DATA_PATH + userId;
+        log.info("清除用户data缓存，key:{}", key);
+        try {
+            redisTemplate.delete(key);
+            log.info("已删除用户查询缓存 key:{}", key);
+        } catch (Exception e) {
+            log.error("清除用户data失败", e);
         }
     }
 }

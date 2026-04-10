@@ -1,7 +1,9 @@
 package com.createpen.fifteenhundun.module.user.service;
 
+import com.createpen.fifteenhundun.module.user.pojo.DTO.AddFeedbackDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateFeedbackStatusDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.Feedback;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -13,4 +15,6 @@ public interface FeedbackService {
      * @param dto 包含反馈ID和新状态的DTO
      */
     void updateFeedbackStatus(UpdateFeedbackStatusDTO dto);
+
+    void addFeedback(@Valid AddFeedbackDTO dto);
 }

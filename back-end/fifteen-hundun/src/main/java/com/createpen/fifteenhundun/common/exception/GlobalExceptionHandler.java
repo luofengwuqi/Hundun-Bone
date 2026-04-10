@@ -5,7 +5,6 @@ import com.createpen.fifteenhundun.common.response.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -100,9 +99,10 @@ public class GlobalExceptionHandler {
         return Result.fail(400,msg);
     }
 
-    @ExceptionHandler
-    public Result<Void> RedisConnectionFailureException(RedisConnectionFailureException e) {
-        return Result.fail(503,e.getMessage());
+    @ExceptionHandler(org.springframework.data.redis.RedisConnectionFailureException.class)
+    public Result<Void> handleRedisConnectionFailureException(org.springframework.data.redis.RedisConnectionFailureException e) {
+        log.error("Redis连接失败:{}", e.getMessage());
+        return Result.fail(503,"redis未启动/已崩溃...");
     }
 
 //    未知异常处理

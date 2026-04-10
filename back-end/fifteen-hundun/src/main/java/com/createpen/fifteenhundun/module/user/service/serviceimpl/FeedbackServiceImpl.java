@@ -2,8 +2,11 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.InsufficientPermissionsException;
+import com.createpen.fifteenhundun.common.util.Redis.FeedbackRedisUtil;
+import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.FeedbackMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.AddFeedbackDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateFeedbackStatusDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.Feedback;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
@@ -15,27 +18,33 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.createpen.fifteenhundun.common.constant.FeedbackStatusConstant.FEEDBACK_STATUS_UNDO;
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 import static com.createpen.fifteenhundun.common.constant.UserStatusConstant.STATUS_ADMIN;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 public class FeedbackServiceImpl implements FeedbackService {
 
+    private final UserRedisUtil userRedisUtil;
+    private final FeedbackRedisUtil feedbackRedisUtil;
     private final RedisTemplate<String,Object> redisTemplate;
     private final FeedbackMapper feedbackMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     
-    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
+    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper, UserRedisUtil userRedisUtil, FeedbackRedisUtil feedbackRedisUtil) {
         this.userMapper = userMapper;
         this.feedbackMapper = feedbackMapper;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
+        this.userRedisUtil = userRedisUtil;
+        this.feedbackRedisUtil = feedbackRedisUtil;
     }
 
     @Override
@@ -93,16 +102,38 @@ public class FeedbackServiceImpl implements FeedbackService {
         log.info("已清除反馈缓存，确保数据一致性");
     }
 
-
-
-
-
+    @Transactional
+    @Override
+    public void addFeedback(AddFeedbackDTO dto) {
+        //1 dto->entity
+        Feedback feedback = new Feedback();
+        feedback.setType(dto.getType());
+        feedback.setText(dto.getText());
+        Long currentId = BaseContext.getCurrentId();
+        User user= userRedisUtil.getUserInRedis(currentId);
+        if(user == null){
+            user = userMapper.selectUserById(currentId);
+            userRedisUtil.saveUserInRedis(user);
+        }
+        feedback.setUserId(Math.toIntExact(user.getId()));
+        feedback.setUsername(user.getUsername());
+        feedback.setUserEmail(user.getEmail());
+        feedback.setStatus(FEEDBACK_STATUS_UNDO);
+        //2 insert
+        feedbackMapper.insertFeedback(feedback);
+        //3 移除feedbacks大缓存
+        feedbackRedisUtil.clearFeedbacksCache();
+        //TODO 4 新开线程通知管理员处理
+    }
 
 
     //辅助方法 判断权限是否允许
     private void isAllowed(){
-        String currentUsername = BaseContext.getCurrentUsername();
-        User user = userMapper.getUserByUserName(currentUsername);
+        Long currentUserId = BaseContext.getCurrentId();
+        User user = userRedisUtil.getUserInRedis(currentUserId);
+        if (user == null){
+            user = userMapper.selectUserById(currentUserId);
+        }
         if(user == null){
             throw new InsufficientPermissionsException("管理员不存在...");
         }

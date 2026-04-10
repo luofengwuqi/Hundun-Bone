@@ -1,10 +1,14 @@
 package com.createpen.fifteenhundun.common.util.Redis;
 
+import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.lettuce.core.RedisException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 
@@ -12,9 +16,11 @@ import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 @Component
 public class UserRedisUtil {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    public UserRedisUtil(RedisTemplate<String, Object> redisTemplate) {
+    public UserRedisUtil(RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public void clearUsersCache() {
@@ -22,7 +28,6 @@ public class UserRedisUtil {
         log.info("清除用户查询缓存，pattern:{}", pattern);
 
         try {
-            //获取所有匹配的 key
             Set<String> keys = redisTemplate.keys(pattern);
             if (keys != null && !keys.isEmpty()) {
                 redisTemplate.delete(keys);
@@ -53,6 +58,31 @@ public class UserRedisUtil {
             log.info("已删除用户查询缓存 key:{}", key);
         } catch (Exception e) {
             log.error("清除用户data失败", e);
+        }
+    }
+
+    public void saveUserInRedis(User u) {
+        try{
+            redisTemplate.opsForValue().set(USER_DATA_PATH + u.getId(), u, TOKEN_EXPIRE_TIME, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("保存用户数据到redis失败", e);
+            throw new RedisException("保存用户数据到redis失败");
+        }
+    }
+
+    public User getUserInRedis(Long userId) {
+        try{
+            Object obj = redisTemplate.opsForValue().get(USER_DATA_PATH + userId);
+            if (obj == null) {
+                return null;
+            }
+            if (obj instanceof User) {
+                return (User) obj;
+            }
+            return objectMapper.convertValue(obj, User.class);
+        }catch (Exception e){
+            log.error("从redis获取用户数据失败", e);
+            throw new RedisException("从redis获取用户数据失败");
         }
     }
 }

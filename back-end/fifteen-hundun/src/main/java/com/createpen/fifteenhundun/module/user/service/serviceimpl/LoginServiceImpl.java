@@ -57,7 +57,7 @@ public class LoginServiceImpl implements LoginService {
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
         //4 存进缓存
-        saveUserInRedis(u);
+        userRedisUtil.saveUserInRedis(u);
         //塞进vo
         return new LoginRequestVO(token,u);
     }
@@ -96,7 +96,7 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         //存进缓存
-        saveUserInRedis(u);
+        userRedisUtil.saveUserInRedis(u);
         return vo;
 
     }
@@ -125,7 +125,7 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         //4 存进缓存
-        saveUserInRedis(u);
+        userRedisUtil.saveUserInRedis(u);
         return vo;
     }
 
@@ -166,7 +166,7 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         //4 存进缓存
-        saveUserInRedis(u);
+        userRedisUtil.saveUserInRedis(u);
         //5 返回
         return vo;
     }
@@ -197,10 +197,7 @@ public class LoginServiceImpl implements LoginService {
         log.info("已经查询到当前使用而存在的用户信息:{}",u);
         return u;
     }
-    //辅助方法 把登录的用户对象塞进redis
-    public void saveUserInRedis(User u){
-        redisTemplate.opsForValue().set(USER_DATA_PATH+u.getId(),u,TOKEN_EXPIRE_TIME,TimeUnit.MINUTES);
-    }
+
 
 }
 

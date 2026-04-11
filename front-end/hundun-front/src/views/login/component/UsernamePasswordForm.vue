@@ -65,9 +65,19 @@ const handleRegister = async () => {
     await new Promise(resolve => setTimeout(resolve, 1500))
     //路由跳转
       await router.push('/admin')
-
   }
-
+  const userLogin = async ()=>{
+    const res = await loginByUsernameAndPassword('user', '15hundun')
+    // res.data:token/user
+    //操作 pinia
+    userStore.setToken(res.data.token)
+    userStore.setUserInfo(res.data.user)
+    ElMessage.success(`Ciallo～(∠・ω< )⌒★${userStore.userInfo?.nickname || userStore.userInfo?.username || '不知名的朋友'}`)
+    // 等待状态更新和消息显示
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    //路由跳转
+    await router.push('/user')
+  }
 
 
 
@@ -96,7 +106,7 @@ const handleRegister = async () => {
         <el-button type="primary" @click="handleRegister">注册</el-button>
 <!--        TODO : 这里后续要删除-->
         <el-button type="primary" @click="adminLogin">测试按钮:管理员登录</el-button>
-        <el-button type="primary">测试按钮:用户登录</el-button>
+        <el-button type="primary" @click="userLogin">测试按钮:用户登录</el-button>
       </el-form-item>
     </div>
       <router-link to="/help">忘记密码</router-link>

@@ -8,10 +8,10 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class PageVO implements Serializable {
+public class PageVO<T> implements Serializable {
     private Long total;
 //    private Integer pageNum;
 //    private Integer pageSize;
-    private List list;
+    private List<T> list;
 
 }

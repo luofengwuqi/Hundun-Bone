@@ -85,4 +85,5 @@ public class UserRedisUtil {
             throw new RedisException("从redis获取用户数据失败");
         }
     }
+
 }

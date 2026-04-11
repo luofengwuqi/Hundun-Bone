@@ -96,7 +96,7 @@ public class AdminServiceImpl implements AdminService {
                 operateUser.setStatus(STATUS_ADMIN_BAN);
                 break;
             }
-            case STATUS_WUQI:{
+            case STATUS_SUPER_ADMIN:{
                 throw new InsufficientPermissionsException("你干嘛 不许你这样对芜柒 sama");
             }
             default:{
@@ -155,7 +155,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PageVO getUsers(GetUsersDTO dto) {
+    public PageVO<User> getUsers(GetUsersDTO dto) {
         log.info("开始分页查询用户");
         log.info("分页参数:{}",dto);
         
@@ -170,9 +170,10 @@ public class AdminServiceImpl implements AdminService {
             try {
                 String json = (String) cachedData;
                 if (json.isEmpty()) {
-                    return new PageVO(0L, null);
+                    return new PageVO<>(0L, null);
                 }
-                return objectMapper.readValue(json, PageVO.class);
+                return objectMapper.readValue(json, 
+                    objectMapper.getTypeFactory().constructParametricType(PageVO.class, User.class));
             } catch (JsonProcessingException e) {
                 log.error("反序列化缓存数据失败", e);
             }
@@ -189,7 +190,7 @@ public class AdminServiceImpl implements AdminService {
             throw new UserNotFoundException("没有查到结果哦");
         }
         Page<User> p = (Page<User>)userList;
-        PageVO pageVO = new PageVO(p.getTotal(),p.getResult());
+        PageVO<User> pageVO = new PageVO<>(p.getTotal(),p.getResult());
 
         //3. 将结果存入 Redis 缓存
         try {
@@ -237,13 +238,13 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
 //todo:为分页查询日志添加缓存
-    public PageVO getLogs(GetLogsDTO dto) {
+    public PageVO<OperateLog> getLogs(GetLogsDTO dto) {
         log.info("{}",dto);
         PageHelper.startPage(dto.getPage(),dto.getSize());
         List<OperateLog> l = am.getLogs(dto);
         Page<OperateLog> p = (Page<OperateLog>) l;
 
-        return new PageVO(p.getTotal(),p.getResult());
+        return new PageVO<>(p.getTotal(),p.getResult());
     }
 
     @Override
@@ -253,7 +254,7 @@ public class AdminServiceImpl implements AdminService {
         if(u == null){
             throw new UserNotFoundException("用户不存在");
         }
-        if(u.getStatus() == STATUS_WUQI ){
+        if(u.getStatus() == STATUS_SUPER_ADMIN){
             throw new InsufficientPermissionsException("不许你这样对管理员 sama");
         }
         um.deleteUserById(id);

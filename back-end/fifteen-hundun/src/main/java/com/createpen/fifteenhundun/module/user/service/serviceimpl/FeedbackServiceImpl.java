@@ -4,6 +4,7 @@ import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.InsufficientPermissionsException;
 import com.createpen.fifteenhundun.common.util.Redis.FeedbackRedisUtil;
 import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
+import com.createpen.fifteenhundun.common.util.email.SendEmailService;
 import com.createpen.fifteenhundun.module.user.mapper.FeedbackMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.AddFeedbackDTO;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class FeedbackServiceImpl implements FeedbackService {
 
+    private final SendEmailService sendEmailService;
     private final UserRedisUtil userRedisUtil;
     private final FeedbackRedisUtil feedbackRedisUtil;
     private final RedisTemplate<String,Object> redisTemplate;
@@ -38,13 +40,14 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     
-    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper, UserRedisUtil userRedisUtil, FeedbackRedisUtil feedbackRedisUtil) {
+    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper, UserRedisUtil userRedisUtil, FeedbackRedisUtil feedbackRedisUtil, SendEmailService sendEmailService) {
         this.userMapper = userMapper;
         this.feedbackMapper = feedbackMapper;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.userRedisUtil = userRedisUtil;
         this.feedbackRedisUtil = feedbackRedisUtil;
+        this.sendEmailService = sendEmailService;
     }
 
     @Override
@@ -87,7 +90,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     public void updateFeedbackStatus(UpdateFeedbackStatusDTO dto) {
         // 1. 判断权限是否允许
         isAllowed();
-        
+
         // 2. 更新反馈状态
         int rows = feedbackMapper.updateFeedbackStatus(dto.getId(), dto.getStatus(), LocalDateTime.now(),dto.getHandleUserId());
         
@@ -96,14 +99,17 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
         
         log.info("成功更新反馈状态，反馈ID：{}，新状态：{}", dto.getId(), dto.getStatus());
-        
+        //这一步是传参失误导致 目的是拿到创建反馈的用户ID
+        Feedback feedback = feedbackMapper.selectFeedbackById(dto.getId());
         // 3. 清除缓存，确保下次查询获取最新数据
         redisTemplate.delete(FEEDBACK_CACHE_PATH);
-        //TODO:4. 发送邮件给用户
+        // 4. 发送邮件给用户
         if(Objects.equals(dto.getStatus(), FEEDBACK_STATUS_FINISH)){
-            log.info("将发送成功邮件给用户");
+            log.info("将发送反馈完成通知邮件给用户，反馈ID：{}", dto.getId());
+            sendEmailService.sendFeedbackFinishedMsgToUser(Long.valueOf(feedback.getUserId()));
         } else if (Objects.equals(dto.getStatus(), FEEDBACK_STATUS_BAN)) {
-            log.info("将发送成功邮件给用户");
+            log.info("将发送反馈驳回通知邮件给用户，反馈ID：{}", dto.getId());
+            sendEmailService.sendFeedbackBanedMsgToUser(Long.valueOf(feedback.getUserId()));
         } else{
             throw new RuntimeException("邮件状态错误");
         }
@@ -131,7 +137,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedbackMapper.insertFeedback(feedback);
         //3 移除feedbacks大缓存
         feedbackRedisUtil.clearFeedbacksCache();
-        //TODO 4 新开线程通知管理员处理
+        // 4 新开线程通知管理员处理
+        sendEmailService.sendFeedbackAddedMsgToAdmin();
 
     }
 

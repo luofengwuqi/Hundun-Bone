@@ -31,4 +31,7 @@ public interface FeedbackMapper {
 
     @Insert("insert into feedback (type,text,user_id,username,user_email,status,created_at) values (#{type},#{text},#{userId},#{username},#{userEmail},#{status},#{createdAt})")
     void insertFeedback(Feedback feedback);
+
+    @Select("select * from feedback where id = #{id}")
+    Feedback selectFeedbackById(@NotNull(message = "反馈ID不能为空") Integer id);
 }

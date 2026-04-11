@@ -21,7 +21,7 @@
 
           <div class="card-body">
             <div class="info-item">
-              <span class="label">用户：</span>
+              <span class="label">反馈用户：</span>
               <span class="value">{{ item.username }}</span>
             </div>
 

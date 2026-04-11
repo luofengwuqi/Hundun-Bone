@@ -1,9 +1,11 @@
 package com.createpen.fifteenhundun.module.user.service;
 
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
-import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
+import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
+import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
+import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import jakarta.validation.Valid;
 
 public interface AdminService {
@@ -18,13 +20,13 @@ public interface AdminService {
 
     void addAdmin(AddAdminDTO dto);
 
-    PageVO getUsers(GetUsersDTO dto);
+    PageVO<User> getUsers(GetUsersDTO dto);
 
     String makeInviteCode();
 
 //    void deleteUserByUserName(String username);
 
-    PageVO getLogs(@Valid GetLogsDTO dto);
+    PageVO<OperateLog> getLogs(@Valid GetLogsDTO dto);
 
     void deleteUserById(Long id);
 }

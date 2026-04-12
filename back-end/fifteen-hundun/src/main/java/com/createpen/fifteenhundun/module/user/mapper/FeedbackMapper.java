@@ -34,4 +34,11 @@ public interface FeedbackMapper {
 
     @Select("select * from feedback where id = #{id}")
     Feedback selectFeedbackById(@NotNull(message = "反馈ID不能为空") Integer id);
+
+    /**
+     * 批量删除反馈
+     *
+     * @param ids 反馈ID列表
+     */
+    void deleteFeedbackByIds(List<Integer> ids);
 }

@@ -47,4 +47,10 @@ public class FeedbackController {
         feedbackService.addFeedback(dto);
         return Result.success();
     }
+    @DeleteMapping("/handled")
+    public Result<Void> deleteHandledFeedback(){
+        log.info("删除已处理的反馈");
+        feedbackService.deleteHandledFeedback();
+        return Result.success();
+    }
 }

@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
 import static com.createpen.fifteenhundun.common.constant.Status.FeedbackStatusConstant.*;
@@ -140,6 +141,29 @@ public class FeedbackServiceImpl implements FeedbackService {
         // 4 新开线程通知管理员处理
         sendEmailService.sendFeedbackAddedMsgToAdmin();
 
+    }
+
+    @Override
+    public void deleteHandledFeedback() {
+        //判断权限
+        isAllowed();
+        
+        //查询已处理的反馈id 收集到列表
+        List<Integer> handledIds = feedbackMapper.selectAllFeedback().stream()
+            .filter(feedback -> Objects.equals(feedback.getStatus(), FEEDBACK_STATUS_FINISH ) || Objects.equals(feedback.getStatus(), FEEDBACK_STATUS_BAN))
+            .map(Feedback::getId)
+            .collect(Collectors.toList());
+        
+        //批量删除(如果有数据的话)
+        if (!handledIds.isEmpty()) {
+            feedbackMapper.deleteFeedbackByIds(handledIds);
+            log.info("批量删除已处理反馈，数量: {}", handledIds.size());
+        } else {
+            log.info("没有需要删除的已处理反馈");
+        }
+
+        //缓存移除
+        feedbackRedisUtil.clearFeedbacksCache();
     }
 
 

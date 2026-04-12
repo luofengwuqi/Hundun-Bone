@@ -17,4 +17,6 @@ public interface FeedbackService {
     void updateFeedbackStatus(UpdateFeedbackStatusDTO dto);
 
     void addFeedback(@Valid AddFeedbackDTO dto);
+
+    void deleteHandledFeedback();
 }

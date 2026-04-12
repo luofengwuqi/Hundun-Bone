@@ -50,6 +50,7 @@ public class SendEmailService {
             GetUsersDTO dto2 = new GetUsersDTO(1,LARGE_NUMBER,null, STATUS_SUPER_ADMIN, null, null, null);
             
             // 查询普通管理员，如果没有则返回空列表
+            //todo:管理员可以选择是否接受反馈邮件 如果不接收 那么就从集合中移除(需要一个设置表)
             List<User> adminList;
             try {
                 adminList = adminService.getUsers(dto1).getList();

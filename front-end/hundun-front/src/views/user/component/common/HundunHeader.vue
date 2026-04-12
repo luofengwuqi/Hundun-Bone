@@ -1,0 +1,116 @@
+<script setup>
+import router from '@/router/index.js'
+import { useUserStore } from '@/stores/user.js'
+import { computed } from 'vue'
+import defaultAvatar from '@/assets/img/common/user.jpg'
+import { User, SwitchButton } from '@element-plus/icons-vue'
+import { logout } from '@/utils/login/logout.js'
+
+const userStore = useUserStore()
+
+const avatarSrc = computed(() => {
+  return userStore.userInfo.avatarUrl || defaultAvatar
+})
+
+const handleCommand =  async (command) => {
+  if (command === 'info') {
+    router.push('/user/info')
+  } else if (command === 'logout') {
+    await logout()
+    console.log('退出登录')
+  }
+}
+</script>
+
+<template>
+  <div class="header" >
+    <div class="logo-box" @click="router.push('/user')">
+      <img src="@/assets/img/common/biglogo.png" alt="Logo">
+    </div>
+    <el-dropdown v-if="userStore.userInfo" @command="handleCommand" trigger="hover">
+      <div class="user-box">
+        <img :src="avatarSrc" alt="User">
+        <span class="username">{{ userStore.userInfo.nickname||userStore.userInfo.username}}</span>
+      </div>
+      <template #dropdown>
+        <el-dropdown-menu class="custom-dropdown">
+          <el-dropdown-item command="info">
+            <el-icon><User /></el-icon>
+            <span>个人信息</span>
+          </el-dropdown-item>
+          <el-dropdown-item divided command="logout">
+            <el-icon><SwitchButton /></el-icon>
+            <span>退出登录</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+  </div>
+</template>
+
+<style scoped lang="less">
+  .header{
+    display: flex;
+    justify-content: space-between;
+    position:fixed;
+    height: 80px;
+    width: 100%;
+    //不透明度
+    opacity: 0.95;
+    background-color: #FFF8E8;
+    overflow: hidden;
+    z-index: 999;
+    border-radius: 0 0 40px 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .logo-box{
+      margin:10px 10px 10px 50px;
+      height: 60px;
+      img{
+        height: 60px;
+      }
+    }
+    .user-box{
+      display: flex;
+      height: 60px;
+      margin:10px 50px 10px 10px;
+      cursor: pointer;
+      outline: none;
+
+      &:focus {
+        outline: none;
+      }
+
+      img{
+        height: 60px;
+        border-radius:30px;
+        overflow: hidden;
+      }
+
+      .username{
+        margin-left: 10px;
+        font-size: 20px;
+        line-height: 60px;
+        //禁止用户选择
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+      }
+    }
+
+    // 移除 el-dropdown 的默认边框
+    :deep(.el-dropdown) {
+      outline: none;
+
+      &:focus {
+        outline: none;
+      }
+
+      .el-dropdown-link {
+        outline: none;
+      }
+    }
+
+
+  }
+</style>

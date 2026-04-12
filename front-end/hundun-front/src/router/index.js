@@ -9,7 +9,13 @@ const router = createRouter({
     { path:'/login', component:()=>import('@/views/login/Login.vue')},
     { path:'/help', component:()=>import('@/views/help/Help.vue')},
     { path:'/admin',component:()=>import('@/views/admin/AdminLayout.vue')},
-    { path:'/user',component:()=>import('@/views/user/UserHome.vue')},
+    {
+      path:'/user',
+      component:()=>import('@/views/user/UserHome.vue'),
+      children:[
+        { path:'/user/info', component:()=>import('@/views/user/component/Info/Info.vue')},
+      ]
+    },
   ],
 })
 

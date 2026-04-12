@@ -21,3 +21,7 @@ export const addFeedbackAPI = async (type, text) => {
     text
   })
 }
+//批量删除已处理反馈
+export const deleteHandledFeedbackAPI = async () => {
+  return await request.delete('/feedback/handled')
+}

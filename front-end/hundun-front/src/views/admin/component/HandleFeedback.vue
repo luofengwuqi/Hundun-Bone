@@ -1,7 +1,22 @@
 <template>
   <div class="feedback-container">
     <el-empty v-if="!loading && feedbackList.length === 0" description="暂无反馈数据" />
-
+    <div class="button">
+      <el-button
+        type="primary"
+        @click="fetchFeedback"
+        :loading="loading"
+        :disabled="loading"
+      >
+        刷新
+      </el-button>
+      <el-button
+        type="danger"
+        @click="deleteHandledFeedback"
+        >
+        一键移除所有已处理反馈
+      </el-button>
+    </div>
     <div v-loading="loading" class="feedback-grid">
       <transition-group name="feedback-list">
         <el-card
@@ -103,6 +118,7 @@ import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useFeedbackStore } from '@/stores/feedback.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { deleteHandledFeedbackAPI } from '@/api/feedback.js'
 
 const feedbackStore = useFeedbackStore()
 
@@ -198,6 +214,31 @@ const handleFeedback = async (item, status) => {
   }
 }
 
+//删除已处理反馈
+const deleteHandledFeedback = async () => {
+  try {
+    // 确认操作
+    await ElMessageBox.confirm(
+      '在删除前一定要确保反馈都没有后续问题了ヽ(≧□≦)ノ',
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    //调用后端api删除反馈
+    await deleteHandledFeedbackAPI()
+    // store 方法重新获取反馈列表
+    await feedbackStore.fetchFeedback()
+    ElMessage.success('删除成功(´｡• ᵕ •｡\`)')
+  }catch ( error)
+    {
+      console.error('删除反馈失败:', error)
+      ElMessage.error('删除反馈失败，请重试')
+    }
+}
+
 // 检查是否正在处理
 const isProcessing = (id) => {
   return processingIds.value.has(id)
@@ -208,7 +249,16 @@ onMounted( async () => {
 })
 </script>
 
+
 <style scoped lang="less">
+.button{
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
 .feedback-container {
   padding: 20px;
   background: #FFF8E8;

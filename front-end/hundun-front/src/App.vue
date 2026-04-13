@@ -4,10 +4,12 @@ import { RouterView } from 'vue-router'
 
 <template>
   <div class="app">
-    <!-- 路由过渡动画：仅添加这一层 -->
-    <transition name="fade" mode="out-in">
-      <router-view></router-view>
-    </transition>
+    <!-- 路由过渡动画：使用作用域插槽 -->
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </div>
 </template>
 

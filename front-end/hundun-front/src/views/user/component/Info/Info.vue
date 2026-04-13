@@ -1,23 +1,30 @@
 <script setup>
 
 import LeftSide from '@/views/user/component/Info/LeftSide.vue'
+import RightSide from '@/views/user/component/Info/RightSide.vue'
+import { ref } from 'vue'
+
+const operationType = ref(0)
+const arr = {
+  0: '修改信息',
+  1: '修改头像',
+  2: '修改密码'
+}
+
 </script>
 
 <template>
   <div class="info">
     <el-row :gutter="20">
-      <!-- 左侧区域 - 占8列 -->
       <el-col :span="5">
         <div class="left-panel">
-          <!-- 左侧内容，如用户头像、基本信息等 -->
-          <LeftSide></LeftSide>
+          <LeftSide @change-operation-type="operationType = $event"></LeftSide>
         </div>
       </el-col>
 
-      <!-- 右侧区域 - 占16列 -->
       <el-col :span="19">
         <div class="right-panel">
-          <!-- 右侧内容，如详细信息、设置等 -->
+          <RightSide :operation-type="operationType"></RightSide>
         </div>
       </el-col>
     </el-row>

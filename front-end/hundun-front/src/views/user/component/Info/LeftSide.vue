@@ -1,10 +1,17 @@
 <script setup>
 import { useUserStore } from '@/stores/user.js'
+import { defineEmits } from 'vue'
 
 const userStore = useUserStore()
+
+// 定义 emit 事件
+const emit = defineEmits(['change-operation-type'])
+
 //用户信息相关
 const handleChangePic = ()=>{
   console.log('change pic')
+  // 触发事件,将 operationType 设置为 0
+  emit('change-operation-type', 1)
 }
 </script>
 

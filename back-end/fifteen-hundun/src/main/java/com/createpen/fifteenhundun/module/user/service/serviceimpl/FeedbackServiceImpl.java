@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
-import static com.createpen.fifteenhundun.common.constant.Status.FeedbackStatusConstant.*;
-import static com.createpen.fifteenhundun.common.constant.Status.UserStatusConstant.STATUS_ADMIN;
+import static com.createpen.fifteenhundun.common.constant.status.FeedbackStatusConstant.*;
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_ADMIN;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

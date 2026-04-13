@@ -2,6 +2,7 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
+import com.createpen.fifteenhundun.common.util.AliOSSUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
@@ -15,9 +16,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.createpen.fifteenhundun.common.constant.oss.UserOssContant.USER_AVATAR_FOLDER;
 
 @Slf4j
 @Service
@@ -28,6 +32,9 @@ public class UserServiceImpl implements UserService {
     private UserMapper um;
     @Autowired
     private UserRedisUtil userRedisUtil;
+    @Autowired
+    private AliOSSUtil aliOssUtil;
+
     @Transactional(rollbackFor = Exception.class)
     public RegisterVO register(RegisterDTO dto) {
         //1检验用户是否已经存在
@@ -77,6 +84,47 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new IllegalAccessException("用户已被禁用!");
         }
+    }
+
+    @Override
+    public void updateAvatar(MultipartFile file) {
+        //构建文件路径
+        Long currentId = BaseContext.getCurrentId();
+        String currentUsername = BaseContext.getCurrentUsername();
+        String fileName = aliOssUtil.makeUUIDFileName(file);
+        String objectName = currentUsername + USER_AVATAR_FOLDER  + fileName;
+        //拿到用户对象
+        User u;
+        User userInRedis = userRedisUtil.getUserInRedis(currentId);
+        if(userInRedis!=null){
+            u = userInRedis;
+        }else{
+            u = um.selectUserById(currentId);
+            userRedisUtil.saveUserInRedis(u);
+        }
+        if(u==null){
+            throw new UserNotFoundException("用户不存在");
+        }
+        //检查用户是否已有头像 如果有 删除
+        if(u.getAvatarUrl() != null){
+            aliOssUtil.delete(u.getAvatarUrl());
+        }
+        //在oss中添加
+        try {
+            aliOssUtil.upload(file, objectName);
+        } catch (Exception e) {
+            throw new OSSException("上传头像失败了...是oss的问题...");
+        }
+        //在数据库中改写头像字段
+
+        try {
+            um.updateUserAvatarPathById(currentId, objectName);
+        }catch (Exception e){
+            aliOssUtil.delete(objectName);
+            throw new SQLException("更新输入库失败...");
+        }
+        userRedisUtil.clearUserdata(BaseContext.getCurrentId());
+
     }
 
     //辅助性方法 注册时候验证username  email phone 的唯一性

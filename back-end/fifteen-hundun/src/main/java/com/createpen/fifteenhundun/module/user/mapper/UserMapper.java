@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Pattern;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -54,4 +55,7 @@ public interface UserMapper {
     User selectUserByEmail(@NotEmpty @Email String email);
 
     Integer checkUserNotExists(String username, String phone, String email);
+
+    @Update("update users set avatar_url=#{objectName} where id=#{currentId}")
+    void updateUserAvatarPathById(Long currentId, String objectName);
 }

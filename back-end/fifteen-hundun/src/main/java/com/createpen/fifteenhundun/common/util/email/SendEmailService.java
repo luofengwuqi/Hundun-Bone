@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.createpen.fifteenhundun.common.constant.CommonConstant.LARGE_NUMBER;
-import static com.createpen.fifteenhundun.common.constant.Status.UserStatusConstant.STATUS_ADMIN;
-import static com.createpen.fifteenhundun.common.constant.Status.UserStatusConstant.STATUS_SUPER_ADMIN;
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_ADMIN;
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_SUPER_ADMIN;
 import static com.createpen.fifteenhundun.common.constant.email.TEXT.*;
 
 @Slf4j

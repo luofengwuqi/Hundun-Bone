@@ -21,33 +21,38 @@ import java.util.UUID;
 @Component
 public class AliOSSUtil {
 
-@Value("${aliyun.endpoint}")
-private String endpoint;
+    @Value("${aliyun.endpoint}")
+    private String endpoint;
 
-@Value("${aliyun.access-key-id}")
-private String accessKeyId;
+    @Value("${aliyun.access-key-id}")
+    private String accessKeyId;
 
-@Value("${aliyun.access-key-secret}")
-private String accessKeySecret;
+    @Value("${aliyun.access-key-secret}")
+    private String accessKeySecret;
 
-@Value("${aliyun.bucket-name}")
-private String bucketName;
+    @Value("${aliyun.bucket-name}")
+    private String bucketName;
 
-@Value("${aliyun.domain}")
-private String domain;
+    @Value("${aliyun.domain}")
+    private String domain;
 
     /**
      * 上传文件到OSS
      * @param file 前端上传的文件
-     * @param folder OSS存储文件夹（如memos/avatars/）
      * @return 文件访问URL
      */
-    public String upload(MultipartFile file, String folder) throws IOException {
+
+    public String makeUUIDFileName(MultipartFile file){
         // 1. 生成唯一文件名（避免重复）
         String originalFilename = file.getOriginalFilename();
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String fileName = UUID.randomUUID().toString() + suffix; // 如：a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxx.png
-        String objectName = folder + fileName; // 完整OSS路径：memos/avatars/a1b2c3d4.png
+        String suffix = null;
+        if (originalFilename != null) {
+            suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        // 如：a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxx.png
+        return UUID.randomUUID() + suffix;
+    }
+    public String upload(MultipartFile file, String objectName) throws IOException {
 
         // 2. 获取文件输入流
         InputStream inputStream = file.getInputStream();
@@ -77,11 +82,21 @@ private String domain;
 
     /**
      * 删除OSS文件
-     * @param fileUrl 文件访问URL
+     * @param fileUrl 文件访问URL或objectName
      */
     public void delete(String fileUrl) {
-        // 解析URL中的objectName（去掉域名部分）
-        String objectName = fileUrl.replace(domain + "/", "");
+        // 解析objectName（去掉域名部分）
+        String objectName = fileUrl;
+        if (fileUrl.startsWith(domain + "/")) {
+            objectName = fileUrl.replace(domain + "/", "");
+        } else if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
+            // 如果是完整URL，提取路径部分
+            int domainEndIndex = fileUrl.indexOf("/", fileUrl.indexOf("//") + 2);
+            if (domainEndIndex != -1) {
+                objectName = fileUrl.substring(domainEndIndex + 1);
+            }
+        }
+        
         OSS ossClient = null;
         try {
             ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);

@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
+import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
@@ -67,4 +68,12 @@ public class UserController {
         us.updateAvatar(file);
         return Result.success();
     }
+
+    @GetMapping("/info")
+    public Result<User> getUserInfo() {
+        log.info("获取用户信息");
+        User u = us.selectUserById(BaseContext.getCurrentId());
+        return Result.success(u);
+    }
+
 }

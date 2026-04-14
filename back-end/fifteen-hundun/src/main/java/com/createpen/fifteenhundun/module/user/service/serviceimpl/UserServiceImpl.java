@@ -123,6 +123,7 @@ public class UserServiceImpl implements UserService {
             aliOssUtil.delete(objectName);
             throw new SQLException("更新输入库失败...");
         }
+        //删除用户缓存
         userRedisUtil.clearUserdata(BaseContext.getCurrentId());
 
     }
@@ -178,7 +179,14 @@ public class UserServiceImpl implements UserService {
     }
 
     public User selectUserById(Long id) {
-        return um.selectUserById(id);
+        // 先从redis里面那
+        User userInRedis = userRedisUtil.getUserInRedis(id);
+        if( userInRedis != null ){
+            return userInRedis;
+        }
+        User u = um.selectUserById(id);
+        userRedisUtil.saveUserInRedis(u);
+        return u;
     }
 
 }

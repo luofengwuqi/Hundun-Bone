@@ -220,6 +220,7 @@ onUnmounted(() => {
 
       <!-- 提示文字 -->
       <div class="tips">
+        <p style="color: #C3272B">强烈建议您将头像裁剪为正方形后再上传!ಠ_ಠ</p>
         <p>支持 JPG、PNG、WEBP 格式</p>
         <p>文件大小不超过 5MB（自动压缩至 500KB 以内）</p>
       </div>

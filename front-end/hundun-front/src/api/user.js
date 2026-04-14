@@ -62,3 +62,13 @@ export const loginByEmailAndPassword = async (email,password)=>{
     password
   })
 }
+
+export const updateAvatarAPI = async (formData) => {
+  return await request.put('/user/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+export const getUserInfoAPI = async () => {
+  return await request.get('/user/info')
+}

@@ -1,16 +1,27 @@
 <script setup>
 import { useUserStore } from '@/stores/user.js'
-import { defineEmits } from 'vue'
+import { computed } from 'vue'
+import defaultAvatar from '@/assets/img/common/user.jpg'
 
 const userStore = useUserStore()
 
-// 定义 emit 事件
+// OSS 域名配置
+const OSS_DOMAIN = 'https://fifteen-hundun.oss-cn-beijing.aliyuncs.com'
+
+// 获取用户头像
+const avatarSrc = computed(() => {
+  const avatarUrl = userStore.userInfo?.avatarUrl
+  if (!avatarUrl) return defaultAvatar
+  // 如果已经是完整 URL，直接返回；否则拼接 OSS 域名
+  return avatarUrl.startsWith('http') ? avatarUrl : `${OSS_DOMAIN}/${avatarUrl}`
+})
+
+//定义 emit 事件
 const emit = defineEmits(['change-operation-type'])
 
 //用户信息相关
 const handleChangePic = ()=>{
-  console.log('change pic')
-  // 触发事件,将 operationType 设置为 0
+  // 触发事件,将 operationType 设置为 1
   emit('change-operation-type', 1)
 }
 </script>
@@ -19,7 +30,7 @@ const handleChangePic = ()=>{
   <div class="left">
     <div class="user-msg">
       <div class="img-box" @click="handleChangePic">
-        <img src="@/assets/img/common/user.jpg" alt="" />
+        <img :src="avatarSrc" alt="" />
         <div class="overlay">
           <span>更改头像</span>
         </div>

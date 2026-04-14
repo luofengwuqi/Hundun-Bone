@@ -8,8 +8,14 @@ import { logout } from '@/utils/login/logout.js'
 
 const userStore = useUserStore()
 
+// OSS 域名配置
+const OSS_DOMAIN = 'https://fifteen-hundun.oss-cn-beijing.aliyuncs.com'
+
 const avatarSrc = computed(() => {
-  return userStore.userInfo.avatarUrl || defaultAvatar
+  const avatarUrl = userStore.userInfo?.avatarUrl
+  if (!avatarUrl) return defaultAvatar
+  // 如果已经是完整 URL，直接返回；否则拼接 OSS 域名
+  return avatarUrl.startsWith('http') ? avatarUrl : `${OSS_DOMAIN}/${avatarUrl}`
 })
 
 const handleCommand =  async (command) => {
@@ -17,7 +23,6 @@ const handleCommand =  async (command) => {
     router.push('/user/info')
   } else if (command === 'logout') {
     await logout()
-    console.log('退出登录')
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <script setup>
 
 import ChangeAvatar from '@/views/user/component/Info/RightSideComponent/ChangeAvatar.vue'
-import Default from '@/views/user/component/Info/RightSideComponent/Default.vue'
+import Default from '@/views/user/component/Info/RightSideComponent/UserManage.vue'
 
 const props = defineProps({
   operationType: {
@@ -21,6 +21,10 @@ const props = defineProps({
 </template>
 
 <style scoped lang="less">
+.right {
+  opacity: 0.85;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

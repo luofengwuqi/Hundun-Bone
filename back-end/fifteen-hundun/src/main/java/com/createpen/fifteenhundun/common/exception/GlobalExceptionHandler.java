@@ -26,7 +26,6 @@ public class GlobalExceptionHandler {
     //jwt相关异常
     @ExceptionHandler
     public Result<Void> handleJwtException(ExpiredJwtException e) {
-        log.info("已接受到用户不存在异常");
         String msg = e.getMessage();
         return Result.fail(401,msg);
     }
@@ -84,7 +83,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result<Void> handlePasswordException(PasswordException e) {
         String msg = e.getMessage();
-        return Result.fail(401,msg);
+        return Result.fail(400,msg);
     }
     //传参异常处理
     @ExceptionHandler

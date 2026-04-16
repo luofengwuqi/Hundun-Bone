@@ -58,4 +58,7 @@ public interface UserMapper {
 
     @Update("update users set avatar_url=#{objectName} where id=#{currentId}")
     void updateUserAvatarPathById(Long currentId, String objectName);
+
+    @Update("update users set nickname= #{nickname} where id= #{id}")
+    void updateNickNameById(String nickname, Long id);
 }

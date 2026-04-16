@@ -4,6 +4,7 @@ import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
@@ -11,6 +12,7 @@ import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
 import com.createpen.fifteenhundun.module.user.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,6 +76,12 @@ public class UserController {
         log.info("获取用户信息");
         User u = us.selectUserById(BaseContext.getCurrentId());
         return Result.success(u);
+    }
+    @PutMapping("/nickname")
+    public Result<Void> updateNickname(@RequestBody @Valid PutDTO dto) {
+        log.info("修改用户昵称");
+        us.updateNickname(dto);
+        return Result.success();
     }
 
 }

@@ -23,11 +23,11 @@ public class PasswordUtil {
     /**
      * 校验密码（明文与密文匹配）
      */
-    public static boolean check(String rawPassword, String encodedPassword) {
-        log.info("进入校验密码工具类:当前明文密码{},加密密码{}",rawPassword,encodedPassword);
+    public static boolean check(String mingPassword, String encodedPassword) {
+        log.info("进入校验密码工具类:当前明文密码{},加密密码{}",mingPassword,encodedPassword);
         if (encodedPassword == null || encodedPassword.isEmpty()) {
             return false;
         }
-        return BCrypt.checkpw(rawPassword, encodedPassword);
+        return BCrypt.checkpw(mingPassword, encodedPassword);
     }
 }

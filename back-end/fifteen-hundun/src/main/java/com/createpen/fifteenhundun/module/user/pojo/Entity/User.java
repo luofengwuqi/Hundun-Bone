@@ -1,6 +1,7 @@
 package com.createpen.fifteenhundun.module.user.pojo.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,9 +29,9 @@ public class User implements Serializable {
         private String email;
 
         /**
-         * 密码哈希值（存储加密后的密码，前端不可返回）
+         * 密码哈希值
          */
-        @JsonIgnore // 序列化时忽略，避免返回给前端
+//        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // 序列化时忽略，避免返回给前端
         private String passwordHash;
 
         /**

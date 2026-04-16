@@ -7,6 +7,7 @@ import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
@@ -147,6 +148,19 @@ public class UserServiceImpl implements UserService {
 
     //辅助性方法 用户是否存在
     //1 单个用户
+    public User getValidUserById(Long id){
+        User u = userRedisUtil.getUserInRedis(id);
+        if (u != null){
+            return u;
+        }
+        //缓存未命中
+        u =  um.selectUserById(id);
+        if(u==null){
+            throw new UserNotFoundException("用户不存在");
+        }
+        userRedisUtil.saveUserInRedis(u);
+        return u;
+    }
     public User getValidUserByUserName(String username)
         {
             log.info("单个用户校验存在性开始");
@@ -187,6 +201,22 @@ public class UserServiceImpl implements UserService {
         User u = um.selectUserById(id);
         userRedisUtil.saveUserInRedis(u);
         return u;
+    }
+
+    @Override
+    public void updateNickname(PutDTO dto) {
+        //获取当前用户
+        Long id = BaseContext.getCurrentId();
+        User user = getValidUserById(id);
+        //校验密码
+        if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
+            throw new PasswordException("密码输错了哦...");
+        }
+        //更新用户
+        String nickname = dto.getHuh();
+        user.setNickname(nickname);
+        um.updateNickNameById(nickname,id);
+        userRedisUtil.saveUserInRedis(user);
     }
 
 }

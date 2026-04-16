@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/user.js'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { updateNicknameAPI, getUserInfoAPI } from '@/api/user.js'
+import { updateNicknameAPI, getUserInfoAPI, updateEmailAPI, updatePhoneAPI } from '@/api/user.js'
 import inputpic from '@/assets/img/user/info/inputpic.png'
 
 const router = useRouter()
@@ -125,13 +125,11 @@ const handleSubmit = async () => {
           await updateNicknameAPI(newValue, password)
           ElMessage.success('昵称修改成功 (∠・ω< )⌒★')
         } else if (type === 3) {
-          // 更新邮箱 - TODO: 等待后端提供API
-          ElMessage.warning('邮箱修改功能尚未开放')
-          return
+          await updateEmailAPI(newValue, password)
+          ElMessage.success('邮箱修改成功 (∠・ω< )⌒★')
         } else if (type === 4) {
-          // 更新手机号 - TODO: 等待后端提供API
-          ElMessage.warning('手机号修改功能尚未开放')
-          return
+          await updatePhoneAPI(newValue, password)
+          ElMessage.success('手机号修改成功 (∠・ω< )⌒★')
         }
 
         // 更新成功后刷新用户信息
@@ -142,7 +140,9 @@ const handleSubmit = async () => {
         handleReset()
       } catch (error) {
         console.error('更新失败:', error)
-        ElMessage.error(error.message || '更新失败，请重试')
+        // ElMessage 已由 request.js 拦截器处理，无需重复提示
+        // 只需重置表单关闭
+        handleReset()
       }
     } else {
       console.log('表单验证失败')

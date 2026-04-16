@@ -79,3 +79,17 @@ export const updateNicknameAPI = async (huh,password) => {
     password
   })
 }
+
+export const updateEmailAPI = async (huh,password) => {
+  return await request.put('/user/email', {
+    huh,
+    password
+  })
+}
+
+export const updatePhoneAPI = async (huh,password) => {
+  return await request.put('/user/phone', {
+    huh,
+    password
+  })
+}

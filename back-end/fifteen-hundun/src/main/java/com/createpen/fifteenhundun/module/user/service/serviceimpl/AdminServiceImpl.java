@@ -280,6 +280,7 @@ public class AdminServiceImpl implements AdminService {
         u.setUsername("管理员待注册"+code.substring(0,2));
         um.insertUser(u);
         //todo: 删除管理端用户查询的分页缓存
+        userRedisUtil.clearUsersCache();
         return u.getInviteCode();
     }
 //    @Override

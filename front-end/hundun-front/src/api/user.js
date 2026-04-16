@@ -72,3 +72,10 @@ export const updateAvatarAPI = async (formData) => {
 export const getUserInfoAPI = async () => {
   return await request.get('/user/info')
 }
+
+export const updateNicknameAPI = async (huh,password) => {
+  return await request.put('/user/nickname', {
+    huh,
+    password
+  })
+}

@@ -2,6 +2,8 @@
 import { useUserStore } from '@/stores/user.js'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { updateNicknameAPI, getUserInfoAPI } from '@/api/user.js'
 import inputpic from '@/assets/img/user/info/inputpic.png'
 
 const router = useRouter()
@@ -30,6 +32,43 @@ const showInputPic = ref(false)
 const picTimeout = ref(null)
 const debugMode = ref(true) // 开启调试模式
 
+// 表单数据
+const formRef = ref(null)
+const formData = ref({
+  newValue: '',
+  password: ''
+})
+
+// 表单验证规则
+const formRules = {
+  newValue: [
+    { required: true, message: '请输入新值', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' }
+  ]
+}
+
+// 获取当前激活项的标题
+const getActiveTitle = () => {
+  const titles = {
+    1: '您更希望被称呼为',
+    3: '您的邮箱',
+    4: '您的手机号'
+  }
+  return titles[activeIndex.value] || ''
+}
+
+// 获取占位符文本
+const getPlaceholder = () => {
+  const placeholders = {
+    1: '新的名字...',
+    3: '新的地址...',
+    4: '新的数字...'
+  }
+  return placeholders[activeIndex.value] || '请输入新值'
+}
+
 // 图片加载成功
 const handleImageLoad = () => {
   console.log('图片加载成功:', inputpic)
@@ -47,8 +86,17 @@ const handleImageError = (e) => {
 const handleItemClick = (index) => {
   activeIndex.value = index
 
-  // 如果点击的是昵称(1)、邮箱(3)或手机号(4)，显示图片
-  showInputPic.value = index === 1 || index === 3 || index === 4;
+  // 如果点击的是昵称(1)、邮箱(3)或手机号(4)，同时显示图片和表单
+  if (index === 1 || index === 3 || index === 4) {
+    showInputPic.value = true
+    // 重置表单
+    formData.value = {
+      newValue: '',
+      password: ''
+    }
+  } else {
+    showInputPic.value = false
+  }
 
   // 如果点击的是名字（索引0），在掉落动画后显示提示
   if (index === 0) {
@@ -60,12 +108,63 @@ const handleItemClick = (index) => {
   }
 }
 
+// 提交表单
+const handleSubmit = async () => {
+  if (!formRef.value) return
+
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        const type = activeIndex.value
+        const newValue = formData.value.newValue
+        const password = formData.value.password
+
+        // 根据类型调用不同的API
+        if (type === 1) {
+          // 更新昵称
+          await updateNicknameAPI(newValue, password)
+          ElMessage.success('昵称修改成功 (∠・ω< )⌒★')
+        } else if (type === 3) {
+          // 更新邮箱 - TODO: 等待后端提供API
+          ElMessage.warning('邮箱修改功能尚未开放')
+          return
+        } else if (type === 4) {
+          // 更新手机号 - TODO: 等待后端提供API
+          ElMessage.warning('手机号修改功能尚未开放')
+          return
+        }
+
+        // 更新成功后刷新用户信息
+        const res = await getUserInfoAPI()
+        userStore.setUserInfo(res.data)
+
+        // 重置表单
+        handleReset()
+      } catch (error) {
+        console.error('更新失败:', error)
+        ElMessage.error(error.message || '更新失败，请重试')
+      }
+    } else {
+      console.log('表单验证失败')
+      return false
+    }
+  })
+}
+
 // 复位
 const handleReset = () => {
   activeIndex.value = null
   showHint.value = false
   showInputPic.value = false
   if (picTimeout.value) clearTimeout(picTimeout.value)
+  // 重置表单
+  formData.value = {
+    newValue: '',
+    password: ''
+  }
+  if (formRef.value) {
+    formRef.value.clearValidate()
+  }
 }
 
 // 联系管理员
@@ -152,6 +251,37 @@ onUnmounted(() => {
       />
       <!-- 调试信息 -->
       <p class="debug-info" v-if="debugMode">图片路径: {{ inputpic }}</p>
+    </div>
+
+    <!-- 昵称、邮箱、手机号被选中时的表单 -->
+    <div class="edit-form-box" v-if="activeIndex === 1 || activeIndex === 3 || activeIndex === 4">
+      <el-form
+        ref="formRef"
+        :model="formData"
+        :rules="formRules"
+        label-width="auto"
+        class="edit-form"
+      >
+        <el-form-item prop="newValue">
+          <el-input
+            v-model="formData.newValue"
+            :placeholder="getPlaceholder()"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="formData.password"
+            type="password"
+            placeholder="请输入密码以确认身份"
+            show-password
+            clearable
+          />
+        </el-form-item>
+        <div class="form-buttons">
+          <el-button type="primary" @click="handleSubmit">确认修改</el-button>
+        </div>
+      </el-form>
     </div>
 
     <!-- 名字被选中时的提示 -->
@@ -272,6 +402,84 @@ onUnmounted(() => {
       padding: 8px 12px;
       border-radius: 8px;
       word-break: break-all;
+    }
+  }
+
+  .edit-form-box {
+    position: absolute;
+    top: 57%;
+    left: 51%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    animation: formFadeIn 0.5s ease-out;
+
+
+    .edit-form {
+      transform: rotate(-12deg);
+      width: 100%;
+
+      :deep(.el-form-item) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 22px;
+      }
+
+      :deep(.el-form-item__content) {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-left: 0 !important;
+      }
+
+      :deep(.el-form-item__error) {
+        text-align: center;
+        position: static;
+        margin-top: 8px;
+        padding-left: 0;
+      }
+
+      :deep(.el-input__wrapper) {
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+
+        &:hover,
+        &.is-focus {
+          box-shadow: none;
+        }
+      }
+
+      :deep(.el-input__inner) {
+        font-size: 34px;
+        font-family: 'Caveat', 'Indie Flower', 'Ma Shan Zheng', 'ZCOOL KuaiLe', cursive, sans-serif;
+        color: inherit;
+        text-align: center;
+      }
+
+      .form-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 200px;
+
+        .el-button {
+          min-width: 120px;
+          font-size: 24px;
+          font-weight: 600;
+          border-radius: 20px;
+          font-family: 'Caveat', 'Indie Flower', 'Ma Shan Zheng', 'ZCOOL KuaiLe', cursive, sans-serif;
+          transition: all 0.3s ease;
+          background: transparent;
+          border: none;
+          color: #a8a8a8;
+
+          &:hover {
+            transform: translateY(-2px);
+            background: transparent;
+          }
+        }
+      }
     }
   }
 
@@ -475,13 +683,13 @@ onUnmounted(() => {
   }
 }
 
-@keyframes picFadeIn {
+@keyframes formFadeIn {
   0% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.9);
   }
   100% {
-    opacity: 0.3;
+    opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
 }

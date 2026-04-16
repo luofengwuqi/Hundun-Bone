@@ -24,6 +24,10 @@ public interface UserService {
 
     void updateNickname(PutDTO dto);
 
+    void updateEmail(@Valid PutDTO dto);
+
+    void updatePhone(@Valid PutDTO dto);
+
 
 //    根据username得到id
 //    Long getIdByUsername(String username);

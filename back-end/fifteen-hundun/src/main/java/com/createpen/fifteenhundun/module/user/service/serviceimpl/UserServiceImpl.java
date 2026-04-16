@@ -219,6 +219,46 @@ public class UserServiceImpl implements UserService {
         userRedisUtil.saveUserInRedis(user);
     }
 
+    @Override
+    public void updateEmail(PutDTO dto) {
+        //获取当前用户
+        Long id = BaseContext.getCurrentId();
+        User user = getValidUserById(id);
+        //校验密码
+        if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
+            throw new PasswordException("密码输错了哦...");
+        }
+        //更新用户
+        String email = dto.getHuh();
+        user.setEmail(email);
+        try{
+            um.updateEmailById(email,id);
+        }catch (Exception e){
+            throw new SQLException("这个邮箱已被使用...");
+        }
+        userRedisUtil.saveUserInRedis(user);
+    }
+
+    @Override
+    public void updatePhone(PutDTO dto) {
+        //获取当前用户
+        Long id = BaseContext.getCurrentId();
+        User user = getValidUserById(id);
+        //校验密码
+        if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
+            throw new PasswordException("密码输错了哦...");
+        }
+        //更新用户
+        String phone = dto.getHuh();
+        user.setPhone(phone);
+        try{
+            um.updatePhoneById(phone,id);
+        }catch (Exception e){
+            throw new SQLException("这个手机号已被使用...");
+        }
+        userRedisUtil.saveUserInRedis(user);
+    }
+
 }
 
 

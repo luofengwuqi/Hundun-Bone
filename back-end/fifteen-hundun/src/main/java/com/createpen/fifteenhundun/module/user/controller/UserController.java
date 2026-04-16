@@ -12,7 +12,6 @@ import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
 import com.createpen.fifteenhundun.module.user.service.UserService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,6 +80,18 @@ public class UserController {
     public Result<Void> updateNickname(@RequestBody @Valid PutDTO dto) {
         log.info("修改用户昵称");
         us.updateNickname(dto);
+        return Result.success();
+    }
+    @PutMapping("/email")
+    public Result<Void> updateEmail(@RequestBody @Valid PutDTO dto) {
+        log.info("修改用户邮箱");
+        us.updateEmail(dto);
+        return Result.success();
+    }
+    @PutMapping("/phone")
+    public Result<Void> updatePhone(@RequestBody @Valid PutDTO dto) {
+        log.info("修改用户手机号");
+        us.updatePhone(dto);
         return Result.success();
     }
 

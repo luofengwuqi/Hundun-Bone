@@ -61,4 +61,10 @@ public interface UserMapper {
 
     @Update("update users set nickname= #{nickname} where id= #{id}")
     void updateNickNameById(String nickname, Long id);
+
+    @Update("update users set email= #{email} where id= #{id}")
+    void updateEmailById(String email, Long id);
+
+    @Update("update users set phone= #{phone} where id= #{id}")
+    void updatePhoneById(String phone, Long id);
 }

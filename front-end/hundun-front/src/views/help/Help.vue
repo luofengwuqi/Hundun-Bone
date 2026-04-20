@@ -8,6 +8,14 @@ import { useUserStore } from '@/stores/user.js'
 
 const userStore = useUserStore()
 
+// 控制蒙层显示状态
+const showOverlay = ref(true)
+
+// 点击蒙层隐藏
+const hideOverlay = () => {
+  showOverlay.value = false
+}
+
 const goBack = () => {
   const status = Number(userStore.userInfo.status)
   if(isNaN(status) || status === undefined){
@@ -83,10 +91,24 @@ const submitFeedback = async () => {
 
     <!-- 上部：反馈表单区域 -->
     <div class="form-section">
-      <el-card class="feedback-form-card">
+      <!-- 蒙层 -->
+      <transition name="fade-overlay">
+        <div v-if="showOverlay" class="form-overlay" @click="hideOverlay">
+          <div class="overlay-content">
+            <span class="overlay-text">
+              向管理员求助<br>
+              <small style="font-size: 15px">常见问题看下面哦</small>
+            </span>
+          </div>
+        </div>
+      </transition>
+
+      <!-- 表单内容 -->
+      <transition name="fade-form">
+        <el-card v-if="!showOverlay" class="feedback-form-card">
         <template #header>
           <div class="form-header">
-            <span>📨 向管理员反馈</span>
+            <span>向管理员反馈</span>
           </div>
         </template>
 
@@ -124,6 +146,7 @@ const submitFeedback = async () => {
           </el-form-item>
         </el-form>
       </el-card>
+      </transition>
     </div>
 
     <!-- 下部：信息卡片区域 -->
@@ -173,7 +196,7 @@ const submitFeedback = async () => {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background-color: #FFF8E8;
+  background-color: transparent;
   overflow-y: auto;
   z-index: 1;
 }
@@ -210,8 +233,8 @@ const submitFeedback = async () => {
 }
 
 .cards-wrapper {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
@@ -253,16 +276,90 @@ const submitFeedback = async () => {
   margin: 15px auto;
   display: flex;
   flex-direction: column;
+  position: relative;
+  min-height: 660px;
 }
 
 .feedback-form-card {
   width: 100%;
+  min-height: 600px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   border: none;
   display: flex;
   flex-direction: column;
+}
+
+/* 蒙层样式 */
+.form-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.form-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('@/assets/img/help/envelope.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.overlay-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-text {
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: #C3272B;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+  user-select: none;
+  margin-top: 250px;
+}
+
+/* 蒙层渐变动画 */
+.fade-overlay-enter-active,
+.fade-overlay-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-overlay-enter-from,
+.fade-overlay-leave-to {
+  opacity: 0;
+}
+
+/* 表单渐变动画 */
+.fade-form-enter-active,
+.fade-form-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-form-enter-from,
+.fade-form-leave-to {
+  opacity: 0;
 }
 
 .form-header {

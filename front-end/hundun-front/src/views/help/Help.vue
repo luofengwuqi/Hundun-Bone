@@ -2,6 +2,26 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { addFeedbackAPI } from '@/api/feedback.js'
+import router from '@/router/index.js'
+import { ArrowLeft } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user.js'
+
+const userStore = useUserStore()
+
+const goBack = () => {
+  const status = Number(userStore.userInfo.status)
+  if(isNaN(status) || status === undefined){
+    router.replace('/login')
+  }
+  else if(status >= 2){
+    router.replace('/admin')
+  }
+  else if(status < 2 && status > 0){
+    router.replace('/user')
+  }else{
+    router.replace('/login')
+  }
+}
 const defaultContent = `___________________________________________________
 以下是一些提示信息 建议在提交时删除
 1.您的反馈将以邮件的形式发送给管理员们 在ta们处理后同样会以邮件的形式通知您 我们将尽可能地处理您反馈的问题 但会驳回不合理的请求
@@ -40,7 +60,6 @@ const submitFeedback = async () => {
     return
   }
   await addFeedbackAPI(feedbackForm.value.type,feedbackForm.value.content)
-  console.log('提交反馈:', feedbackForm.value)
   ElMessage.success('我已收到!')
 
   // 重置表单
@@ -53,43 +72,17 @@ const submitFeedback = async () => {
 
 <template>
   <div class="help-container">
-    <!-- 左侧：可滚动的卡片区域 -->
-    <div class="left-panel">
-      <div class="cards-wrapper">
-        <el-card class="info-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <span>💡 常见问题</span>
-            </div>
-          </template>
-          <div class="card-content">
-            <p>Ciallo～(∠・ω&lt; )⌒★</p>
-            <p>非常抱歉...一五馄饨这个软件是芜柒sama的小作坊开发的 技术/人手不太够 所以可能存在一些bug哦...</p>
-            <p>如果您遇到问题，可以先查看以下常见问题：</p>
-            <ul>
-              <li>如何注册账号？</li>
-              <li>忘记密码怎么办？</li>
-              <li>如何联系管理员？</li>
-            </ul>
-          </div>
-        </el-card>
+    <!-- 返回按钮 -->
+    <el-button
+      class="back-button"
+      circle
+      @click="goBack"
+    >
+      <el-icon><ArrowLeft /></el-icon>
+    </el-button>
 
-        <!-- 这里可以添加更多卡片 -->
-        <el-card class="info-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <span>📝 使用提示</span>
-            </div>
-          </template>
-          <div class="card-content">
-            <p>这里是更多内容展示区域，您可以根据需要添加卡片。</p>
-          </div>
-        </el-card>
-      </div>
-    </div>
-
-    <!-- 右侧：固定不滚动的表单区域 -->
-    <div class="right-panel">
+    <!-- 上部：反馈表单区域 -->
+    <div class="form-section">
       <el-card class="feedback-form-card">
         <template #header>
           <div class="form-header">
@@ -132,23 +125,88 @@ const submitFeedback = async () => {
         </el-form>
       </el-card>
     </div>
+
+    <!-- 下部：信息卡片区域 -->
+    <div class="info-section">
+      <div class="cards-wrapper">
+        <el-card class="info-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>💡 常见问题</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <p>Ciallo～(∠・ω&lt; )⌒★</p>
+            <p>非常抱歉...一五馄饨这个软件是芜柒sama的小作坊开发的 技术/人手不太够 所以可能存在一些bug哦...</p>
+            <p>如果您遇到问题，可以先查看以下常见问题：</p>
+            <ul>
+              <li>如何注册账号？</li>
+              <li>忘记密码怎么办？</li>
+              <li>如何联系管理员？</li>
+            </ul>
+          </div>
+        </el-card>
+
+        <!-- 这里可以添加更多卡片 -->
+        <el-card class="info-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>📝 使用提示</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <p>这里是更多内容展示区域，您可以根据需要添加卡片。</p>
+          </div>
+        </el-card>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .help-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  height: calc(100vh - 60px);
-  gap: 20px;
+  flex-direction: column;
   padding: 20px;
   background-color: #FFF8E8;
+  overflow-y: auto;
+  z-index: 1;
 }
 
-/* 左侧面板 - 可滚动 */
-.left-panel {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 10px;
+/* 返回按钮 */
+.back-button {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  width: 50px;
+  height: 50px;
+  background-color: #C3272B;
+  border-color: #C3272B;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(195, 39, 43, 0.3);
+}
+
+.back-button:hover {
+  background-color: #D64A4F;
+  border-color: #D64A4F;
+  transform: scale(1.05);
+}
+
+.back-button :deep(.el-icon) {
+  color: white;
+  font-size: 20px;
+}
+
+/* 下部：信息卡片区域 */
+.info-section {
+  order: 2;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .cards-wrapper {
@@ -187,17 +245,22 @@ const submitFeedback = async () => {
   color: #5A4A42;
 }
 
-/* 右侧面板 - 不可滚动 */
-.right-panel {
-  flex: 1;
+/* 上部：反馈表单区域 */
+.form-section {
+  order: 1;
+  width: 70%;
+  max-width: 900px;
+  margin: 15px auto;
   display: flex;
   flex-direction: column;
 }
 
 .feedback-form-card {
-  height: 100%;
-  background-color: #FFF8E8;
-  border: 1px solid #FFEFD5;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: none;
   display: flex;
   flex-direction: column;
 }
@@ -229,21 +292,39 @@ const submitFeedback = async () => {
 }
 
 /* 自定义滚动条样式 */
-.left-panel::-webkit-scrollbar {
+.help-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.left-panel::-webkit-scrollbar-track {
+.help-container::-webkit-scrollbar-track {
   background: #FFEFD5;
   border-radius: 4px;
 }
 
-.left-panel::-webkit-scrollbar-thumb {
+.help-container::-webkit-scrollbar-thumb {
   background: #AAA;
   border-radius: 4px;
 }
 
-.left-panel::-webkit-scrollbar-thumb:hover {
+.help-container::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+.info-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.info-section::-webkit-scrollbar-track {
+  background: #FFEFD5;
+  border-radius: 4px;
+}
+
+.info-section::-webkit-scrollbar-thumb {
+  background: #AAA;
+  border-radius: 4px;
+}
+
+.info-section::-webkit-scrollbar-thumb:hover {
   background: #666;
 }
 
@@ -254,7 +335,7 @@ const submitFeedback = async () => {
 }
 
 :deep(.el-textarea__inner) {
-  background-color: #FFF8E8;
+  background-color: rgba(255, 248, 232, 0.9);
   border-color: #FFEFD5;
   color: #333333;
   resize: none;
@@ -265,7 +346,7 @@ const submitFeedback = async () => {
 }
 
 :deep(.el-select .el-input__wrapper) {
-  background-color: #FFF8E8;
+  background-color: rgba(255, 248, 232, 0.9);
   border-color: #FFEFD5;
 }
 

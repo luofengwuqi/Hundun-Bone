@@ -25,12 +25,30 @@ const handleCommand =  async (command) => {
     await logout()
   }
 }
+
+const list=[
+  { id: 1, name:'首页' ,to:'/user'},
+  { id: 2, name:'帮助' ,to:'/help'},
+]
+const handleRouter = (to)=>{
+  if (to) {
+    router.replace(to)
+  }
+}
 </script>
 
 <template>
   <div class="header" >
     <div class="logo-box" @click="router.push('/user')">
       <img src="@/assets/img/common/biglogo.png" alt="Logo">
+    </div>
+    <div class="main">
+      <ul>
+        <li v-for="(item) in list"
+          @click="handleRouter(item.to)">
+          <span>{{item.name}}</span>
+        </li>
+      </ul>
     </div>
     <el-dropdown v-if="userStore.userInfo" @command="handleCommand" trigger="hover">
       <div class="user-box">
@@ -100,6 +118,28 @@ const handleCommand =  async (command) => {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+      }
+    }
+    .main{
+      ul{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+
+        height: 80px;
+        line-height: 80px;
+        //禁止用户选择
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        li{
+          margin: 0 20px;
+          &:hover{
+            color: #C3272B;
+          }
+        }
+
       }
     }
 

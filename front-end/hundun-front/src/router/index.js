@@ -13,7 +13,7 @@ const router = createRouter({
       path:'/user',
       component:()=>import('@/views/user/UserHome.vue'),
       children:[
-        { path:'/user/info', component:()=>import('@/views/user/component/Info/Info.vue')},
+        { path:'info', component:()=>import('@/views/user/component/Info/Info.vue')},
       ]
     },
   ],

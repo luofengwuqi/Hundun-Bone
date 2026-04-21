@@ -2,10 +2,7 @@ package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.*;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
@@ -92,6 +89,12 @@ public class UserController {
     public Result<Void> updatePhone(@RequestBody @Valid PutDTO dto) {
         log.info("修改用户手机号");
         us.updatePhone(dto);
+        return Result.success();
+    }
+    @PutMapping("/password")
+    public Result<Void> updatePassword(@RequestBody @Valid UpdatePasswordDTO dto) {
+        log.info("修改用户密码");
+        us.updatePassword(dto);
         return Result.success();
     }
 

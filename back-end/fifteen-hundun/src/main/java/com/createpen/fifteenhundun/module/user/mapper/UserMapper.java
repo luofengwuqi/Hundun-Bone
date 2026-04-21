@@ -67,4 +67,7 @@ public interface UserMapper {
 
     @Update("update users set phone= #{phone} where id= #{id}")
     void updatePhoneById(String phone, Long id);
+
+    @Update("update users set password_hash= #{s} where id= #{currentId}")
+    void updatePasswordById(String s, Long currentId);
 }

@@ -17,6 +17,7 @@ import com.createpen.fifteenhundun.module.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,12 +35,14 @@ public class LoginServiceImpl implements LoginService {
     private UserRedisUtil userRedisUtil;
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     private final UserMapper userMapper;
 
-    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate) {
+    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate, StringRedisTemplate stringRedisTemplate) {
         this.userMapper = userMapper;
         this.redisTemplate = redisTemplate;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @Override
@@ -109,7 +112,7 @@ public class LoginServiceImpl implements LoginService {
             throw new UserNotFoundException("没找到这个邮箱...");
         }
         //2校验验证码
-        String trueCode = (String) redisTemplate.opsForValue().get(EMAIL_CODE_PATH+dto.getEmail());
+        String trueCode = stringRedisTemplate.opsForValue().get(EMAIL_CODE_PATH+dto.getEmail());
         if(trueCode == null){
             throw new RuntimeException("验证码似乎过期了...");
         }
@@ -120,7 +123,7 @@ public class LoginServiceImpl implements LoginService {
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
 //        删除redis里面的验证码
-        redisTemplate.delete(EMAIL_CODE_PATH+dto.getEmail());
+        stringRedisTemplate.delete(EMAIL_CODE_PATH+dto.getEmail());
         LoginRequestVO vo = new LoginRequestVO();
         vo.setToken(token);
         vo.setUser(u);
@@ -144,7 +147,7 @@ public class LoginServiceImpl implements LoginService {
             throw new SendCodeException("验证码发送失败了QAQ(疑似并不是程序的问题...)");
         }
         //4执行无误 塞进redis
-        redisTemplate.opsForValue().set(EMAIL_CODE_PATH+email,code,EMAIL_CODE_EXPIRE_TIME,TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(EMAIL_CODE_PATH+email,code,EMAIL_CODE_EXPIRE_TIME,TimeUnit.MINUTES);
 
     }
 

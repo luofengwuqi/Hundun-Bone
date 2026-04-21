@@ -3,6 +3,7 @@ package com.createpen.fifteenhundun.module.user.service;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdatePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
 import jakarta.validation.Valid;
@@ -27,6 +28,8 @@ public interface UserService {
     void updateEmail(@Valid PutDTO dto);
 
     void updatePhone(@Valid PutDTO dto);
+
+    void updatePassword(@Valid UpdatePasswordDTO dto);
 
 
 //    根据username得到id

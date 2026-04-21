@@ -9,12 +9,16 @@ import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdatePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
 import com.createpen.fifteenhundun.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.createpen.fifteenhundun.common.constant.RedisConstant.EMAIL_CODE_PATH;
 import static com.createpen.fifteenhundun.common.constant.oss.UserOssContant.USER_AVATAR_FOLDER;
 
 @Slf4j
@@ -35,6 +40,11 @@ public class UserServiceImpl implements UserService {
     private UserRedisUtil userRedisUtil;
     @Autowired
     private AliOSSUtil aliOssUtil;
+    @Qualifier("redisTemplate")
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Transactional(rollbackFor = Exception.class)
     public RegisterVO register(RegisterDTO dto) {
@@ -257,6 +267,31 @@ public class UserServiceImpl implements UserService {
             throw new SQLException("这个手机号已被使用...");
         }
         userRedisUtil.saveUserInRedis(user);
+    }
+
+    @Override
+    public void updatePassword(UpdatePasswordDTO dto) {
+        //1 在redis中读验证码
+        User user = userRedisUtil.getUserInRedis(BaseContext.getCurrentId());
+        if(user == null){
+            user = getValidUserById(BaseContext.getCurrentId());
+        }
+        String key = EMAIL_CODE_PATH + user.getEmail();
+        log.info("{}",key);
+        String codeInRedis = stringRedisTemplate.opsForValue().get(key);
+        log.info("{}",codeInRedis);
+        //2 验证
+        if (codeInRedis == null){
+            throw new UserNotFoundException("验证码已过期");
+        }
+        if(!codeInRedis.equals(dto.getCode())){
+            throw new PasswordException("验证码错误");
+        }
+        //3 修改
+        um.updatePasswordById(PasswordUtil.addMi(dto.getPassword()),BaseContext.getCurrentId());
+        //4 删除缓存
+        userRedisUtil.clearUserdata(BaseContext.getCurrentId());
+
     }
 
 }

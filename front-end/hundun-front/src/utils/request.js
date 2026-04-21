@@ -76,8 +76,13 @@ request.interceptors.response.use(
     }
     // 其他错误
     else {
-      ElMessage.error(error.response?.data?.message || "网络异常");
-      show500Error()
+      // 检查是否跳过了默认错误处理
+      const skipDefaultHandling = error.config?.skipDefaultErrorHandling;
+      
+      if (!skipDefaultHandling) {
+        ElMessage.error(error.response?.data?.message || "网络异常");
+        show500Error();
+      }
     }
 
     return Promise.reject(error);

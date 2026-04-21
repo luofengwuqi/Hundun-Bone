@@ -2,8 +2,15 @@
 import { useUserStore } from '@/stores/user.js'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { updateNicknameAPI, getUserInfoAPI, updateEmailAPI, updatePhoneAPI } from '@/api/user.js'
+import { ElMessage, ElNotification } from 'element-plus'
+import {
+  updateNicknameAPI,
+  getUserInfoAPI,
+  updateEmailAPI,
+  updatePhoneAPI,
+  sendEmailCode,
+  updatePasswordAPI
+} from '@/api/user.js'
 import inputpic from '@/assets/img/user/info/inputpic.png'
 
 const router = useRouter()
@@ -32,11 +39,15 @@ const showInputPic = ref(false)
 const picTimeout = ref(null)
 const debugMode = ref(true) // 开启调试模式
 
+// 验证码发送时间记录（用于频率限制）
+const lastSendTime = ref(0)
+
 // 表单数据
 const formRef = ref(null)
 const formData = ref({
   newValue: '',
-  password: ''
+  password: '',
+  emailCode: ''
 })
 
 // 表单验证规则
@@ -46,6 +57,9 @@ const formRules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' }
+  ],
+  emailCode: [
+    { required: true, message: '请输入邮箱验证码', trigger: 'blur' }
   ]
 }
 
@@ -63,6 +77,7 @@ const getActiveTitle = () => {
 const getPlaceholder = () => {
   const placeholders = {
     1: '新的名字...',
+    2: '新的密码...',
     3: '新的地址...',
     4: '新的数字...'
   }
@@ -83,16 +98,68 @@ const handleImageError = (e) => {
 }
 
 // 处理点击
-const handleItemClick = (index) => {
+const handleItemClick = async (index) => {
   activeIndex.value = index
 
-  // 如果点击的是昵称(1)、邮箱(3)或手机号(4)，同时显示图片和表单
-  if (index === 1 || index === 3 || index === 4) {
+  // 如果点击的是昵称(1)、密码(2)、邮箱(3)或手机号(4)，同时显示图片和表单
+  if (index === 1 || index === 2 || index === 3 || index === 4) {
     showInputPic.value = true
     // 重置表单
     formData.value = {
       newValue: '',
-      password: ''
+      password: '',
+      emailCode: ''
+    }
+
+    if (index === 2) {
+      // 检查是否在1分钟内重复发送
+      const now = Date.now()
+      const timeDiff = now - lastSendTime.value
+
+      if (timeDiff < 60000) { // 60秒 = 60000毫秒
+        // 1分钟内，显示提示
+        const remainingSeconds = Math.ceil((60000 - timeDiff) / 1000)
+        ElNotification({
+          title: '验证码在路上...',
+          message: `请注意查收，${remainingSeconds}秒后才能生成新的验证码`,
+          type: 'warning',
+          position: 'top-right',
+          duration: 3000
+        })
+        return // 直接返回，不调用API
+      }
+
+      try {
+        console.log('TODO: 准备发送邮箱验证码')
+        console.log('当前用户邮箱:', email.value)
+        // 跳过拦截器的默认错误处理，由本组件自行处理
+        await sendEmailCode(email.value, true)
+        // 记录发送时间
+        lastSendTime.value = Date.now()
+        ElNotification({
+          title: '已发送验证码(・ω< )',
+          message: '请耐心等待...',
+          type: 'success',
+          position: 'top-right'
+        })
+      } catch (error) {
+        console.error('TODO: 发送验证码失败', error)
+
+        // 检查是否为404错误
+        if (error.response && error.response.status === 404) {
+          ElNotification({
+            title: '您未开启邮箱功能...',
+            message: '请添加邮箱后再修改密码...',
+            type: 'warning',
+            position: 'top-right',
+            duration: 3000
+          })
+          // 自动点击复位按钮
+          setTimeout(() => {
+            handleReset()
+          }, 3000)
+        }
+      }
     }
   } else {
     showInputPic.value = false
@@ -124,11 +191,16 @@ const handleSubmit = async () => {
           // 更新昵称
           await updateNicknameAPI(newValue, password)
           ElMessage.success('昵称修改成功 (∠・ω< )⌒★')
+        } else if (type === 2) {
+          await updatePasswordAPI(formData.value.emailCode, newValue)
+          console.log('邮箱验证码:', formData.value.emailCode)
+          console.log('新密码:', newValue)
+          ElMessage.success('密码修改成功 (∠・ω< )⌒★')
         } else if (type === 3) {
           await updateEmailAPI(newValue, password)
           ElMessage.success('邮箱修改成功 (∠・ω< )⌒★')
         } else if (type === 4) {
-          await updatePhoneAPI(newValue, password)
+          await updatePhoneAPI(newValue, password, formData.value.emailCode)
           ElMessage.success('手机号修改成功 (∠・ω< )⌒★')
         }
 
@@ -160,7 +232,8 @@ const handleReset = () => {
   // 重置表单
   formData.value = {
     newValue: '',
-    password: ''
+    password: '',
+    emailCode: ''
   }
   if (formRef.value) {
     formRef.value.clearValidate()
@@ -216,7 +289,7 @@ onUnmounted(() => {
         <span class="label-title">您的密码</span>
         <span class="label-value unset">****</span>
       </div>
-      <p class="info-desc">嘘 不能告诉别人</p>
+      <p class="info-desc">嘘...</p>
     </div>
 
     <div class="info-item" :class="{ 'active': activeIndex === 3, 'fall': activeIndex !== null && activeIndex !== 3 }" @click="handleItemClick(3)">
@@ -225,7 +298,7 @@ onUnmounted(() => {
         <span class="label-value" :class="{ unset: !email }">{{ email || '未设置' }}</span>
       </div>
       <p class="info-desc">
-        <span v-if="email">一种写信的新的方式 但是更多的时候不是用于写信</span>
+        <span v-if="email">更多的时候不是用于写信...</span>
         <span v-else>或许会错过些什么呢...</span>
       </p>
     </div>
@@ -236,7 +309,7 @@ onUnmounted(() => {
         <span class="label-value" :class="{ unset: !phone }">{{ phone || '未设置' }}</span>
       </div>
       <p class="info-desc">
-        <span v-if="phone">一串数字 因你的存在而有意义...</span>
+        <span v-if="phone">一串数字...</span>
         <span v-else>或许会错过些什么呢...</span>
       </p>
     </div>
@@ -253,8 +326,8 @@ onUnmounted(() => {
       <p class="debug-info" v-if="debugMode">图片路径: {{ inputpic }}</p>
     </div>
 
-    <!-- 昵称、邮箱、手机号被选中时的表单 -->
-    <div class="edit-form-box" v-if="activeIndex === 1 || activeIndex === 3 || activeIndex === 4">
+    <!-- 昵称、密码、邮箱、手机号被选中时的表单 -->
+    <div class="edit-form-box" v-if="activeIndex === 1 || activeIndex === 2 || activeIndex === 3 || activeIndex === 4">
       <el-form
         ref="formRef"
         :model="formData"
@@ -262,19 +335,46 @@ onUnmounted(() => {
         label-width="auto"
         class="edit-form"
       >
-        <el-form-item prop="newValue">
+        <el-form-item prop="newValue" v-if="activeIndex !== 2">
           <el-input
             v-model="formData.newValue"
             :placeholder="getPlaceholder()"
             clearable
           />
         </el-form-item>
-        <el-form-item prop="password">
+        <el-form-item prop="password" v-if="activeIndex !== 2">
           <el-input
             v-model="formData.password"
             type="password"
             placeholder="请输入密码以确认身份"
             show-password
+            clearable
+          />
+        </el-form-item>
+        <!-- 密码修改专用表单 -->
+        <template v-if="activeIndex === 2">
+          <el-form-item prop="emailCode">
+            <el-input
+              v-model="formData.emailCode"
+              placeholder="请输入邮箱验证码"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item prop="newValue">
+            <el-input
+              v-model="formData.newValue"
+              type="password"
+              :placeholder="getPlaceholder()"
+              show-password
+              clearable
+            />
+          </el-form-item>
+        </template>
+        <!-- 手机号修改时的验证码 -->
+        <el-form-item prop="emailCode" v-if="activeIndex === 4">
+          <el-input
+            v-model="formData.emailCode"
+            placeholder="请输入邮箱验证码"
             clearable
           />
         </el-form-item>

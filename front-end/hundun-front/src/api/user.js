@@ -43,9 +43,11 @@ export const addUser = async (user)=>{
   return await request.post('/user/register',user)
 }
 
-export const sendEmailCode = async (email)=>{
+export const sendEmailCode = async (email, skipDefaultErrorHandling = false) =>{
   return await request.post('/user/login/email-code/send',{
     email:email
+  }, {
+    skipDefaultErrorHandling
   })
 }
 
@@ -90,6 +92,13 @@ export const updateEmailAPI = async (huh,password) => {
 export const updatePhoneAPI = async (huh,password) => {
   return await request.put('/user/phone', {
     huh,
+    password
+  })
+}
+
+export const updatePasswordAPI = async (code,password) => {
+  return await request.put('/user/password', {
+    code,
     password
   })
 }

@@ -1,6 +1,9 @@
 package com.createpen.fifteenhundun.module.article.mapper;
 
+import com.createpen.fifteenhundun.common.anno.AutoFillTime;
+import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -10,4 +13,8 @@ import java.util.List;
 public interface ArticleMapper {
     @Select("select * from article")
     List<Article> selectArticleList();
+
+    @Insert("INSERT INTO article (title, text, creator, belonging) VALUES (#{title}, #{text}, #{creator}, #{belonging})")
+    @AutoFillTime(AutoFillTimeType.INSERT)
+    void insertArticle(Article article);
 }

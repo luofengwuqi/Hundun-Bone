@@ -74,7 +74,7 @@
             <el-button
               type="danger"
               size="small"
-              @click="handleDeleteUser(scope.row.id)"
+              @click="handleDeleteUser(scope.row)"
               plain
             >
               删除
@@ -112,7 +112,7 @@
         <div class="detail-content">
           <!-- 头像和基本信息 -->
           <div class="avatar-section">
-            <el-avatar :size="120" :src="currentUser.avatarUrl || ''" class="user-avatar">
+            <el-avatar :size="120" :src="avatarSrc" class="user-avatar">
               <el-icon :size="60"><User /></el-icon>
             </el-avatar>
             <div class="basic-info">
@@ -179,9 +179,21 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { changeStatus, deleteSingleUser, getUserInfoAPI } from '@/api/user.js'
 import request from '@/utils/request.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { CONFIG } from '@/utils/config.js'
+import { ArrowLeft, User } from '@element-plus/icons-vue'
+import defaultAvatar from '@/assets/img/common/user.jpg'
+import { useUserStore } from '@/stores/user.js'
 //操作用户信息细节的相关代码
 const detailStatus = ref(false)
 const currentUser = ref({})
+
+// 获取用户头像
+const avatarSrc = computed(() => {
+  if (currentUser.value.avatarUrl) {
+    return CONFIG.OSS_DOMAIN + '/' + currentUser.value.avatarUrl
+  }
+  return defaultAvatar
+})
 
 // 加载状态
 const loading = ref(false)
@@ -313,19 +325,31 @@ const handleChangeStatus = async (username, targetStatus) => {
 }
 
 //删除用户
-const handleDeleteUser = async (id) => {
+const handleDeleteUser = async (row) => {
+  if(row.id===useUserStore().userInfo.id){
+    ElMessage.error(`要对自己好一点...`)
+    return
+  }
+  if(row.status>=useUserStore().userInfo.status){
+    ElMessage.error(`就算你是鹈鹕也不能吃同事(╯°□°)╯`)
+    return
+  }
   // 弹出警告框
   await ElMessageBox.confirm('确定要删除该用户吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
   })
-  await deleteSingleUser(id)
+  await deleteSingleUser(row.id)
   await fetchUsers()
-  ElMessage.success(`ID${id}永远的消失了...`)
+  ElMessage.success(`ID${row.id}永远的消失了...`)
 }
 
 // 查看用户详情
 const handleViewDetail = async (row) => {
+  if (row.status > useUserStore().userInfo.status){
+    ElMessage.error(`权限不足QAQ`)
+    return
+  }
   const res = await getUserInfoAPI(row.id)
   currentUser.value = res.data
   detailStatus.value = true

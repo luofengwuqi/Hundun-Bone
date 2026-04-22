@@ -39,16 +39,16 @@ router.beforeEach(async (to) => {
     userStore.setToken('')
     return true
   }
-  
+
   if(to.path === '/admin'){
-    if(Number(userStore.userInfo.status) <= 2){
+    if(Number(userStore.userInfo.status) < 2){
       ElMessage.error("您无权访问这里...请您离开...")
       userStore.setUserInfo({})
       userStore.setToken('')
       return '/login'
     }
   }
-  
+
   // 放行
   return true
 })

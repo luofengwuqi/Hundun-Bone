@@ -141,12 +141,21 @@ public class AdminServiceImpl implements AdminService {
             u.setAvatarUrl(dto.getAvatarUrl());
             u.setLastLoginAt(LocalDateTime.now());
 
-            um.deleteUserByUserName("管理员待注册"+importantPassword);
+            //注册用户
             um.insertUser(u);
-            
             //清除用户查询缓存
             userRedisUtil.clearUsersCache();
-            
+
+            //移除临时占位用户
+            try{
+                String tempUserName = "管理员待注册"+importantPassword.substring(0, 2);
+                User tempUser = us.getValidUserByUserName(tempUserName);
+                um.deleteUserById(tempUser.getId());
+                userRedisUtil.clearUserdata(tempUser.getId());
+            }catch (Exception exception){
+                log.error("移除临时占位管理员时候出现异常,疑似出现命名碰撞,请手动处理");
+            }
+
             return;
         }
         throw new UserExistedException("用户已存在");

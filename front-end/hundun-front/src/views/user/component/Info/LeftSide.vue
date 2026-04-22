@@ -3,11 +3,9 @@ import { useUserStore } from '@/stores/user.js'
 import { computed, ref } from 'vue'
 import defaultAvatar from '@/assets/img/common/user.jpg'
 import { User, Picture, Clock } from '@element-plus/icons-vue'
+import { OSS_DOMAIN } from '@/utils/config.js'
 
 const userStore = useUserStore()
-
-// OSS 域名配置
-const OSS_DOMAIN = 'https://fifteen-hundun.oss-cn-beijing.aliyuncs.com'
 
 // 获取用户头像
 const avatarSrc = computed(() => {

@@ -43,6 +43,14 @@ public class AdminController {
         String code = as.makeInviteCode();
         return Result.success(code);
     }
+    //修改用户信息
+    @PutMapping("/user")
+    public Result<Void> updateUser(@RequestBody UpdateUserDTO dto)
+    {
+        log.info("修改用户信息{}",dto);
+        as.updateUser(dto);
+        return Result.success();
+    }
     //禁用或启用用户
     @PutMapping("/user/status")
     public Result<Integer> changeStatus(@RequestParam("username") String username)

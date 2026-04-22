@@ -1,12 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { addFeedbackAPI } from '@/api/feedback.js'
 import router from '@/router/index.js'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user.js'
+import { useArticleStore } from '@/stores/article.js'
 
 const userStore = useUserStore()
+const articleStore = useArticleStore()
 
 // 控制蒙层显示状态
 const showOverlay = ref(true)
@@ -30,24 +32,10 @@ const goBack = () => {
     router.replace('/login')
   }
 }
-const defaultContent = `___________________________________________________
-以下是一些提示信息 建议在提交时删除
-1.您的反馈将以邮件的形式发送给管理员们 在ta们处理后同样会以邮件的形式通知您 我们将尽可能地处理您反馈的问题 但会驳回不合理的请求
-2.强烈建议您在注册用户时提交您的邮箱信息以便关注反馈的处理进度
-3.建议您使用以下格式来反馈问题...当然也可以删掉自己写 给您最大的自由度进行反馈哦~
-___________________________________________________
-1.问题位置:
-您在什么模块下遇到了问题?登录页面/记账模块/管理员模块/...
-2.问题描述:
-您遇到了什么样的问题?例如忘记密码无法登录/程序报了什么错...
-3.操作流程:
-您进行了什么样的操作?
-`
-
 // 反馈表单数据
 const feedbackForm = ref({
   type: '',
-  content: defaultContent
+  content: ''
 })
 
 // 反馈类型选项
@@ -73,9 +61,26 @@ const submitFeedback = async () => {
   // 重置表单
   feedbackForm.value = {
     type: '',
-    content: defaultContent
+    content: ''
   }
 }
+
+// 格式化日期时间
+const formatDateTime = (dateTime) => {
+  if (!dateTime) return ''
+  const date = new Date(dateTime)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}`
+}
+
+// 组件挂载时获取文章列表
+onMounted(async () => {
+  await articleStore.getArticleList()
+})
 </script>
 
 <template>
@@ -133,7 +138,18 @@ const submitFeedback = async () => {
               v-model="feedbackForm.content"
               type="textarea"
               :rows="20"
-              placeholder="请详细描述您遇到的问题或建议..."
+              placeholder="___________________________________________________
+以下是一些提示信息 建议在提交时删除
+1.您的反馈将以邮件的形式发送给管理员们 在ta们处理后同样会以邮件的形式通知您 我们将尽可能地处理您反馈的问题 但会驳回不合理的请求
+2.强烈建议您在注册用户时提交您的邮箱信息以便关注反馈的处理进度
+3.建议您使用以下格式来反馈问题...当然也可以删掉自己写 给您最大的自由度进行反馈哦~
+___________________________________________________
+1.问题位置:
+您在什么模块下遇到了问题?登录页面/记账模块/管理员模块/...
+2.问题描述:
+您遇到了什么样的问题?例如忘记密码无法登录/程序报了什么错...
+3.操作流程:
+您进行了什么样的操作?"
               maxlength="2000"
               show-word-limit
             />
@@ -149,36 +165,32 @@ const submitFeedback = async () => {
       </transition>
     </div>
 
-    <!-- 下部：信息卡片区域 -->
+    <!-- 下部：文章卡片区域 -->
     <div class="info-section">
       <div class="cards-wrapper">
-        <el-card class="info-card" shadow="hover">
+        <el-card
+          v-for="article in articleStore.articleList"
+          :key="article.id"
+          class="info-card"
+          shadow="hover"
+        >
           <template #header>
             <div class="card-header">
-              <span>💡 常见问题</span>
+              <span class="article-title">{{ article.title }}</span>
+              <span class="article-belonging">{{ article.belonging }}</span>
             </div>
           </template>
           <div class="card-content">
-            <p>Ciallo～(∠・ω&lt; )⌒★</p>
-            <p>非常抱歉...一五馄饨这个软件是芜柒sama的小作坊开发的 技术/人手不太够 所以可能存在一些bug哦...</p>
-            <p>如果您遇到问题，可以先查看以下常见问题：</p>
-            <ul>
-              <li>如何注册账号？</li>
-              <li>忘记密码怎么办？</li>
-              <li>如何联系管理员？</li>
-            </ul>
-          </div>
-        </el-card>
-
-        <!-- 这里可以添加更多卡片 -->
-        <el-card class="info-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <span>📝 使用提示</span>
+            <p class="article-text">{{ article.text }}</p>
+            <div class="article-footer">
+              <span class="article-creator">作者: {{ article.creator }}</span>
+              <span class="article-time">{{ formatDateTime(article.createdAt) }}</span>
+              <div class="article-stats">
+                <!--       TODO:图标问题         -->
+                <span class="stat-item good">👍 {{ article.good }}</span>
+                <span class="stat-item bad">👎 {{ article.bad }}</span>
+              </div>
             </div>
-          </template>
-          <div class="card-content">
-            <p>这里是更多内容展示区域，您可以根据需要添加卡片。</p>
           </div>
         </el-card>
       </div>
@@ -247,6 +259,22 @@ const submitFeedback = async () => {
   font-size: 16px;
   font-weight: bold;
   color: #333333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.article-title {
+  flex: 1;
+}
+
+.article-belonging {
+  font-size: 12px;
+  color: #C3272B;
+  background-color: rgba(195, 39, 43, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 10px;
 }
 
 .card-content {
@@ -266,6 +294,58 @@ const submitFeedback = async () => {
 .card-content li {
   margin: 5px 0;
   color: #5A4A42;
+}
+
+/* 文章样式 */
+.article-text {
+  line-height: 1.8;
+  color: #454545;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 15px;
+}
+
+.article-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #FFEFD5;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.article-creator {
+  font-size: 13px;
+  color: #666;
+}
+
+.article-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.article-stats {
+  display: flex;
+  gap: 15px;
+}
+
+.stat-item {
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.stat-item:hover {
+  transform: scale(1.1);
+}
+
+.stat-item.good {
+  color: #67C23A;
+}
+
+.stat-item.bad {
+  color: #F56C6C;
 }
 
 /* 上部：反馈表单区域 */

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-show="!detailStatus">
     <!-- 搜索栏 -->
     <el-form :inline="true" :model="searchForm" class="search-form" @submit.prevent>
       <el-form-item label="用户名">
@@ -15,7 +15,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button type="primary" class="search-btn" @click="handleSearch">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
@@ -45,6 +45,14 @@
         <el-table-column prop="lastLoginAt" label="最后登录时间" min-width="170" />
         <el-table-column label="操作" fixed="right" width="220" align="center">
           <template #default="scope">
+            <el-button
+              type="primary"
+              size="small"
+              plain
+              @click="handleViewDetail(scope.row)"
+            >
+              修改
+            </el-button>
             <el-button
               type="success"
               size="small"
@@ -90,13 +98,90 @@
       :small="false"
     />
   </div>
+  <transition name="detail-fade">
+    <div v-show="detailStatus" class="user-detail-container">
+      <div class="detail-header">
+        <el-button type="primary" class="back-btn" @click="handleBackToList">
+          <el-icon><ArrowLeft /></el-icon>
+          返回列表
+        </el-button>
+        <h2 class="detail-title">用户详细信息</h2>
+      </div>
+
+      <el-card class="detail-card" shadow="hover">
+        <div class="detail-content">
+          <!-- 头像和基本信息 -->
+          <div class="avatar-section">
+            <el-avatar :size="120" :src="currentUser.avatarUrl || ''" class="user-avatar">
+              <el-icon :size="60"><User /></el-icon>
+            </el-avatar>
+            <div class="basic-info">
+              <h3 class="username">{{ currentUser.username }}</h3>
+              <p class="nickname" v-if="currentUser.nickname">昵称：{{ currentUser.nickname }}</p>
+              <el-tag :type="getStatusType(currentUser.status)" size="large">
+                {{ getStatusText(currentUser.status) }}
+              </el-tag>
+            </div>
+          </div>
+
+          <el-divider />
+
+          <!-- 详细信息网格 -->
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">用户ID</span>
+              <span class="info-value">{{ currentUser.id }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">用户名</span>
+              <span class="info-value">{{ currentUser.username }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">邮箱</span>
+              <span class="info-value">{{ currentUser.email || '未设置' }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">密码</span>
+              <span class="info-value password-masked">******</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">手机号</span>
+              <span class="info-value">{{ currentUser.phone || '未设置' }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">创建时间</span>
+              <span class="info-value">{{ formatDate(currentUser.createdAt) }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">更新时间</span>
+              <span class="info-value">{{ formatDate(currentUser.updatedAt) }}</span>
+            </div>
+
+            <div class="info-item ">
+              <span class="info-label">最后登录时间</span>
+              <span class="info-value">{{ formatDate(currentUser.lastLoginAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </el-card>
+    </div>
+  </transition>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { changeStatus, deleteSingleUser } from '@/api/user.js'
+import { changeStatus, deleteSingleUser, getUserInfoAPI } from '@/api/user.js'
 import request from '@/utils/request.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
+//操作用户信息细节的相关代码
+const detailStatus = ref(false)
+const currentUser = ref({})
 
 // 加载状态
 const loading = ref(false)
@@ -238,6 +323,32 @@ const handleDeleteUser = async (id) => {
   await fetchUsers()
   ElMessage.success(`ID${id}永远的消失了...`)
 }
+
+// 查看用户详情
+const handleViewDetail = async (row) => {
+  const res = await getUserInfoAPI(row.id)
+  currentUser.value = res.data
+  detailStatus.value = true
+}
+
+// 返回列表
+const handleBackToList = () => {
+  detailStatus.value = false
+  currentUser.value = {}
+}
+
+// 格式化日期
+const formatDate = (dateStr) => {
+  if (!dateStr) return '未记录'
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
 // 初始化加载
 onMounted(() => {
   fetchUsers()
@@ -253,6 +364,17 @@ onMounted(() => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
+/* 查询按钮样式 */
+.search-btn {
+  background-color: #C3272B !important;
+  border-color: #C3272B !important;
+}
+
+.search-btn:hover {
+  background-color: #D64A4F !important;
+  border-color: #D64A4F !important;
+}
+
 .pagination {
   margin-top: 24px;
   display: flex;
@@ -260,6 +382,16 @@ onMounted(() => {
   padding: 16px 0;
   background: #FFF8E8;
   border-radius: 8px;
+}
+
+/* 分页当前页样式 */
+:deep(.el-pagination.is-background .el-pager li.is-active) {
+  background-color: #C3272B !important;
+  color: #fff !important;
+}
+
+:deep(.el-pagination.is-background .el-pager li:not(.is-active):hover) {
+  color: #C3272B !important;
 }
 
 .el-table {
@@ -390,5 +522,149 @@ onMounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 用户详情页面样式 */
+.user-detail-container {
+  padding: 20px;
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.back-btn {
+  background-color: #C3272B !important;
+  border-color: #C3272B !important;
+}
+
+.back-btn:hover {
+  background-color: #D64A4F !important;
+  border-color: #D64A4F !important;
+}
+
+.detail-title {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.detail-card {
+  background-color: #FFF8E8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.detail-content {
+  padding: 20px;
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.user-avatar {
+  border: 3px solid #FFEFD5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #FFEFD5;
+}
+
+.basic-info {
+  flex: 1;
+}
+
+.username {
+  font-size: 28px;
+  color: #333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.nickname {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 12px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: rgba(255, 239, 213, 0.5);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background-color: rgba(255, 239, 213, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #999;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.password-masked {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  color: #C3272B;
+  font-weight: 600;
+}
+
+/* 详情页面过渡动画 */
+.detail-fade-enter-active,
+.detail-fade-leave-active {
+  transition: all 0.4s ease;
+}
+
+.detail-fade-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.detail-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
 }
 </style>

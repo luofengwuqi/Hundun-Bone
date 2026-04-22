@@ -108,3 +108,8 @@ export const updatePasswordAPI = async (code,password) => {
     password
   })
 }
+
+// 统一更新用户信息接口
+export const updateUserAPI = async (dto) => {
+  return await request.put('/user', dto)
+}

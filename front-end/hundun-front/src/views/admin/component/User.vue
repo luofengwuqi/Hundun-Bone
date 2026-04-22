@@ -103,9 +103,10 @@
       <div class="detail-header">
         <el-button type="primary" class="back-btn" @click="handleBackToList">
           <el-icon><ArrowLeft /></el-icon>
-          返回列表
+          返回列表并修改
         </el-button>
         <h2 class="detail-title">用户详细信息</h2>
+        <span style="font-size: 12px;color: #C3272B;">警告!尽管这里提供了修改用户id的功能,但是这是一个很危险的操作,可能会引起用户关联表的信息错误,请谨慎操作!</span>
       </div>
 
       <el-card class="detail-card" shadow="hover">
@@ -128,29 +129,109 @@
 
           <!-- 详细信息网格 -->
           <div class="info-grid">
-            <div class="info-item">
+            <div class="info-item" @click="startEdit('id')">
               <span class="info-label">用户ID</span>
-              <span class="info-value">{{ currentUser.id }}</span>
+              <template v-if="editingField !== 'id'">
+                <span class="info-value editable">{{ currentUser.id }}</span>
+              </template>
+              <template v-else>
+                <el-input
+                  ref="idInputRef"
+                  v-model="editValue"
+                  size="small"
+                  class="edit-input"
+                  @blur="handleEditSubmit('id')"
+                  @keyup.enter="handleEditSubmit('id')"
+                />
+              </template>
             </div>
 
-            <div class="info-item">
+            <div class="info-item" @click="startEdit('username')">
               <span class="info-label">用户名</span>
-              <span class="info-value">{{ currentUser.username }}</span>
+              <template v-if="editingField !== 'username'">
+                <span class="info-value editable">{{ currentUser.username }}</span>
+              </template>
+              <template v-else>
+                <el-input
+                  ref="usernameInputRef"
+                  v-model="editValue"
+                  size="small"
+                  class="edit-input"
+                  @blur="handleEditSubmit('username')"
+                  @keyup.enter="handleEditSubmit('username')"
+                />
+              </template>
             </div>
 
-            <div class="info-item">
+            <div class="info-item" @click="startEdit('email')">
               <span class="info-label">邮箱</span>
-              <span class="info-value">{{ currentUser.email || '未设置' }}</span>
+              <template v-if="editingField !== 'email'">
+                <span class="info-value editable">{{ currentUser.email || '未设置' }}</span>
+              </template>
+              <template v-else>
+                <el-input
+                  ref="emailInputRef"
+                  v-model="editValue"
+                  size="small"
+                  class="edit-input"
+                  @blur="handleEditSubmit('email')"
+                  @keyup.enter="handleEditSubmit('email')"
+                />
+              </template>
             </div>
 
-            <div class="info-item">
+            <div class="info-item" @click="startEdit('password')">
               <span class="info-label">密码</span>
-              <span class="info-value password-masked">******</span>
+              <template v-if="editingField !== 'password'">
+                <span class="info-value password-masked editable">******</span>
+              </template>
+              <template v-else>
+                <el-input
+                  ref="passwordInputRef"
+                  v-model="editValue"
+                  type="password"
+                  show-password
+                  size="small"
+                  class="edit-input"
+                  placeholder="请输入新密码"
+                  @blur="handleEditSubmit('password')"
+                  @keyup.enter="handleEditSubmit('password')"
+                />
+              </template>
             </div>
 
-            <div class="info-item">
+            <div class="info-item" @click="startEdit('phone')">
               <span class="info-label">手机号</span>
-              <span class="info-value">{{ currentUser.phone || '未设置' }}</span>
+              <template v-if="editingField !== 'phone'">
+                <span class="info-value editable">{{ currentUser.phone || '未设置' }}</span>
+              </template>
+              <template v-else>
+                <el-input
+                  ref="phoneInputRef"
+                  v-model="editValue"
+                  size="small"
+                  class="edit-input"
+                  @blur="handleEditSubmit('phone')"
+                  @keyup.enter="handleEditSubmit('phone')"
+                />
+              </template>
+            </div>
+
+            <div class="info-item" @click="startEdit('nickname')">
+              <span class="info-label">昵称</span>
+              <template v-if="editingField !== 'nickname'">
+                <span class="info-value editable">{{ currentUser.nickname || '未设置' }}</span>
+              </template>
+              <template v-else>
+                <el-input
+                  ref="nicknameInputRef"
+                  v-model="editValue"
+                  size="small"
+                  class="edit-input"
+                  @blur="handleEditSubmit('nickname')"
+                  @keyup.enter="handleEditSubmit('nickname')"
+                />
+              </template>
             </div>
 
             <div class="info-item">
@@ -176,7 +257,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { changeStatus, deleteSingleUser, getUserInfoAPI } from '@/api/user.js'
+import { changeStatus, deleteSingleUser, getUserInfoAPI, updateUserAPI } from '@/api/user.js'
 import request from '@/utils/request.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { CONFIG } from '@/utils/config.js'
@@ -186,6 +267,18 @@ import { useUserStore } from '@/stores/user.js'
 //操作用户信息细节的相关代码
 const detailStatus = ref(false)
 const currentUser = ref({})
+const originalId = ref(null) // 保存原始ID，用于提交时的 oldId 字段
+
+// 编辑状态管理
+const editingField = ref(null) // 当前正在编辑的字段
+const editValue = ref('') // 编辑中的值
+const modifiedFields = ref({}) // 记录所有被修改的字段 { field: newValue }
+const idInputRef = ref(null)
+const usernameInputRef = ref(null)
+const emailInputRef = ref(null)
+const passwordInputRef = ref(null)
+const phoneInputRef = ref(null)
+const nicknameInputRef = ref(null)
 
 // 获取用户头像
 const avatarSrc = computed(() => {
@@ -352,13 +445,132 @@ const handleViewDetail = async (row) => {
   }
   const res = await getUserInfoAPI(row.id)
   currentUser.value = res.data
+  originalId.value = res.data.id // 保存原始ID
   detailStatus.value = true
 }
 
 // 返回列表
-const handleBackToList = () => {
+const handleBackToList = async () => {
+  // 检查是否有未提交的修改
+  const modifiedKeys = Object.keys(modifiedFields.value)
+
+  if (modifiedKeys.length > 0) {
+    try {
+      // 构建 DTO 对象，过滤掉空字符串
+      const dto = {
+        oldId: originalId.value // 使用原始ID，而不是可能已修改的 currentUser.value.id
+      }
+
+      // 只添加非空字符串的字段
+      modifiedKeys.forEach(key => {
+        const value = modifiedFields.value[key]
+        if (value !== '') {
+          dto[key] = value
+        }
+      })
+
+      // 如果过滤后没有要更新的字段（全是空字符串），直接返回
+      if (Object.keys(dto).length === 1) {
+        ElMessage.warning('没有有效的修改内容')
+        modifiedFields.value = {}
+        detailStatus.value = false
+        currentUser.value = {}
+        editingField.value = null
+        editValue.value = ''
+        return
+      }
+
+      // 调用统一更新接口
+      await updateUserAPI(dto)
+
+      ElMessage.success(`已保存 ${Object.keys(dto).length - 1} 项修改`)
+
+      // 清空修改记录
+      modifiedFields.value = {}
+    } catch (error) {
+      console.error('保存失败:', error)
+      ElMessage.error('保存失败，请重试')
+      return // 保存失败时不返回列表
+    }
+  }
+
+  // 复位状态
   detailStatus.value = false
   currentUser.value = {}
+  originalId.value = null
+  editingField.value = null
+  editValue.value = ''
+
+  await fetchUsers()
+}
+
+// 开始编辑
+const startEdit = (field) => {
+  editingField.value = field
+  editValue.value = currentUser.value[field] || ''
+
+  // 下一帧聚焦输入框
+  setTimeout(() => {
+    const inputRefs = {
+      id: idInputRef,
+      username: usernameInputRef,
+      email: emailInputRef,
+      password: passwordInputRef,
+      phone: phoneInputRef,
+      nickname: nicknameInputRef
+    }
+    const ref = inputRefs[field]
+    if (ref && ref.value) {
+      ref.value.focus()
+    }
+  }, 0)
+}
+
+// 提交编辑（只记录修改，不立即调用 API）
+const handleEditSubmit = (field) => {
+  if (!editingField.value) return
+
+  const oldValue = currentUser.value[field]
+  const newValue = editValue.value
+
+  // 如果值没有变化，直接复位
+  // 使用宽松比较：null、undefined、'' 都视为相同
+  const isSame = (a, b) => {
+    if (a == null && b == null) return true
+    if (a === '' && b == null) return true
+    if (b === '' && a == null) return true
+    return a === b
+  }
+
+  if (isSame(oldValue, newValue)) {
+    resetEdit()
+    return
+  }
+
+  // 如果用户清空了字段（新值为空字符串），不记录修改，恢复原值
+  if (newValue === '') {
+    resetEdit()
+    ElMessage.info('已取消清空操作')
+    return
+  }
+
+  // 记录修改（只记录非空值）
+  modifiedFields.value[field] = newValue
+
+  // 更新本地显示
+  currentUser.value[field] = newValue
+
+  // 复位编辑状态
+  resetEdit()
+
+  // 提示用户修改已记录
+  ElMessage.info('修改已记录，返回列表时自动保存')
+}
+
+// 复位编辑状态
+const resetEdit = () => {
+  editingField.value = null
+  editValue.value = ''
 }
 
 // 格式化日期
@@ -667,6 +879,40 @@ onMounted(() => {
   color: #333;
   font-weight: 500;
   word-break: break-all;
+}
+
+/* 可编辑字段样式 */
+.info-value.editable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.info-value.editable:hover {
+  background-color: rgba(195, 39, 43, 0.1);
+  color: #C3272B;
+}
+
+/* 编辑输入框样式 */
+.edit-input {
+  width: 100%;
+}
+
+:deep(.edit-input .el-input__wrapper) {
+  background-color: rgba(255, 239, 213, 0.8) !important;
+  box-shadow: 0 0 0 1px #C3272B inset !important;
+  padding: 4px 12px !important;
+}
+
+:deep(.edit-input .el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px #C3272B inset !important;
+}
+
+:deep(.edit-input .el-input__inner) {
+  font-size: 16px !important;
+  color: #333 !important;
+  font-weight: 500 !important;
 }
 
 .password-masked {

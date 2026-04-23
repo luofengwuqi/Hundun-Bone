@@ -15,7 +15,7 @@ public class Article {
     private String text;
     private Integer status;
     private String creator;
-    private String belonging;
+    private Integer belonging;
     private LocalDateTime createdAt;
     private Integer good;
     private Integer bad;

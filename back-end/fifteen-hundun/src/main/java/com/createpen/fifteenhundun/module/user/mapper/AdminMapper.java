@@ -2,7 +2,7 @@ package com.createpen.fifteenhundun.module.user.mapper;
 
 import com.createpen.fifteenhundun.common.anno.AutoLog;
 import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
-import com.createpen.fifteenhundun.common.constant.OperateTypeConstant;
+import com.createpen.fifteenhundun.common.constant.type.OperateTypeConstant;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateUserDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;

@@ -12,5 +12,5 @@ public class InsertArticleDTO {
     private String title;
     private String text;
     private String creator;
-    private String belonging;
+    private Integer belonging;
 }

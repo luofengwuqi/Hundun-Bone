@@ -7,6 +7,7 @@ import com.createpen.fifteenhundun.module.article.service.ArticleService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,6 +27,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void insertArticle(InsertArticleDTO dto) {
         Article article = new Article();
         BeanUtils.copyProperties(dto, article);
+        article.setCreatedAt(LocalDateTime.now());
         articleMapper.insertArticle(article);
     }
 

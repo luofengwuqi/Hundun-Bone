@@ -278,7 +278,6 @@ public class AdminServiceImpl implements AdminService {
         }
         dto.setUpdatedAt(LocalDateTime.now());
         try{
-
             am.updateUserByIdForAdmin(dto);
         }catch (Exception e){
             throw new SQLException("你是个大笨蛋");

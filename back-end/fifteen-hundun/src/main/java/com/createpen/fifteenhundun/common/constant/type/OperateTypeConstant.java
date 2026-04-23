@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.constant;
+package com.createpen.fifteenhundun.common.constant.type;
 
 public class OperateTypeConstant {
     public static final String  INSERT  = "INSERT";

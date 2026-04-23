@@ -3,7 +3,7 @@ package com.createpen.fifteenhundun.module.user.mapper;
 import com.createpen.fifteenhundun.common.anno.AutoFillTime;
 import com.createpen.fifteenhundun.common.anno.AutoLog;
 import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
-import com.createpen.fifteenhundun.common.constant.OperateTypeConstant;
+import com.createpen.fifteenhundun.common.constant.type.OperateTypeConstant;
 import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import jakarta.validation.constraints.Email;

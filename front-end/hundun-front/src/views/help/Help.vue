@@ -1,11 +1,18 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref,  onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { addFeedbackAPI } from '@/api/feedback.js'
 import router from '@/router/index.js'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user.js'
 import { useArticleStore } from '@/stores/article.js'
+import { marked } from 'marked'
+
+// 配置 marked 选项
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+})
 
 const userStore = useUserStore()
 const articleStore = useArticleStore()
@@ -75,6 +82,17 @@ const formatDateTime = (dateTime) => {
   const hours = String(date.getHours()).padStart(2, '0')
   const minutes = String(date.getMinutes()).padStart(2, '0')
   return `${year}-${month}-${day} ${hours}:${minutes}`
+}
+
+// 渲染 Markdown 内容
+const renderMarkdown = (text) => {
+  if (!text) return ''
+  try {
+    return marked.parse(text)
+  } catch (error) {
+    console.error('Markdown 解析错误:', error)
+    return text
+  }
 }
 
 // 组件挂载时获取文章列表
@@ -181,7 +199,7 @@ ___________________________________________________
             </div>
           </template>
           <div class="card-content">
-            <p class="article-text">{{ article.text }}</p>
+            <div class="article-text markdown-body" v-html="renderMarkdown(article.text)"></div>
             <div class="article-footer">
               <span class="article-creator">作者: {{ article.creator }}</span>
               <span class="article-time">{{ formatDateTime(article.createdAt) }}</span>
@@ -253,6 +271,17 @@ ___________________________________________________
 .info-card {
   background-color: #FFF8E8;
   border: 1px solid #FFEFD5;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Element Plus Card body */
+:deep(.info-card .el-card__body) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
 }
 
 .card-header {
@@ -280,6 +309,9 @@ ___________________________________________________
 .card-content {
   color: #454545;
   line-height: 1.8;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card-content p {
@@ -300,9 +332,155 @@ ___________________________________________________
 .article-text {
   line-height: 1.8;
   color: #454545;
-  white-space: pre-wrap;
   word-break: break-word;
   margin-bottom: 15px;
+}
+
+/* Markdown 样式 */
+.article-text.markdown-body :deep(h1) {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333333;
+  margin: 20px 0 14px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #FFEFD5;
+}
+
+.article-text.markdown-body :deep(h2) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+  margin: 16px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #FFEFD5;
+}
+
+.article-text.markdown-body :deep(h3) {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin: 14px 0 10px 0;
+}
+
+.article-text.markdown-body :deep(h4),
+.article-text.markdown-body :deep(h5),
+.article-text.markdown-body :deep(h6) {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333333;
+  margin: 12px 0 8px 0;
+}
+
+.article-text.markdown-body :deep(p) {
+  margin: 10px 0;
+  line-height: 1.8;
+}
+
+.article-text.markdown-body :deep(strong) {
+  font-weight: 600;
+  color: #C3272B;
+}
+
+.article-text.markdown-body :deep(em) {
+  font-style: italic;
+  color: #5A4A42;
+}
+
+.article-text.markdown-body :deep(ul),
+.article-text.markdown-body :deep(ol) {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.article-text.markdown-body :deep(ul) li,
+.article-text.markdown-body :deep(ol) li {
+  margin: 5px 0;
+  line-height: 1.8;
+  color: #5A4A42;
+}
+
+.article-text.markdown-body :deep(blockquote) {
+  margin: 14px 0;
+  padding: 10px 14px;
+  background-color: rgba(255, 248, 232, 0.6);
+  border-left: 4px solid #C3272B;
+  border-radius: 4px;
+  color: #5A4A42;
+}
+
+.article-text.markdown-body :deep(blockquote) p {
+  margin: 0;
+}
+
+.article-text.markdown-body :deep(code) {
+  padding: 2px 6px;
+  background-color: rgba(255, 248, 232, 0.8);
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  color: #C3272B;
+}
+
+.article-text.markdown-body :deep(pre) {
+  margin: 14px 0;
+  padding: 14px;
+  background-color: rgba(255, 248, 232, 0.8);
+  border-radius: 6px;
+  overflow-x: auto;
+  border: 1px solid #FFEFD5;
+}
+
+.article-text.markdown-body :deep(pre) code {
+  background: none;
+  padding: 0;
+  color: #454545;
+}
+
+.article-text.markdown-body :deep(a) {
+  color: #C3272B;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.article-text.markdown-body :deep(a):hover {
+  border-bottom-color: #C3272B;
+}
+
+.article-text.markdown-body :deep(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.article-text.markdown-body :deep(hr) {
+  margin: 20px 0;
+  border: none;
+  border-top: 2px solid #FFEFD5;
+}
+
+.article-text.markdown-body :deep(table) {
+  width: 100%;
+  margin: 14px 0;
+  border-collapse: collapse;
+}
+
+.article-text.markdown-body :deep(table) th,
+.article-text.markdown-body :deep(table) td {
+  padding: 8px 10px;
+  border: 1px solid #FFEFD5;
+  text-align: left;
+}
+
+.article-text.markdown-body :deep(table) th {
+  background-color: rgba(255, 248, 232, 0.8);
+  font-weight: 600;
+  color: #333333;
+}
+
+.article-text.markdown-body :deep(table) tr:nth-child(even) {
+  background-color: rgba(255, 251, 248, 0.5);
 }
 
 .article-footer {
@@ -313,6 +491,7 @@ ___________________________________________________
   border-top: 1px solid #FFEFD5;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: auto;
 }
 
 .article-creator {

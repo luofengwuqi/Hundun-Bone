@@ -19,15 +19,24 @@ public class ArticleController {
         this.articleService = articleService;
     }
 
+    //查询所有文章
     @GetMapping
     public Result<List<Article>> selectArticleList() {
         List<Article> list = articleService.selectArticleList();
         return Result.success(list);
     }
+    //上传文章
     @PostMapping
     public Result<Void> insertArticle(@RequestBody InsertArticleDTO dto) {
         log.info("insertArticle: {}", dto);
         articleService.insertArticle(dto);
+        return Result.success();
+    }
+    //修改文章点赞/点踩状态
+    @PostMapping("/good")
+    public Result<Void> updateArticleGood(@RequestParam Long articleId) {
+        log.info("updateArticleGood: {}", articleId);
+        articleService.updateArticleGood(articleId);
         return Result.success();
     }
 }

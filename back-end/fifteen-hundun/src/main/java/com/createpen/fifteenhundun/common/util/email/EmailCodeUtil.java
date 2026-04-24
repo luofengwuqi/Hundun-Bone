@@ -12,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 import java.util.Random;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.EMAIL_CODE_EXPIRE_TIME;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.EMAIL_CODE_EXPIRE_TIME;
 import static com.createpen.fifteenhundun.common.constant.email.Config.*;
 
 @Slf4j

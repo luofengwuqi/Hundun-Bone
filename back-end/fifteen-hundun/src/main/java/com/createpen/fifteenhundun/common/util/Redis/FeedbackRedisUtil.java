@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.FEEDBACK_CACHE_PATH;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.FEEDBACK_CACHE_PATH;
 
 @Slf4j
 @Component

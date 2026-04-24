@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 import static com.createpen.fifteenhundun.common.constant.status.FeedbackStatusConstant.*;
 import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_ADMIN;
 

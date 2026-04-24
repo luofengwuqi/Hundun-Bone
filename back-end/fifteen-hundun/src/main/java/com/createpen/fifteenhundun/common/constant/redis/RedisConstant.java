@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.constant;
+package com.createpen.fifteenhundun.common.constant.redis;
 
 
 public class RedisConstant {

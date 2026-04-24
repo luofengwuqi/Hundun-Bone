@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 
 @Slf4j
 @Service

@@ -14,4 +14,7 @@ public interface ArticleMapper {
 
     @Insert("INSERT INTO article (title, text, creator, belonging) VALUES (#{title}, #{text}, #{creator}, #{belonging})")
     void insertArticle(Article article);
+
+    @Select("select * from article where id = #{id}")
+    Article selectArticleById(Integer id);
 }

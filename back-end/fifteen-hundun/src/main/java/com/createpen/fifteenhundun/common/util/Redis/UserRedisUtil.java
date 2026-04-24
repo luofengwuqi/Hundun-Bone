@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 
 @Slf4j
 @Component

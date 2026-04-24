@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.TOKEN_PATH;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.TOKEN_PATH;
 
 /**
  * 登录校验过滤器（修复核心问题：放行注册接口、规范响应、处理空指针、避免重复注册）

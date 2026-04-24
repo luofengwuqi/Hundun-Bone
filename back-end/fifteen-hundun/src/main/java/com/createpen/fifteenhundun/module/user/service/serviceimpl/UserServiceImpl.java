@@ -16,8 +16,6 @@ import com.createpen.fifteenhundun.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.EMAIL_CODE_PATH;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.EMAIL_CODE_PATH;
 import static com.createpen.fifteenhundun.common.constant.oss.UserOssContant.USER_AVATAR_FOLDER;
 
 @Slf4j
@@ -40,9 +38,6 @@ public class UserServiceImpl implements UserService {
     private UserRedisUtil userRedisUtil;
     @Autowired
     private AliOSSUtil aliOssUtil;
-    @Qualifier("redisTemplate")
-    @Autowired
-    private RedisTemplate redisTemplate;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 

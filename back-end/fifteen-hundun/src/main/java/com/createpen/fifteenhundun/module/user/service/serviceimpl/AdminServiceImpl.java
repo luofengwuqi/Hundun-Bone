@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.createpen.fifteenhundun.common.constant.RedisConstant.*;
+import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.*;
 
 @Slf4j

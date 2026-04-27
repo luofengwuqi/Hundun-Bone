@@ -11,4 +11,6 @@ public interface ArticleService {
     void insertArticle(InsertArticleDTO dto);
 
     void updateArticleGood(Long articleId);
+
+    void updateArticleBad(Long articleId);
 }

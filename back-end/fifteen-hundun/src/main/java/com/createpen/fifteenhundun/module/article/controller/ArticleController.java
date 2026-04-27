@@ -39,4 +39,10 @@ public class ArticleController {
         articleService.updateArticleGood(articleId);
         return Result.success();
     }
+    @PostMapping("/bad")
+    public Result<Void> updateArticleBad(@RequestParam Long articleId) {
+        log.info("updateArticleBad: {}", articleId);
+        articleService.updateArticleBad(articleId);
+        return Result.success();
+    }
 }

@@ -107,6 +107,16 @@ public class ArticleRedisUtil {
             throw new RuntimeException("更改用户点赞文章状态失败...");
         }
     }
+    //更改用户点踩文章状态:已点过踩
+    public void insertArticleBadUser(Long articleId, Long currentId) {
+        String key = ARTICLE_BAD_USER + articleId + ":" + currentId;
+        try{
+            redisTemplate.opsForValue().set(key, 1);
+        }catch (Exception e){
+            log.error("更改用户点踩文章状态失败, articleId: {}, userId: {}", articleId, currentId, e);
+            throw new RuntimeException("更改用户点踩文章状态失败...");
+        }
+    }
     //更改用户点赞文章状态:未点过赞
     public void deleteArticleGoodUser(Long articleId, Long userId) {
         String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
@@ -145,7 +155,6 @@ public class ArticleRedisUtil {
         }
 
     }
+
+
 }
-
-//辅助方法
-

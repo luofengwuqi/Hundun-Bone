@@ -62,4 +62,24 @@ public class ArticleServiceImpl implements ArticleService {
         articleRedisUtil.insertArticleGoodUser(articleId, currentUserId);
         articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, 1);
         }
+
+    @Override
+    public void updateArticleBad(Long articleId) {
+        //1判断当前用户点踩状态
+        if(articleRedisUtil.isBad(articleId, BaseContext.getCurrentId())){
+            //1.1点踩了 要取消点踩
+            articleRedisUtil.deleteArticleBadUser(articleId, BaseContext.getCurrentId());
+            articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
+            return;
+        }
+        //1.2未点踩 两种情况:1 啥都没点 2 点了赞
+        if(articleRedisUtil.isGood(articleId, BaseContext.getCurrentId())){
+            //已点赞 移除点赞 count减一
+            articleRedisUtil.deleteArticleGoodUser(articleId, BaseContext.getCurrentId());
+            articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
+        }
+        //添加点赞状态->更改点赞数+1
+        articleRedisUtil.insertArticleBadUser(articleId, BaseContext.getCurrentId());
+        articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
     }
+}

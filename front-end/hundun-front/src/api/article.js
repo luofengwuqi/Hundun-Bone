@@ -15,3 +15,12 @@ export const submitHelpArticle =(title,text,creator)=>{
     belonging: 1
   })
 }
+
+export const updateArticleGoodAPI = (id) => {
+  return request.post(`/article/good/${id}`)
+}
+export const updateArticleBadAPI = (id) => {
+  return request.post(`/article/bad/${id}`)
+}
+
+

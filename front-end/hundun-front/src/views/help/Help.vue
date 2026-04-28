@@ -2,8 +2,9 @@
 import { ref,  onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { addFeedbackAPI } from '@/api/feedback.js'
+import { updateArticleGoodAPI, updateArticleBadAPI } from '@/api/article.js'
 import router from '@/router/index.js'
-import { ArrowLeft } from '@element-plus/icons-vue'
+import { ArrowLeft, CaretTop, CaretBottom } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user.js'
 import { useArticleStore } from '@/stores/article.js'
 import { marked } from 'marked'
@@ -92,6 +93,72 @@ const renderMarkdown = (text) => {
   } catch (error) {
     console.error('Markdown 解析错误:', error)
     return text
+  }
+}
+
+// 处理点赞
+const handleGood = async (id) => {
+  try {
+    console.log('articleStore:', articleStore)
+    console.log('getUserVoteStatus method:', typeof articleStore.getUserVoteStatus)
+    const currentStatus = articleStore.getUserVoteStatus(id)
+    const article = articleStore.articleList.find(item => item.id === id)
+
+    if (!article) return
+
+    // 情况1: 当前没点过赞或者点过踩
+    if (currentStatus === null || currentStatus === 'bad') {
+      await updateArticleGoodAPI(id)
+      article.good += 1
+      // 如果之前点过踩，需要减回去
+      if (currentStatus === 'bad') {
+        article.bad -= 1
+      }
+      articleStore.setUserVoteStatus(id, 'good')
+      ElMessage.success('点赞成功')
+    }
+    // 情况2: 当前点过赞
+    else if (currentStatus === 'good') {
+      await updateArticleGoodAPI(id)
+      article.good -= 1
+      articleStore.setUserVoteStatus(id, null)
+      ElMessage.info('已取消点赞')
+    }
+  } catch (error) {
+    console.error('操作失败:', error)
+    ElMessage.error('操作失败')
+  }
+}
+
+// 处理点踩
+const handleBad = async (id) => {
+  try {
+    const currentStatus = articleStore.getUserVoteStatus(id)
+    const article = articleStore.articleList.find(item => item.id === id)
+
+    if (!article) return
+
+    // 情况1: 当前没点过赞或者点过赞
+    if (currentStatus === null || currentStatus === 'good') {
+      await updateArticleBadAPI(id)
+      article.bad += 1
+      // 如果之前点过赞，需要减回去
+      if (currentStatus === 'good') {
+        article.good -= 1
+      }
+      articleStore.setUserVoteStatus(id, 'bad')
+      ElMessage.success('已点踩')
+    }
+    // 情况3: 当前点过踩
+    else if (currentStatus === 'bad') {
+      await updateArticleBadAPI(id)
+      article.bad -= 1
+      articleStore.setUserVoteStatus(id, null)
+      ElMessage.info('已取消点踩')
+    }
+  } catch (error) {
+    console.error('操作失败:', error)
+    ElMessage.error('操作失败')
   }
 }
 
@@ -204,9 +271,14 @@ ___________________________________________________
               <span class="article-creator">作者: {{ article.creator }}</span>
               <span class="article-time">{{ formatDateTime(article.createdAt) }}</span>
               <div class="article-stats">
-                <!--       TODO:图标问题         -->
-                <span class="stat-item good">👍 {{ article.good }}</span>
-                <span class="stat-item bad">👎 {{ article.bad }}</span>
+                <span class="stat-item good" @click="handleGood(article.id)">
+                  <el-icon><CaretTop /></el-icon>
+                  {{ article.good }}
+                </span>
+                <span class="stat-item bad" @click="handleBad(article.id)">
+                  <el-icon><CaretBottom /></el-icon>
+                  {{ article.bad }}
+                </span>
               </div>
             </div>
           </div>
@@ -513,6 +585,9 @@ ___________________________________________________
   font-size: 13px;
   cursor: pointer;
   transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .stat-item:hover {
@@ -523,8 +598,16 @@ ___________________________________________________
   color: #67C23A;
 }
 
+.stat-item.good .el-icon {
+  font-size: 16px;
+}
+
 .stat-item.bad {
   color: #F56C6C;
+}
+
+.stat-item.bad .el-icon {
+  font-size: 16px;
 }
 
 /* 上部：反馈表单区域 */

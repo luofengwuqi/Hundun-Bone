@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.article.pojo.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class Article {
     private Integer status;
     private String creator;
     private Integer belonging;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createdAt;
     private Integer good;
     private Integer bad;

@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.*;
 
 @Slf4j
@@ -19,6 +22,38 @@ public class ArticleRedisUtil {
     public ArticleRedisUtil(RedisTemplate<String, Object> redisTemplate, ArticleMapper articleMapper) {
         this.redisTemplate = redisTemplate;
         this.articleMapper = articleMapper;
+    }
+
+    //在redis查询文章列表
+    @SuppressWarnings("unchecked")
+    public List<Article> selectArticleListInRedis() {
+        try {
+            Object o = redisTemplate.opsForValue().get(ARTICLE_LIST);
+            if (o == null) {
+                log.debug("Redis中未找到文章列表缓存, key: {}", ARTICLE_LIST);
+                return null;
+            }
+            // 安全的类型检查和转换
+            if (o instanceof List) {
+                return (List<Article>) o;
+            } else {
+                log.warn("Redis中文章列表数据类型异常, 期望List, 实际类型: {}", o.getClass().getName());
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("从Redis查询文章列表失败", e);
+            return null;
+        }
+    }
+    //在redis插入文章列表
+    public void insertArticleListInRedis(List<Article> list) {
+        try{
+            log.info("初始化文章列表缓存...");
+            redisTemplate.opsForValue().set(ARTICLE_LIST, list,ARTICLE_LIST_EXPIRE, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("插入文章列表缓存失败...");
+            throw new RuntimeException("插入文章列表缓存失败...");
+        }
     }
 
 
@@ -56,7 +91,7 @@ public class ArticleRedisUtil {
 
 
     //通用查询文章点赞/差评数量方法
-    private Integer selectArticleGoodOrBadCount(String redisConstant, Long articleId) {
+    public Integer selectArticleGoodOrBadCount(String redisConstant, Long articleId) {
         try {
             Object o = redisTemplate.opsForValue().get(redisConstant + articleId);
             if (o == null) {
@@ -155,6 +190,7 @@ public class ArticleRedisUtil {
         }
 
     }
+
 
 
 }

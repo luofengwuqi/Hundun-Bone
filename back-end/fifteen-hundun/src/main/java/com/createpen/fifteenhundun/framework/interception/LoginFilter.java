@@ -98,7 +98,14 @@ public class LoginFilter implements Filter {
         }
         //2.3 检验token在redis是否过期
         Integer id = claims.get("id", Integer.class);
-        String redisToken = (String) redisTemplate.opsForValue().get(TOKEN_PATH + id);
+        String redisToken;
+        try{
+            redisToken  = (String) redisTemplate.opsForValue().get(TOKEN_PATH + id);
+        }catch (Exception e){
+            log.info("从redis获取token失败，返回401");
+            returnJson(res, 401, "登录已过期...");
+            return;
+        }
         if (redisToken == null || !redisToken.equals(token)) {
             log.info("检查到token已过期，返回401");
             returnJson(res, 401, "登录已过期...");

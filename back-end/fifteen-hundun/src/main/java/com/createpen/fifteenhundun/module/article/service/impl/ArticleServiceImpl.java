@@ -6,6 +6,7 @@ import com.createpen.fifteenhundun.module.article.mapper.ArticleMapper;
 import com.createpen.fifteenhundun.module.article.pojo.DTO.InsertArticleDTO;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
 import com.createpen.fifteenhundun.module.article.service.ArticleService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_BAD_COUNT;
 import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_GOOD_COUNT;
 
+@Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
     private final ArticleRedisUtil articleRedisUtil;
@@ -27,8 +29,18 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> selectArticleList() {
-        return articleMapper.selectArticleList();
-    }
+        List<Article> listInRedis = articleRedisUtil.selectArticleListInRedis();
+        if(listInRedis!=null){
+            //查到了 直接返回
+            log.info("命中缓存");
+            return listInRedis;
+        }
+        //没查到 在数据库里查 查完放redis里 然后返回
+        log.info("未命中缓存");
+        List<Article> list = articleMapper.selectArticleList();
+        articleRedisUtil.insertArticleListInRedis(list);
+        return list;
+        }
 
     @Override
     public void insertArticle(InsertArticleDTO dto) {

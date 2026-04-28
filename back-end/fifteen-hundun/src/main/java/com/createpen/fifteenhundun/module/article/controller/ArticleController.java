@@ -33,16 +33,16 @@ public class ArticleController {
         return Result.success();
     }
     //修改文章点赞/点踩状态
-    @PostMapping("/good")
-    public Result<Void> updateArticleGood(@RequestParam Long articleId) {
-        log.info("updateArticleGood: {}", articleId);
-        articleService.updateArticleGood(articleId);
+    @PostMapping("/good/{id}")
+    public Result<Void> updateArticleGood(@PathVariable Long id) {
+        log.info("updateArticleGood: {}", id);
+        articleService.updateArticleGood(id);
         return Result.success();
     }
-    @PostMapping("/bad")
-    public Result<Void> updateArticleBad(@RequestParam Long articleId) {
-        log.info("updateArticleBad: {}", articleId);
-        articleService.updateArticleBad(articleId);
+    @PostMapping("/bad/{id}")
+    public Result<Void> updateArticleBad(@PathVariable Long id) {
+        log.info("updateArticleBad: {}", id);
+        articleService.updateArticleBad(id);
         return Result.success();
     }
 }

@@ -2,8 +2,8 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.InsufficientPermissionsException;
-import com.createpen.fifteenhundun.common.util.Redis.FeedbackRedisUtil;
-import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
+import com.createpen.fifteenhundun.module.user.cache.FeedbackRedisService;
+import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.common.util.email.SendEmailService;
 import com.createpen.fifteenhundun.module.user.mapper.FeedbackMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
@@ -34,20 +34,20 @@ import lombok.extern.slf4j.Slf4j;
 public class FeedbackServiceImpl implements FeedbackService {
 
     private final SendEmailService sendEmailService;
-    private final UserRedisUtil userRedisUtil;
-    private final FeedbackRedisUtil feedbackRedisUtil;
+    private final UserRedisService userRedisService;
+    private final FeedbackRedisService feedbackRedisService;
     private final RedisTemplate<String,Object> redisTemplate;
     private final FeedbackMapper feedbackMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
     
-    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper, UserRedisUtil userRedisUtil, FeedbackRedisUtil feedbackRedisUtil, SendEmailService sendEmailService) {
+    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper, UserRedisService userRedisService, FeedbackRedisService feedbackRedisService, SendEmailService sendEmailService) {
         this.userMapper = userMapper;
         this.feedbackMapper = feedbackMapper;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
-        this.userRedisUtil = userRedisUtil;
-        this.feedbackRedisUtil = feedbackRedisUtil;
+        this.userRedisService = userRedisService;
+        this.feedbackRedisService = feedbackRedisService;
         this.sendEmailService = sendEmailService;
     }
 
@@ -125,10 +125,10 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setText(dto.getText());
         feedback.setCreatedAt(LocalDateTime.now());
         Long currentId = BaseContext.getCurrentId();
-        User user= userRedisUtil.getUserInRedis(currentId);
+        User user= userRedisService.getUserInRedis(currentId);
         if(user == null){
             user = userMapper.selectUserById(currentId);
-            userRedisUtil.saveUserInRedis(user);
+            userRedisService.saveUserInRedis(user);
         }
         feedback.setUserId(Math.toIntExact(user.getId()));
         feedback.setUsername(user.getUsername());
@@ -137,7 +137,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         //2 insert
         feedbackMapper.insertFeedback(feedback);
         //3 移除feedbacks大缓存
-        feedbackRedisUtil.clearFeedbacksCache();
+        feedbackRedisService.clearFeedbacksCache();
         // 4 新开线程通知管理员处理
         sendEmailService.sendFeedbackAddedMsgToAdmin();
 
@@ -163,14 +163,14 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
 
         //缓存移除
-        feedbackRedisUtil.clearFeedbacksCache();
+        feedbackRedisService.clearFeedbacksCache();
     }
 
 
     //辅助方法 判断权限是否允许
     private void isAllowed(){
         Long currentUserId = BaseContext.getCurrentId();
-        User user = userRedisUtil.getUserInRedis(currentUserId);
+        User user = userRedisService.getUserInRedis(currentUserId);
         if (user == null){
             user = userMapper.selectUserById(currentUserId);
         }

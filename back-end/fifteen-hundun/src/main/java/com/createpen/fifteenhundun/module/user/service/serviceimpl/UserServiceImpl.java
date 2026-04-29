@@ -4,7 +4,7 @@ import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.AliOSSUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
-import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
+import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper um;
     @Autowired
-    private UserRedisUtil userRedisUtil;
+    private UserRedisService userRedisService;
     @Autowired
     private AliOSSUtil aliOssUtil;
     @Autowired
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
         u.setPasswordHash(PasswordUtil.addMi(dto.getPassword()));
         um.insertUser(u);
         //3 删除管理端用户查询的分页缓存
-        userRedisUtil.clearUsersCache();
+        userRedisService.clearUsersCache();
         //4 返回
         return new RegisterVO(u.getUsername());
     }
@@ -101,12 +101,12 @@ public class UserServiceImpl implements UserService {
         String objectName = currentUsername + USER_AVATAR_FOLDER  + fileName;
         //拿到用户对象
         User u;
-        User userInRedis = userRedisUtil.getUserInRedis(currentId);
+        User userInRedis = userRedisService.getUserInRedis(currentId);
         if(userInRedis!=null){
             u = userInRedis;
         }else{
             u = um.selectUserById(currentId);
-            userRedisUtil.saveUserInRedis(u);
+            userRedisService.saveUserInRedis(u);
         }
         if(u==null){
             throw new UserNotFoundException("用户不存在");
@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
             throw new SQLException("更新输入库失败...");
         }
         //删除用户缓存
-        userRedisUtil.clearUserdata(BaseContext.getCurrentId());
+        userRedisService.clearUserdata(BaseContext.getCurrentId());
 
     }
 
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
     //辅助性方法 用户是否存在
     //1 单个用户
     public User getValidUserById(Long id){
-        User u = userRedisUtil.getUserInRedis(id);
+        User u = userRedisService.getUserInRedis(id);
         if (u != null){
             return u;
         }
@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService {
         if(u==null){
             throw new UserNotFoundException("用户不存在");
         }
-        userRedisUtil.saveUserInRedis(u);
+        userRedisService.saveUserInRedis(u);
         return u;
     }
     public User getValidUserByUserName(String username)
@@ -199,12 +199,12 @@ public class UserServiceImpl implements UserService {
 
     public User selectUserById(Long id) {
         // 先从redis里面那
-        User userInRedis = userRedisUtil.getUserInRedis(id);
+        User userInRedis = userRedisService.getUserInRedis(id);
         if( userInRedis != null ){
             return userInRedis;
         }
         User u = um.selectUserById(id);
-        userRedisUtil.saveUserInRedis(u);
+        userRedisService.saveUserInRedis(u);
         return u;
     }
 
@@ -221,7 +221,7 @@ public class UserServiceImpl implements UserService {
         String nickname = dto.getHuh();
         user.setNickname(nickname);
         um.updateNickNameById(nickname,id);
-        userRedisUtil.saveUserInRedis(user);
+        userRedisService.saveUserInRedis(user);
     }
 
     @Override
@@ -241,7 +241,7 @@ public class UserServiceImpl implements UserService {
         }catch (Exception e){
             throw new SQLException("这个邮箱已被使用...");
         }
-        userRedisUtil.saveUserInRedis(user);
+        userRedisService.saveUserInRedis(user);
     }
 
     @Override
@@ -261,13 +261,13 @@ public class UserServiceImpl implements UserService {
         }catch (Exception e){
             throw new SQLException("这个手机号已被使用...");
         }
-        userRedisUtil.saveUserInRedis(user);
+        userRedisService.saveUserInRedis(user);
     }
 
     @Override
     public void updatePassword(UpdatePasswordDTO dto) {
         //1 在redis中读验证码
-        User user = userRedisUtil.getUserInRedis(BaseContext.getCurrentId());
+        User user = userRedisService.getUserInRedis(BaseContext.getCurrentId());
         if(user == null){
             user = getValidUserById(BaseContext.getCurrentId());
         }
@@ -285,7 +285,7 @@ public class UserServiceImpl implements UserService {
         //3 修改
         um.updatePasswordById(PasswordUtil.addMi(dto.getPassword()),BaseContext.getCurrentId());
         //4 删除缓存
-        userRedisUtil.clearUserdata(BaseContext.getCurrentId());
+        userRedisService.clearUserdata(BaseContext.getCurrentId());
 
     }
 

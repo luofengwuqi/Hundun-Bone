@@ -5,7 +5,7 @@ import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.email.EmailCodeUtil;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
-import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
+import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;
@@ -32,7 +32,7 @@ import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 public class LoginServiceImpl implements LoginService {
 
     @Autowired
-    private UserRedisUtil userRedisUtil;
+    private UserRedisService userRedisService;
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final StringRedisTemplate stringRedisTemplate;
@@ -60,7 +60,7 @@ public class LoginServiceImpl implements LoginService {
         String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
         //4 存进缓存
-        userRedisUtil.saveUserInRedis(u);
+        userRedisService.saveUserInRedis(u);
         //塞进vo
         return new LoginRequestVO(token,u);
     }
@@ -99,7 +99,7 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         //存进缓存
-        userRedisUtil.saveUserInRedis(u);
+        userRedisService.saveUserInRedis(u);
         return vo;
 
     }
@@ -128,7 +128,7 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         //4 存进缓存
-        userRedisUtil.saveUserInRedis(u);
+        userRedisService.saveUserInRedis(u);
         return vo;
     }
 
@@ -169,7 +169,7 @@ public class LoginServiceImpl implements LoginService {
         vo.setToken(token);
         vo.setUser(u);
         //4 存进缓存
-        userRedisUtil.saveUserInRedis(u);
+        userRedisService.saveUserInRedis(u);
         //5 返回
         return vo;
     }
@@ -177,8 +177,8 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void logout() {
         Long currentId = BaseContext.getCurrentId();
-        userRedisUtil.clearUserToken(currentId);
-        userRedisUtil.clearUserdata(currentId);
+        userRedisService.clearUserToken(currentId);
+        userRedisService.clearUserdata(currentId);
     }
 
     //共用方法：在 redis 中存储 token

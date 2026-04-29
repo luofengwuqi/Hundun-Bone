@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.util.Redis;
+package com.createpen.fifteenhundun.module.article.cache;
 
 import com.createpen.fifteenhundun.module.article.mapper.ArticleMapper;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
@@ -13,13 +13,13 @@ import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisCons
 
 @Slf4j
 @Component
-public class ArticleRedisUtil {
+public class ArticleRedisService {
 
     private final ArticleMapper articleMapper;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public ArticleRedisUtil(RedisTemplate<String, Object> redisTemplate, ArticleMapper articleMapper) {
+    public ArticleRedisService(RedisTemplate<String, Object> redisTemplate, ArticleMapper articleMapper) {
         this.redisTemplate = redisTemplate;
         this.articleMapper = articleMapper;
     }
@@ -176,6 +176,7 @@ public class ArticleRedisUtil {
             throw new RuntimeException("更改文章状态失败...");
         }
     }
+    //拿到所有文章的点赞数和差评数
 
     //辅助方法
     private void initArticleGoodOrBadCount(Integer id) {

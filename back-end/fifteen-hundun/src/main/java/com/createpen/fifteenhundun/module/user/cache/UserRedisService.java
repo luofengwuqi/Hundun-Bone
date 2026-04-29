@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.util.Redis;
+package com.createpen.fifteenhundun.module.user.cache;
 
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,11 +14,11 @@ import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 
 @Slf4j
 @Component
-public class UserRedisUtil {
+public class UserRedisService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public UserRedisUtil(RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
+    public UserRedisService(RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }

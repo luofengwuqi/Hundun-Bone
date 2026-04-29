@@ -1,7 +1,7 @@
 package com.createpen.fifteenhundun.common.util.email;
 
 import com.createpen.fifteenhundun.common.exception.MyException.UserNotFoundException;
-import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
+import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
@@ -23,12 +23,12 @@ import static com.createpen.fifteenhundun.common.constant.email.TEXT.*;
 public class SendEmailService {
     private final AdminService adminService;
     private final UserMapper userMapper;
-    private final UserRedisUtil userRedisUtil;
+    private final UserRedisService userRedisService;
 
-    public SendEmailService(AdminService adminService, UserMapper userMapper, UserRedisUtil userRedisUtil) {
+    public SendEmailService(AdminService adminService, UserMapper userMapper, UserRedisService userRedisService) {
         this.adminService = adminService;
         this.userMapper = userMapper;
-        this.userRedisUtil = userRedisUtil;
+        this.userRedisService = userRedisService;
     }
     @Async("emailExecutor")
     public void sendFeedbackFinishedMsgToUser(Long userId) {
@@ -100,7 +100,7 @@ public class SendEmailService {
 
     private String getEmail(Long userId){
         //检查用户是否存在
-        User feedbackMaker = userRedisUtil.getUserInRedis(userId);
+        User feedbackMaker = userRedisService.getUserInRedis(userId);
         if (feedbackMaker == null){
             log.info("user:data:id缓存未命中,开始查询数据库");
             feedbackMaker = userMapper.selectUserById(userId);
@@ -109,7 +109,7 @@ public class SendEmailService {
             throw new UserNotFoundException("用户不存在");
         }else{
             //存在 放入缓存
-            userRedisUtil.saveUserInRedis(feedbackMaker);
+            userRedisService.saveUserInRedis(feedbackMaker);
         }
         return feedbackMaker.getEmail();
     }

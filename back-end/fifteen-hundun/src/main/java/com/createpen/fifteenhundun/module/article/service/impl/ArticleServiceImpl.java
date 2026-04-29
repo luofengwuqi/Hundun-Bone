@@ -1,7 +1,7 @@
 package com.createpen.fifteenhundun.module.article.service.impl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
-import com.createpen.fifteenhundun.common.util.Redis.ArticleRedisUtil;
+import com.createpen.fifteenhundun.module.article.cache.ArticleRedisService;
 import com.createpen.fifteenhundun.module.article.mapper.ArticleMapper;
 import com.createpen.fifteenhundun.module.article.pojo.DTO.InsertArticleDTO;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
@@ -19,17 +19,17 @@ import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisCons
 @Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
-    private final ArticleRedisUtil articleRedisUtil;
+    private final ArticleRedisService articleRedisService;
     private final ArticleMapper articleMapper;
 
-    public ArticleServiceImpl(ArticleMapper articleMapper, ArticleRedisUtil articleRedisUtil) {
+    public ArticleServiceImpl(ArticleMapper articleMapper, ArticleRedisService articleRedisService) {
         this.articleMapper = articleMapper;
-        this.articleRedisUtil = articleRedisUtil;
+        this.articleRedisService = articleRedisService;
     }
 
     @Override
     public List<Article> selectArticleList() {
-        List<Article> listInRedis = articleRedisUtil.selectArticleListInRedis();
+        List<Article> listInRedis = articleRedisService.selectArticleListInRedis();
         if(listInRedis!=null){
             //查到了 直接返回
             log.info("命中缓存");
@@ -38,7 +38,7 @@ public class ArticleServiceImpl implements ArticleService {
         //没查到 在数据库里查 查完放redis里 然后返回
         log.info("未命中缓存");
         List<Article> list = articleMapper.selectArticleList();
-        articleRedisUtil.insertArticleListInRedis(list);
+        articleRedisService.insertArticleListInRedis(list);
         return list;
         }
 
@@ -54,44 +54,44 @@ public class ArticleServiceImpl implements ArticleService {
     public void updateArticleGood(Long articleId) {
         Long currentUserId = BaseContext.getCurrentId();
         //1 判断当前状态
-        if(articleRedisUtil.isGood(articleId, currentUserId)){
+        if(articleRedisService.isGood(articleId, currentUserId)){
             //1.1已点赞
             //删除点赞状态->更改点赞数-1
-            articleRedisUtil.deleteArticleGoodUser(articleId, currentUserId);
-            articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
+            articleRedisService.deleteArticleGoodUser(articleId, currentUserId);
+            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
             return;
         }
         //1.2未点赞 两种情况:1 啥都没点 2 点了踩
         //判断点踩状态
-        if(articleRedisUtil.isBad(articleId, currentUserId)){
+        if(articleRedisService.isBad(articleId, currentUserId)){
             //已点踩
             //删除点踩状态
-            articleRedisUtil.deleteArticleBadUser(articleId, currentUserId);
+            articleRedisService.deleteArticleBadUser(articleId, currentUserId);
             //更改点踩数-1
-            articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
+            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
         }
         //添加点赞状态->更改点赞数+1
-        articleRedisUtil.insertArticleGoodUser(articleId, currentUserId);
-        articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, 1);
+        articleRedisService.insertArticleGoodUser(articleId, currentUserId);
+        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, 1);
         }
 
     @Override
     public void updateArticleBad(Long articleId) {
         //1判断当前用户点踩状态
-        if(articleRedisUtil.isBad(articleId, BaseContext.getCurrentId())){
+        if(articleRedisService.isBad(articleId, BaseContext.getCurrentId())){
             //1.1点踩了 要取消点踩
-            articleRedisUtil.deleteArticleBadUser(articleId, BaseContext.getCurrentId());
-            articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
+            articleRedisService.deleteArticleBadUser(articleId, BaseContext.getCurrentId());
+            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
             return;
         }
         //1.2未点踩 两种情况:1 啥都没点 2 点了赞
-        if(articleRedisUtil.isGood(articleId, BaseContext.getCurrentId())){
+        if(articleRedisService.isGood(articleId, BaseContext.getCurrentId())){
             //已点赞 移除点赞 count减一
-            articleRedisUtil.deleteArticleGoodUser(articleId, BaseContext.getCurrentId());
-            articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
+            articleRedisService.deleteArticleGoodUser(articleId, BaseContext.getCurrentId());
+            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
         }
         //添加点赞状态->更改点赞数+1
-        articleRedisUtil.insertArticleBadUser(articleId, BaseContext.getCurrentId());
-        articleRedisUtil.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
+        articleRedisService.insertArticleBadUser(articleId, BaseContext.getCurrentId());
+        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
     }
 }

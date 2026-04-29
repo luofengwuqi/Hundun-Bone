@@ -5,7 +5,7 @@ import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.common.util.RandomCodeUtil;
-import com.createpen.fifteenhundun.common.util.Redis.UserRedisUtil;
+import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.module.user.mapper.AdminMapper;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
@@ -51,7 +51,7 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private UserRedisUtil userRedisUtil;
+    private UserRedisService userRedisService;
 
 
     @Override
@@ -109,7 +109,7 @@ public class AdminServiceImpl implements AdminService {
         log.info("用户状态:{}", operateUser.getStatus());
         
         //清除用户查询缓存
-        userRedisUtil.clearUsersCache();
+        userRedisService.clearUsersCache();
         
         return operateUser.getStatus();
     }
@@ -142,14 +142,14 @@ public class AdminServiceImpl implements AdminService {
             //注册用户
             um.insertUser(u);
             //清除用户查询缓存
-            userRedisUtil.clearUsersCache();
+            userRedisService.clearUsersCache();
 
             //移除临时占位用户
             try{
                 String tempUserName = "管理员待注册"+importantPassword.substring(0, 2);
                 User tempUser = us.getValidUserByUserName(tempUserName);
                 um.deleteUserById(tempUser.getId());
-                userRedisUtil.clearUserdata(tempUser.getId());
+                userRedisService.clearUserdata(tempUser.getId());
             }catch (Exception exception){
                 log.error("移除临时占位管理员时候出现异常,疑似出现命名碰撞,请手动处理");
             }
@@ -267,7 +267,7 @@ public class AdminServiceImpl implements AdminService {
         um.deleteUserById(id);
         
         //清除用户查询缓存
-        userRedisUtil.clearUsersCache();
+        userRedisService.clearUsersCache();
     }
 
     @Override
@@ -283,8 +283,8 @@ public class AdminServiceImpl implements AdminService {
             throw new SQLException("你是个大笨蛋");
         }
         //删除缓存
-        userRedisUtil.clearUsersCache();
-        userRedisUtil.clearUserdata(dto.getOldId());
+        userRedisService.clearUsersCache();
+        userRedisService.clearUserdata(dto.getOldId());
     }
 
     /**
@@ -304,7 +304,7 @@ public class AdminServiceImpl implements AdminService {
         u.setUsername("管理员待注册"+code.substring(0,2));
         um.insertUser(u);
         //todoed: 删除管理端用户查询的分页缓存
-        userRedisUtil.clearUsersCache();
+        userRedisService.clearUsersCache();
         return u.getInviteCode();
     }
 //    @Override

@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.common.util.Redis;
+package com.createpen.fifteenhundun.module.user.cache;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -8,10 +8,10 @@ import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.FE
 
 @Slf4j
 @Component
-public class FeedbackRedisUtil {
+public class FeedbackRedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public FeedbackRedisUtil(RedisTemplate<String, Object> redisTemplate) {
+    public FeedbackRedisService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

@@ -13,4 +13,6 @@ public interface ArticleService {
     void updateArticleGood(Long articleId);
 
     void updateArticleBad(Long articleId);
+
+    void syncRedisToMysql();
 }

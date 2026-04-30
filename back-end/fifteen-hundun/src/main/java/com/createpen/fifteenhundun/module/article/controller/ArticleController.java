@@ -45,4 +45,11 @@ public class ArticleController {
         articleService.updateArticleBad(id);
         return Result.success();
     }
+
+    @GetMapping("/test")
+    public Result<Void> syncRedisToMysql() {
+        log.info("syncRedisToMysql");
+        articleService.syncRedisToMysql();
+        return Result.success();
+    }
 }

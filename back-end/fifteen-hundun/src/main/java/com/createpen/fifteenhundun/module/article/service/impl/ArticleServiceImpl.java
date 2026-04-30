@@ -2,6 +2,7 @@ package com.createpen.fifteenhundun.module.article.service.impl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.module.article.cache.ArticleRedisService;
+import com.createpen.fifteenhundun.module.article.cache.ArticleRedisToMysqlService;
 import com.createpen.fifteenhundun.module.article.mapper.ArticleMapper;
 import com.createpen.fifteenhundun.module.article.pojo.DTO.InsertArticleDTO;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_BAD_COUNT;
 import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_GOOD_COUNT;
@@ -19,12 +21,16 @@ import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisCons
 @Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
+
+    private final ArticleRedisToMysqlService rTmService;
+
     private final ArticleRedisService articleRedisService;
     private final ArticleMapper articleMapper;
 
-    public ArticleServiceImpl(ArticleMapper articleMapper, ArticleRedisService articleRedisService) {
+    public ArticleServiceImpl(ArticleMapper articleMapper, ArticleRedisService articleRedisService, ArticleRedisToMysqlService rTmService) {
         this.articleMapper = articleMapper;
         this.articleRedisService = articleRedisService;
+        this.rTmService = rTmService;
     }
 
     @Override
@@ -93,5 +99,15 @@ public class ArticleServiceImpl implements ArticleService {
         //添加点赞状态->更改点赞数+1
         articleRedisService.insertArticleBadUser(articleId, BaseContext.getCurrentId());
         articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
+    }
+
+    @Override
+    //为每晚2:00 定时服务提供的方法
+    public void syncRedisToMysql() {
+        Map<Integer,Integer> likeCountList = rTmService.selectAllArticleGoodCount();
+        if(likeCountList==null){
+            log.warn("没有检查到有文章变更点赞数?");
+        }
+        log.info("获取到有记录的点赞集合:{}",likeCountList);
     }
 }

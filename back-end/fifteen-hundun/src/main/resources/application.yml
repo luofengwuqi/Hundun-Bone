@@ -36,7 +36,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
   # 可选：指定Mapper.xml文件位置（如果用XML写SQL需要配）
-#  mapper-locations: classpath:mapper/**/*.xml
+  mapper-locations: classpath:com/createpen/fifteenhundun/module/*/mapper/*.xml
   # 可选：指定实体类别名包（简化XML里的类名）
 #  type-aliases-package: com.createpen.fifteenhundun.module.user.pojo.Entity
 

@@ -49,7 +49,7 @@ public class ArticleController {
     @GetMapping("/test")
     public Result<Void> syncRedisToMysql() {
         log.info("syncRedisToMysql");
-        articleService.syncRedisToMysql();
+        articleService.syncRedisToMysqlForCount();
         return Result.success();
     }
 }

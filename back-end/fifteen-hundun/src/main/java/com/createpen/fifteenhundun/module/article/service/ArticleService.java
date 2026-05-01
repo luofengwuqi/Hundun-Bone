@@ -14,5 +14,5 @@ public interface ArticleService {
 
     void updateArticleBad(Long articleId);
 
-    void syncRedisToMysql();
+    void syncRedisToMysqlForCount();
 }

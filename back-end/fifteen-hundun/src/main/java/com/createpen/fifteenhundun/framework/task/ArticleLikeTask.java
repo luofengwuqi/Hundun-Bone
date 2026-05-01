@@ -22,7 +22,7 @@ public class ArticleLikeTask {
     public void executeTask()
     {
         log.info("开始自动执行task任务:移除redis中的文章点赞点踩数据相关的缓存 主动写入数据库");
-        articleService.syncRedisToMysql();
+        articleService.syncRedisToMysqlForCount();
         log.info("完成自动执行task任务:移除redis中的文章点赞点踩数据相关的缓存 主动写入数据库");
     }
 }

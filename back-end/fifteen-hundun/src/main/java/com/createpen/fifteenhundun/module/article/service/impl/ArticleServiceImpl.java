@@ -11,7 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import com.createpen.fifteenhundun.module.article.pojo.DTO.*;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -103,11 +107,51 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     //为每晚2:00 定时服务提供的方法
-    public void syncRedisToMysql() {
-        Map<Integer,Integer> likeCountList = rTmService.selectAllArticleGoodCount();
-        if(likeCountList==null){
+    //这个方法所有异常都自己处理了 有一定危险
+    @Transactional
+    public void syncRedisToMysqlForCount() {
+        //1 从redis获取数据
+        Map<Integer,Integer> likeCountMap = rTmService.selectAllArticleGoodCount();
+        if(likeCountMap==null || likeCountMap.isEmpty()){
             log.warn("没有检查到有文章变更点赞数?");
+            return;
         }
-        log.info("获取到有记录的点赞集合:{}",likeCountList);
+        Map<Integer,Integer> badCountMap = rTmService.selectAllArticleBadCount();
+        if(badCountMap==null || badCountMap.isEmpty()){
+            log.warn("没有检查到有文章变更点踩数?");
+            return;
+        }
+        log.info("获取到有记录的点赞集合:{}",likeCountMap);
+        log.info("获取到有记录的点踩集合:{}",badCountMap);
+        //2 操作mysql
+        try{
+            articleMapper.batchUpdateArticleGoodCount(mapToList(likeCountMap));
+            articleMapper.batchUpdateArticleBadCount(mapToList(badCountMap));
+        }catch(Exception e){
+            log.error("同步点赞/点踩数失败:{}",e.getMessage());
+            return;
+        }
+        //3 清空redis count记录
+        try{
+            rTmService.deleteAllArticleCount();
+        }catch (Exception e){
+            log.error("redis清空点赞/点踩数失败:{}",e.getMessage());
+        }
+        log.info("同步点赞/点踩数成功");
     }
+    //辅助方法Map<Integer,Integer>->List<ArticleUpdateDTO>
+    private List<ArticleUpdateDTO> mapToList(Map<Integer,Integer> map){
+        if(map==null){
+            return null;
+        }
+        List<ArticleUpdateDTO> list = new ArrayList<>();
+        for(Map.Entry<Integer,Integer> entry:map.entrySet()){
+            ArticleUpdateDTO dto = new ArticleUpdateDTO();
+            dto.setArticleId(entry.getKey());
+            dto.setCount(entry.getValue());
+            list.add(dto);
+        }
+        return list;
+    }
+
 }

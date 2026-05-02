@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.*;
-
-
 @Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -72,30 +69,8 @@ public class ArticleServiceImpl implements ArticleService {
     */
     @Override
     public void updateArticleGood(Long articleId) {
-//        Long currentUserId = BaseContext.getCurrentId();
-//        //1 判断当前状态
-//        if(articleRedisService.isGood(articleId, currentUserId)){
-//            //1.1已点赞
-//            //删除点赞状态->更改点赞数-1
-//            articleRedisService.deleteArticleGoodUser(articleId, currentUserId);
-//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
-//            return;
-//        }
-//        //1.2未点赞 两种情况:1 啥都没点 2 点了踩
-//        //判断点踩状态
-//        if(articleRedisService.isBad(articleId, currentUserId)){
-//            //已点踩
-//            //删除点踩状态
-//            articleRedisService.deleteArticleBadUser(articleId, currentUserId);
-//            //更改点踩数-1
-//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
-//        }
-//        //添加点赞状态->更改点赞数+1
-//        articleRedisService.insertArticleGoodUser(articleId, currentUserId);
-//        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, 1);
-
         //检查redis里面是否存过count相关数据了 如果没存就从数据库初始化
-        if(!articleRedisService.isGoodExist(articleId) || !articleRedisService.isBadExist(articleId)){
+        if(!articleRedisService.isGoodExist(articleId)){
             articleRedisService.initArticleGoodOrBadCount(articleId);
         }
         //执行lua点赞脚本
@@ -104,24 +79,31 @@ public class ArticleServiceImpl implements ArticleService {
         }
     @Override
     public void updateArticleBad(Long articleId) {
-        //1判断当前用户点踩状态
-        if(articleRedisService.isBad(articleId, BaseContext.getCurrentId())){
-            //1.1点踩了 要取消点踩
-            articleRedisService.deleteArticleBadUser(articleId, BaseContext.getCurrentId());
-            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
-            return;
-        }
-        //1.2未点踩 两种情况:1 啥都没点 2 点了赞
-        if(articleRedisService.isGood(articleId, BaseContext.getCurrentId())){
-            //已点赞 移除点赞 count减一
-            articleRedisService.deleteArticleGoodUser(articleId, BaseContext.getCurrentId());
-            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
-        }
-        //添加点赞状态->更改点赞数+1
-        articleRedisService.insertArticleBadUser(articleId, BaseContext.getCurrentId());
-        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
-    }
 
+        if(!articleRedisService.isBadExist(articleId)){
+            articleRedisService.initArticleGoodOrBadCount(articleId);
+        }
+        //执行lua点赞脚本
+        Long result = articleGoodBadRedisService.doBadScript(articleId, BaseContext.getCurrentId());
+        log.info("用户 {} 对文章 {} 点赞操作结果: {}", BaseContext.getCurrentId(), articleId, result == 1 ? "已点赞" : "已取消点赞");
+//        //1判断当前用户点踩状态
+//        if(articleRedisService.isBad(articleId, BaseContext.getCurrentId())){
+//            //1.1点踩了 要取消点踩
+//            articleRedisService.deleteArticleBadUser(articleId, BaseContext.getCurrentId());
+//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
+//            return;
+//        }
+//        //1.2未点踩 两种情况:1 啥都没点 2 点了赞
+//        if(articleRedisService.isGood(articleId, BaseContext.getCurrentId())){
+//            //已点赞 移除点赞 count减一
+//            articleRedisService.deleteArticleGoodUser(articleId, BaseContext.getCurrentId());
+//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
+//        }
+//        //添加点赞状态->更改点赞数+1
+//        articleRedisService.insertArticleBadUser(articleId, BaseContext.getCurrentId());
+//        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
+//    }
+    }
 
 
     /*

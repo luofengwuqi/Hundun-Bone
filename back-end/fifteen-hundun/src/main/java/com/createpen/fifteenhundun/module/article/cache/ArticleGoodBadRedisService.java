@@ -24,6 +24,7 @@ public class ArticleGoodBadRedisService {
     }
     //这是点good的lua脚本
     private DefaultRedisScript<Long> goodScript;
+    private DefaultRedisScript<Long> badScript;
 
     //辅助方法:构建lua脚本
     @PostConstruct
@@ -33,9 +34,11 @@ public class ArticleGoodBadRedisService {
         goodScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/article/good.lua")));
         goodScript.setResultType(Long.class);
         log.info("已初始化good的lua脚本...");
+        badScript = new DefaultRedisScript<>();
+        badScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/article/bad.lua")));
+        badScript.setResultType(Long.class);
     }
-    //执行good的lua脚本
-    public Long doGoodScript(Long articleId, Long userId) {
+    public Long doScript(Long articleId, Long userId,DefaultRedisScript<Long> script) {
         // 构造 KEYS 和 ARGV 参数
         List<String> keys = Arrays.asList(
                 ARTICLE_GOOD_USER + articleId + ":" + userId,      // KEYS[1] - 注意这里改成 Set 结构
@@ -45,9 +48,19 @@ public class ArticleGoodBadRedisService {
         );
         log.info("执行good的lua脚本");
         return redisTemplate.execute(
-                goodScript,
+                script,
                 keys,
                 Collections.emptyList()
         );
     }
+
+    //执行good的lua脚本
+    public Long doGoodScript(Long articleId, Long currentId) {
+        return doScript(articleId, currentId, goodScript);
+    }
+    //执行bad的lua脚本
+    public Long doBadScript(Long articleId, Long currentId) {
+        return doScript(articleId, currentId, badScript);
+    }
+
 }

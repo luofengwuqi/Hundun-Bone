@@ -23,7 +23,9 @@ public class ArticleRedisService {
         this.redisTemplate = redisTemplate;
         this.articleMapper = articleMapper;
     }
-
+    /*
+        文章整体相关
+    */
     //在redis查询文章列表
     @SuppressWarnings("unchecked")
     public List<Article> selectArticleListInRedis() {
@@ -58,108 +60,9 @@ public class ArticleRedisService {
 
 
 
-    //修改点赞/点踩数量
-    public void updateArticleGoodOrBadCount(String redisConstant,Long articleId, Integer num) {
-        if(num == null || num != 1  && num != -1){
-            log.warn("修改点赞数传参异常...articleId传参为{},count传参为{}",articleId,num);
-            throw new RuntimeException("修改点赞数传参异常...");
-        }
-        //更新redis中点赞数量
-        String key = redisConstant + articleId;
-        if(num == 1){
-            redisTemplate.opsForValue().increment(key, num);
-        }
-        else{//num == -1
-            redisTemplate.opsForValue().decrement(key, -num);
-        }
-    }
-    //通用查询文章点赞/差评数量方法
-//    public Integer selectArticleGoodOrBadCount(String redisConstant, Long articleId) {
-//        try {
-//            Object o = redisTemplate.opsForValue().get(redisConstant + articleId);
-//            if (o == null) {
-//                return null;
-//            }
-//            // 更安全的类型转换
-//            if (o instanceof Integer) {
-//                return (Integer) o;
-//            } else if (o instanceof Number) {
-//                return ((Number) o).intValue();
-//            }
-//            log.warn("文章数量类型异常, articleId: {}, actualType: {}",
-//                     articleId, o.getClass().getName());
-//            return null;
-//        } catch (Exception e) {
-//            log.error("查询文章数量失败, articleId: {}", articleId, e);
-//            return null;
-//        }
-//    }
-
-    //检查用户是否已经点赞文章
-    public Boolean isGood(Long articleId, Long userId) {
-        String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
-        try{
-            return redisTemplate.opsForValue().get(key) != null;
-        }catch (Exception e){
-            log.error("查询用户是否点赞文章失败, articleId: {}, userId: {}", articleId, userId, e);
-            throw new RuntimeException("查询用户是否点赞文章失败...");
-        }
-    }
-    //检查用户是否已经点踩文章
-    public Boolean isBad(Long articleId, Long userId) {
-        String key = ARTICLE_BAD_USER + articleId + ":" + userId;
-        try{
-            return redisTemplate.opsForValue().get(key) != null;
-        }catch (Exception e){
-            log.error("查询用户是否点踩文章失败, articleId: {}, userId: {}", articleId, userId, e);
-            throw new RuntimeException("查询用户是否点赞文章失败...");
-        }
-    }
-    //更改用户点赞文章状态:已点过赞
-//    public void insertArticleGoodUser(Long articleId, Long userId) {
-//        String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
-//        try{
-//            redisTemplate.opsForValue().set(key, 1);
-//        }catch (Exception e){
-//            log.error("更改用户点赞文章状态失败, articleId: {}, userId: {}", articleId, userId, e);
-//            throw new RuntimeException("更改用户点赞文章状态失败...");
-//        }
-//    }
-    //更改用户点踩文章状态:已点过踩
-    public void insertArticleBadUser(Long articleId, Long currentId) {
-        String key = ARTICLE_BAD_USER + articleId + ":" + currentId;
-        try{
-            redisTemplate.opsForValue().set(key, 1);
-        }catch (Exception e){
-            log.error("更改用户点踩文章状态失败, articleId: {}, userId: {}", articleId, currentId, e);
-            throw new RuntimeException("更改用户点踩文章状态失败...");
-        }
-    }
-    //更改用户点赞文章状态:未点过赞
-    public void deleteArticleGoodUser(Long articleId, Long userId) {
-        String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
-        try{
-            redisTemplate.delete(key);
-            log.info("已更改用户点赞文章状态:点过赞->未点过赞 articleId: {}, userId: {}", articleId, userId);
-        }catch (Exception e){
-            log.error("更改用户点赞文章状态失败, articleId: {}, userId: {}", articleId, userId, e);
-            throw new RuntimeException("更改文章状态失败...");
-        }
-    }
-
-    //更改用户点赞文章状态:未点过踩
-    public void deleteArticleBadUser(Long articleId, Long currentUserId) {
-        String key = ARTICLE_BAD_USER + articleId + ":" + currentUserId;
-        try{
-            redisTemplate.delete(key);
-            log.info("已更改用户点踩文章状态:点过踩->未点过踩 articleId: {}, userId: {}", articleId, currentUserId);
-        }catch (Exception e){
-            log.error("更改用户点踩文章状态失败, articleId: {}, userId: {}", articleId, currentUserId, e);
-            throw new RuntimeException("更改文章状态失败...");
-        }
-    }
-
-    //辅助方法
+    /*
+       文章点赞 点踩相关
+    */
     //检查redis中是否有count相关的数据
     public boolean isGoodExist(Long articleId) {
         try{
@@ -190,6 +93,117 @@ public class ArticleRedisService {
         }
 
     }
+
+/*
+    下方的代码经过重构已经放置在lua脚本中
+    下方的代码存在高并发安全问题/事务无法回滚的问题
+    现已弃用
+*/
+
+//
+//
+//    //修改点赞/点踩数量
+//    public void updateArticleGoodOrBadCount(String redisConstant,Long articleId, Integer num) {
+//        if(num == null || num != 1  && num != -1){
+//            log.warn("修改点赞数传参异常...articleId传参为{},count传参为{}",articleId,num);
+//            throw new RuntimeException("修改点赞数传参异常...");
+//        }
+//        //更新redis中点赞数量
+//        String key = redisConstant + articleId;
+//        if(num == 1){
+//            redisTemplate.opsForValue().increment(key, num);
+//        }
+//        else{//num == -1
+//            redisTemplate.opsForValue().decrement(key, -num);
+//        }
+//    }
+////    通用查询文章点赞/差评数量方法
+//    public Integer selectArticleGoodOrBadCount(String redisConstant, Long articleId) {
+//        try {
+//            Object o = redisTemplate.opsForValue().get(redisConstant + articleId);
+//            if (o == null) {
+//                return null;
+//            }
+//            // 更安全的类型转换
+//            if (o instanceof Integer) {
+//                return (Integer) o;
+//            } else if (o instanceof Number) {
+//                return ((Number) o).intValue();
+//            }
+//            log.warn("文章数量类型异常, articleId: {}, actualType: {}",
+//                     articleId, o.getClass().getName());
+//            return null;
+//        } catch (Exception e) {
+//            log.error("查询文章数量失败, articleId: {}", articleId, e);
+//            return null;
+//        }
+//    }
+//
+//    //检查用户是否已经点赞文章
+//    public Boolean isGood(Long articleId, Long userId) {
+//        String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
+//        try{
+//            return redisTemplate.opsForValue().get(key) != null;
+//        }catch (Exception e){
+//            log.error("查询用户是否点赞文章失败, articleId: {}, userId: {}", articleId, userId, e);
+//            throw new RuntimeException("查询用户是否点赞文章失败...");
+//        }
+//    }
+//    //检查用户是否已经点踩文章
+//    public Boolean isBad(Long articleId, Long userId) {
+//        String key = ARTICLE_BAD_USER + articleId + ":" + userId;
+//        try{
+//            return redisTemplate.opsForValue().get(key) != null;
+//        }catch (Exception e){
+//            log.error("查询用户是否点踩文章失败, articleId: {}, userId: {}", articleId, userId, e);
+//            throw new RuntimeException("查询用户是否点赞文章失败...");
+//        }
+//    }
+////    更改用户点赞文章状态:已点过赞
+//    public void insertArticleGoodUser(Long articleId, Long userId) {
+//        String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
+//        try{
+//            redisTemplate.opsForValue().set(key, 1);
+//        }catch (Exception e){
+//            log.error("更改用户点赞文章状态失败, articleId: {}, userId: {}", articleId, userId, e);
+//            throw new RuntimeException("更改用户点赞文章状态失败...");
+//        }
+//    }
+//    //更改用户点踩文章状态:已点过踩
+//    public void insertArticleBadUser(Long articleId, Long currentId) {
+//        String key = ARTICLE_BAD_USER + articleId + ":" + currentId;
+//        try{
+//            redisTemplate.opsForValue().set(key, 1);
+//        }catch (Exception e){
+//            log.error("更改用户点踩文章状态失败, articleId: {}, userId: {}", articleId, currentId, e);
+//            throw new RuntimeException("更改用户点踩文章状态失败...");
+//        }
+//    }
+//    //更改用户点赞文章状态:未点过赞
+//    public void deleteArticleGoodUser(Long articleId, Long userId) {
+//        String key = ARTICLE_GOOD_USER + articleId + ":" + userId;
+//        try{
+//            redisTemplate.delete(key);
+//            log.info("已更改用户点赞文章状态:点过赞->未点过赞 articleId: {}, userId: {}", articleId, userId);
+//        }catch (Exception e){
+//            log.error("更改用户点赞文章状态失败, articleId: {}, userId: {}", articleId, userId, e);
+//            throw new RuntimeException("更改文章状态失败...");
+//        }
+//    }
+//
+//    //更改用户点赞文章状态:未点过踩
+//    public void deleteArticleBadUser(Long articleId, Long currentUserId) {
+//        String key = ARTICLE_BAD_USER + articleId + ":" + currentUserId;
+//        try{
+//            redisTemplate.delete(key);
+//            log.info("已更改用户点踩文章状态:点过踩->未点过踩 articleId: {}, userId: {}", articleId, currentUserId);
+//        }catch (Exception e){
+//            log.error("更改用户点踩文章状态失败, articleId: {}, userId: {}", articleId, currentUserId, e);
+//            throw new RuntimeException("更改文章状态失败...");
+//        }
+//    }
+
+
 
 
 

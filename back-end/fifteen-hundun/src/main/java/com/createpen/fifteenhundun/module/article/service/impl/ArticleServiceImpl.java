@@ -1,6 +1,7 @@
 package com.createpen.fifteenhundun.module.article.service.impl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
+import com.createpen.fifteenhundun.module.article.cache.ArticleGoodBadRedisService;
 import com.createpen.fifteenhundun.module.article.cache.ArticleRedisService;
 import com.createpen.fifteenhundun.module.article.cache.ArticleRedisToMysqlService;
 import com.createpen.fifteenhundun.module.article.mapper.ArticleMapper;
@@ -21,21 +22,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_BAD_COUNT;
-import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_GOOD_COUNT;
+import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.*;
+
 
 @Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
+    private final ArticleGoodBadRedisService articleGoodBadRedisService;
+
     private final ArticleRedisToMysqlService rTmService;
     private final ArticleRedisService articleRedisService;
     private final ArticleMapper articleMapper;
 
-    public ArticleServiceImpl(ArticleMapper articleMapper, ArticleRedisService articleRedisService, ArticleRedisToMysqlService rTmService) {
+
+    public ArticleServiceImpl(ArticleMapper articleMapper, ArticleRedisService articleRedisService, ArticleRedisToMysqlService rTmService, ArticleGoodBadRedisService articleGoodBadRedisService) {
         this.articleMapper = articleMapper;
         this.articleRedisService = articleRedisService;
         this.rTmService = rTmService;
+        this.articleGoodBadRedisService = articleGoodBadRedisService;
     }
 
     @Override
@@ -61,31 +66,42 @@ public class ArticleServiceImpl implements ArticleService {
         articleMapper.insertArticle(article);
     }
 
+    /*
+        下面的两个方法只操作redis里面的点赞/点踩相关的东西
+        //todo:未解决点踩高并发下事务原子性问题
+    */
     @Override
     public void updateArticleGood(Long articleId) {
-        Long currentUserId = BaseContext.getCurrentId();
-        //1 判断当前状态
-        if(articleRedisService.isGood(articleId, currentUserId)){
-            //1.1已点赞
-            //删除点赞状态->更改点赞数-1
-            articleRedisService.deleteArticleGoodUser(articleId, currentUserId);
-            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
-            return;
-        }
-        //1.2未点赞 两种情况:1 啥都没点 2 点了踩
-        //判断点踩状态
-        if(articleRedisService.isBad(articleId, currentUserId)){
-            //已点踩
-            //删除点踩状态
-            articleRedisService.deleteArticleBadUser(articleId, currentUserId);
-            //更改点踩数-1
-            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
-        }
-        //添加点赞状态->更改点赞数+1
-        articleRedisService.insertArticleGoodUser(articleId, currentUserId);
-        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, 1);
-        }
+//        Long currentUserId = BaseContext.getCurrentId();
+//        //1 判断当前状态
+//        if(articleRedisService.isGood(articleId, currentUserId)){
+//            //1.1已点赞
+//            //删除点赞状态->更改点赞数-1
+//            articleRedisService.deleteArticleGoodUser(articleId, currentUserId);
+//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
+//            return;
+//        }
+//        //1.2未点赞 两种情况:1 啥都没点 2 点了踩
+//        //判断点踩状态
+//        if(articleRedisService.isBad(articleId, currentUserId)){
+//            //已点踩
+//            //删除点踩状态
+//            articleRedisService.deleteArticleBadUser(articleId, currentUserId);
+//            //更改点踩数-1
+//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
+//        }
+//        //添加点赞状态->更改点赞数+1
+//        articleRedisService.insertArticleGoodUser(articleId, currentUserId);
+//        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, 1);
 
+        //检查redis里面是否存过count相关数据了 如果没存就从数据库初始化
+        if(!articleRedisService.isGoodExist(articleId) || !articleRedisService.isBadExist(articleId)){
+            articleRedisService.initArticleGoodOrBadCount(articleId);
+        }
+        //执行lua点赞脚本
+        Long result = articleGoodBadRedisService.doGoodScript(articleId, BaseContext.getCurrentId());
+        log.info("用户 {} 对文章 {} 点赞操作结果: {}", BaseContext.getCurrentId(), articleId, result == 1 ? "已点赞" : "已取消点赞");
+        }
     @Override
     public void updateArticleBad(Long articleId) {
         //1判断当前用户点踩状态
@@ -106,6 +122,12 @@ public class ArticleServiceImpl implements ArticleService {
         articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
     }
 
+
+
+    /*
+    这里是一个比较复杂的事务
+    用途是移除redis里面的点赞/点踩数 并同步到数据库
+    */
     @Override
     @Transactional
     //为每晚2:00 定时服务提供的方法
@@ -146,6 +168,8 @@ public class ArticleServiceImpl implements ArticleService {
             throw new RuntimeException("同步点赞数到mysql失败");
         }
     }
+    //拆分方法
+
     private void syncRedisToMysqlForBadCount(){
         //1 从redis获取数据
 
@@ -178,5 +202,11 @@ public class ArticleServiceImpl implements ArticleService {
         }
         return list;
     }
+
+    /*    todo:
+    这里是一个比较复杂的事务
+    用途是记录redis里面的点赞关系表到数据库
+    */
+
 
 }

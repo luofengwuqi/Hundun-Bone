@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.createpen.fifteenhundun.module.article.pojo.DTO.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisCons
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRedisToMysqlService rTmService;
-
     private final ArticleRedisService articleRedisService;
     private final ArticleMapper articleMapper;
 
@@ -106,43 +107,67 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    //为每晚2:00 定时服务提供的方法
-    //这个方法所有异常都自己处理了 有一定危险
     @Transactional
+    //为每晚2:00 定时服务提供的方法
     public void syncRedisToMysqlForCount() {
-        //1 从redis获取数据
+        //1 抽取方法
+        syncRedisToMysqlForGoodCount();
+        syncRedisToMysqlForBadCount();
+        // 2. 注册事务提交后的回调
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        // 事务提交成功后才执行
+                        try {
+                            rTmService.deleteAllArticleCount();
+                            log.info("Redis 计数清空成功");
+                        } catch (Exception e) {
+                            log.error("Redis 清空失败，可能导致下次重复同步", e);
+                            // 这里可以发送告警或记录到监控表
+                        }
+                    }});
+        log.info("同步点赞/点踩数成功");
+
+    }
+    //拆分方法
+    private void syncRedisToMysqlForGoodCount(){
         Map<Integer,Integer> likeCountMap = rTmService.selectAllArticleGoodCount();
         if(likeCountMap==null || likeCountMap.isEmpty()){
             log.warn("没有检查到有文章变更点赞数?");
             return;
         }
+        log.info("获取到有记录的点赞集合:{}",likeCountMap);
+        try{
+            articleMapper.batchUpdateArticleGoodCount(mapToList(likeCountMap));
+            log.info("同步点赞数成功");
+        }catch(Exception e){
+            log.error("同步点赞到mysql数失败:{}",e.getMessage());
+            throw new RuntimeException("同步点赞数到mysql失败");
+        }
+    }
+    private void syncRedisToMysqlForBadCount(){
+        //1 从redis获取数据
+
         Map<Integer,Integer> badCountMap = rTmService.selectAllArticleBadCount();
         if(badCountMap==null || badCountMap.isEmpty()){
             log.warn("没有检查到有文章变更点踩数?");
             return;
         }
-        log.info("获取到有记录的点赞集合:{}",likeCountMap);
         log.info("获取到有记录的点踩集合:{}",badCountMap);
         //2 操作mysql
         try{
-            articleMapper.batchUpdateArticleGoodCount(mapToList(likeCountMap));
             articleMapper.batchUpdateArticleBadCount(mapToList(badCountMap));
         }catch(Exception e){
-            log.error("同步点赞/点踩数失败:{}",e.getMessage());
-            return;
+            log.error("同步点踩数到mysql失败:{}",e.getMessage());
+            throw new RuntimeException("同步点踩数到mysql失败");
         }
-        //3 清空redis count记录
-        try{
-            rTmService.deleteAllArticleCount();
-        }catch (Exception e){
-            log.error("redis清空点赞/点踩数失败:{}",e.getMessage());
-        }
-        log.info("同步点赞/点踩数成功");
     }
+
     //辅助方法Map<Integer,Integer>->List<ArticleUpdateDTO>
     private List<ArticleUpdateDTO> mapToList(Map<Integer,Integer> map){
         if(map==null){
-            return null;
+            return new ArrayList<>();
         }
         List<ArticleUpdateDTO> list = new ArrayList<>();
         for(Map.Entry<Integer,Integer> entry:map.entrySet()){

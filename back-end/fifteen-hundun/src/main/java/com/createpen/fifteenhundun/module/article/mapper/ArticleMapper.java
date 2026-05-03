@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.article.mapper;
 
+import com.createpen.fifteenhundun.module.article.pojo.Entity.ArticleUserInteract;
 import com.createpen.fifteenhundun.module.article.pojo.DTO.ArticleUpdateDTO;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
 import org.apache.ibatis.annotations.Insert;
@@ -23,4 +24,6 @@ public interface ArticleMapper {
     void batchUpdateArticleGoodCount(@Param("list") List<ArticleUpdateDTO> list);
 
     void batchUpdateArticleBadCount(List<ArticleUpdateDTO> articleUpdateDTOS);
+
+    void batchInsertArticleUserInteract(List<ArticleUserInteract> goodUserRelationMap);
 }

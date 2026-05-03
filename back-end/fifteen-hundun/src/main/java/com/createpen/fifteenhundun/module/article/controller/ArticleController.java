@@ -50,6 +50,8 @@ public class ArticleController {
     public Result<Void> syncRedisToMysql() {
         log.info("syncRedisToMysql");
         articleService.syncRedisToMysqlForCount();
+        articleService.syncRedisToMysqlForArticleGoodUser();
+        articleService.syncRedisToMysqlForArticleBadUser();
         return Result.success();
     }
 }

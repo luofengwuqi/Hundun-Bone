@@ -15,4 +15,9 @@ public interface ArticleService {
     void updateArticleBad(Long articleId);
 
     void syncRedisToMysqlForCount();
+
+    //同步redis的文章用户点赞关系到数据库
+    void syncRedisToMysqlForArticleGoodUser();
+
+    void syncRedisToMysqlForArticleBadUser();
 }

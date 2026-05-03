@@ -7,6 +7,7 @@ import com.createpen.fifteenhundun.module.article.cache.ArticleRedisToMysqlServi
 import com.createpen.fifteenhundun.module.article.mapper.ArticleMapper;
 import com.createpen.fifteenhundun.module.article.pojo.DTO.InsertArticleDTO;
 import com.createpen.fifteenhundun.module.article.pojo.Entity.Article;
+import com.createpen.fifteenhundun.module.article.pojo.Entity.ArticleUserInteract;
 import com.createpen.fifteenhundun.module.article.service.ArticleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,7 +28,6 @@ import java.util.Map;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleGoodBadRedisService articleGoodBadRedisService;
-
     private final ArticleRedisToMysqlService rTmService;
     private final ArticleRedisService articleRedisService;
     private final ArticleMapper articleMapper;
@@ -85,24 +85,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         //执行lua点赞脚本
         Long result = articleGoodBadRedisService.doBadScript(articleId, BaseContext.getCurrentId());
-        log.info("用户 {} 对文章 {} 点赞操作结果: {}", BaseContext.getCurrentId(), articleId, result == 1 ? "已点赞" : "已取消点赞");
-//        //1判断当前用户点踩状态
-//        if(articleRedisService.isBad(articleId, BaseContext.getCurrentId())){
-//            //1.1点踩了 要取消点踩
-//            articleRedisService.deleteArticleBadUser(articleId, BaseContext.getCurrentId());
-//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, -1);
-//            return;
-//        }
-//        //1.2未点踩 两种情况:1 啥都没点 2 点了赞
-//        if(articleRedisService.isGood(articleId, BaseContext.getCurrentId())){
-//            //已点赞 移除点赞 count减一
-//            articleRedisService.deleteArticleGoodUser(articleId, BaseContext.getCurrentId());
-//            articleRedisService.updateArticleGoodOrBadCount(ARTICLE_GOOD_COUNT, articleId, -1);
-//        }
-//        //添加点赞状态->更改点赞数+1
-//        articleRedisService.insertArticleBadUser(articleId, BaseContext.getCurrentId());
-//        articleRedisService.updateArticleGoodOrBadCount(ARTICLE_BAD_COUNT, articleId, 1);
-//    }
+        log.info("用户 {} 对文章 {} 点踩操作结果: {}", BaseContext.getCurrentId(), articleId, result == 1 ? "已点踩" : "已取消点踩");
     }
 
 
@@ -134,7 +117,7 @@ public class ArticleServiceImpl implements ArticleService {
         log.info("同步点赞/点踩数成功");
 
     }
-    //拆分方法
+    //拆分方法1
     private void syncRedisToMysqlForGoodCount(){
         Map<Integer,Integer> likeCountMap = rTmService.selectAllArticleGoodCount();
         if(likeCountMap==null || likeCountMap.isEmpty()){
@@ -143,15 +126,14 @@ public class ArticleServiceImpl implements ArticleService {
         }
         log.info("获取到有记录的点赞集合:{}",likeCountMap);
         try{
-            articleMapper.batchUpdateArticleGoodCount(mapToList(likeCountMap));
+            articleMapper.batchUpdateArticleGoodCount(mapToArticleUpdateDTOList(likeCountMap));
             log.info("同步点赞数成功");
         }catch(Exception e){
             log.error("同步点赞到mysql数失败:{}",e.getMessage());
             throw new RuntimeException("同步点赞数到mysql失败");
         }
     }
-    //拆分方法
-
+    //拆分方法2
     private void syncRedisToMysqlForBadCount(){
         //1 从redis获取数据
 
@@ -163,7 +145,7 @@ public class ArticleServiceImpl implements ArticleService {
         log.info("获取到有记录的点踩集合:{}",badCountMap);
         //2 操作mysql
         try{
-            articleMapper.batchUpdateArticleBadCount(mapToList(badCountMap));
+            articleMapper.batchUpdateArticleBadCount(mapToArticleUpdateDTOList(badCountMap));
         }catch(Exception e){
             log.error("同步点踩数到mysql失败:{}",e.getMessage());
             throw new RuntimeException("同步点踩数到mysql失败");
@@ -171,7 +153,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     //辅助方法Map<Integer,Integer>->List<ArticleUpdateDTO>
-    private List<ArticleUpdateDTO> mapToList(Map<Integer,Integer> map){
+    private List<ArticleUpdateDTO> mapToArticleUpdateDTOList(Map<Integer,Integer> map){
         if(map==null){
             return new ArrayList<>();
         }
@@ -185,10 +167,76 @@ public class ArticleServiceImpl implements ArticleService {
         return list;
     }
 
-    /*    todo:
+
+
+
+    /*
     这里是一个比较复杂的事务
     用途是记录redis里面的点赞关系表到数据库
+    注意:这个业务或许并不合理 经过检验后不如在点赞之后立刻执行插入语句
     */
 
+
+    //同步redis的文章用户点赞关系到数据库
+    @Override
+    public void syncRedisToMysqlForArticleGoodUser(){
+        //1 从redis获取所有点赞用户关系数据 <articleId, List<userId>>
+        Map<Long, List<Long>> goodUserRelationMap = rTmService.selectAllArticleGoodUserRelations();
+        
+        if(goodUserRelationMap == null || goodUserRelationMap.isEmpty()){
+            log.warn("没有检查到有文章点赞用户关系数据");
+            return;
+        }
+        log.info("获取到有记录的点赞用户关系集合，共 {} 篇文章", goodUserRelationMap.size());
+        //2 将Map转换为List<ArticleGoodOrBadUserDTO>或其他适合批量插入的数据结构
+        List<ArticleUserInteract> articleUserInteractList = mapToArticleGoodUserDTOList(goodUserRelationMap);
+        //3 调用Mapper批量插入到数据库的点赞关系表
+        articleMapper.batchInsertArticleUserInteract(articleUserInteractList);
+        log.info("同步点赞用户关系到mysql成功");
+    }
+
+    @Override
+    public void syncRedisToMysqlForArticleBadUser(){
+        //1 从redis获取所有点赞用户关系数据 <articleId, List<userId>>
+        Map<Long, List<Long>> badUserRelationMap = rTmService.selectAllArticleBadUserRelations();
+
+        if(badUserRelationMap == null || badUserRelationMap.isEmpty()){
+            log.warn("没有检查到有文章点踩用户关系数据");
+            return;
+        }
+        log.info("获取到有记录的点踩用户关系集合，共 {} 篇文章", badUserRelationMap.size());
+        //2 将Map转换为List<ArticleGoodOrBadUserDTO>或其他适合批量插入的数据结构
+        List<ArticleUserInteract> articleUserInteractList = mapToArticleBadUserDTOList(badUserRelationMap);
+        //3 调用Mapper批量插入到数据库的点赞关系表
+        articleMapper.batchInsertArticleUserInteract(articleUserInteractList);
+        log.info("同步点踩用户关系到mysql成功");
+    }
+
+
+    //辅助方法
+    private List<ArticleUserInteract> mapToArticleGoodUserDTOList(Map<Long, List<Long>> map) {
+        return mapToArticleGoodOrBadUserDTOList(map,1);
+    }
+    private List<ArticleUserInteract> mapToArticleBadUserDTOList(Map<Long, List<Long>> map) {
+        return mapToArticleGoodOrBadUserDTOList(map,0);
+    }
+
+
+    private List<ArticleUserInteract> mapToArticleGoodOrBadUserDTOList(Map<Long, List<Long>> map,Integer interactType){
+        if(map==null){
+            return new ArrayList<>();
+        }
+        List<ArticleUserInteract> list = new ArrayList<>();
+        for(Map.Entry<Long,List<Long>> entry:map.entrySet()){
+            for(Long userId:entry.getValue()){
+                ArticleUserInteract dto = new ArticleUserInteract();
+                dto.setArticleId(entry.getKey());
+                dto.setUserId(userId);
+                dto.setInteractType(interactType);
+                list.add(dto);
+            }
+        }
+        return list;
+    }
 
 }

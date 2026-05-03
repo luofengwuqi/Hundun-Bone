@@ -6,11 +6,9 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_BAD_COUNT;
-import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.ARTICLE_GOOD_COUNT;
+import static com.createpen.fifteenhundun.common.constant.redis.ArticleRedisConstant.*;
 
 @Slf4j
 @Component
@@ -124,7 +122,60 @@ public class ArticleRedisToMysqlService {
     }
 
     //2.1 点赞关联用户
-
-
+    //返回值说明: Map<articleId, List<userId>>
+    public Map<Long, List<Long>> selectAllArticleGoodUserRelations() {
+        return selectAllArticleUserRelations(ARTICLE_GOOD_USER);
+    }
     //2.2 点踩关联用户
+    public Map<Long, List<Long>> selectAllArticleBadUserRelations() {
+        return selectAllArticleUserRelations(ARTICLE_BAD_USER);
+    }
+    //抽取方法
+    public Map<Long, List<Long>> selectAllArticleUserRelations(String redisKey) {
+        log.info("开始获取所有文章点赞用户关系");
+        
+        // 使用 try-with-resources 确保 Cursor 被正确关闭
+        try (Cursor<String> scan = stringRedisTemplate.scan(
+                ScanOptions.scanOptions()
+                        .match(redisKey + "*")
+                        .count(100)
+                        .build())) {
+            
+            Map<Long, List<Long>> relationMap = new HashMap<>();
+            
+            // 边扫描边处理，避免存储两份数据
+            while (scan.hasNext()) {
+                String key = scan.next();
+                
+                // 从 key 中提取 articleId 和 userId
+                // key 格式: article:good:user:{articleId}:{userId}
+                try {
+                    String remaining = key.substring(redisKey.length());
+                    String[] parts = remaining.split(":");
+                    
+                    if (parts.length == 2) {
+                        Long articleId = Long.parseLong(parts[0]);
+                        Long userId = Long.parseLong(parts[1]);
+                        
+                        // 将 userId 添加到对应 articleId 的列表中
+                        relationMap.computeIfAbsent(articleId, k -> new ArrayList<>())
+                                   .add(userId);
+                    } else {
+                        log.warn("Key 格式不正确: {}", key);
+                    }
+                    
+                } catch (NumberFormatException e) {
+                    log.warn("无法解析文章ID或用户ID, key: {}", key);
+                }
+            }
+            
+            log.info("获取到 {} 篇文章的点赞用户关系", relationMap.size());
+            return relationMap;
+            
+        } catch (Exception e) {
+            log.error("获取所有文章点赞用户关系失败", e);
+            throw new RuntimeException("获取所有文章点赞用户关系失败", e);
+        }
+    }
+
 }

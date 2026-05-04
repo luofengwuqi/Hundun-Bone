@@ -46,7 +46,7 @@ public class ArticleController {
         return Result.success();
     }
 
-    @GetMapping("/test")
+    @PostMapping("/sync")
     public Result<Void> syncRedisToMysql() {
         log.info("syncRedisToMysql");
         articleService.syncRedisToMysqlForCount();

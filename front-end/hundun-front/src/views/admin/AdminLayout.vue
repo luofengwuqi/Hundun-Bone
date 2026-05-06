@@ -6,6 +6,7 @@ import InviteAdmin from '@/views/admin/component/InviteAdmin.vue'
 import HandleFeedback from '@/views/admin/component/HandleFeedback.vue'
 import WriteHelp from '@/views/admin/component/WriteHelp.vue'
 import OperationPanel from '@/views/admin/component/OperationPanel.vue'
+import ComingSoon from '@/views/admin/component/ComingSoon.vue'
 
 const header = ref('用户管理');
 const menu = ref(0);
@@ -33,6 +34,7 @@ const changeMenu = (index) => {
           <div v-else-if="menu===2"><HandleFeedback/></div>
           <div v-else-if="menu===3"><WriteHelp/></div>
           <div v-else-if="menu===4"><OperationPanel/></div>
+          <div v-else-if="menu===5"><ComingSoon/></div>
           <!--     TODO:这里日后会放管理员的其他功能组件     -->
         </el-main>
       </el-container>

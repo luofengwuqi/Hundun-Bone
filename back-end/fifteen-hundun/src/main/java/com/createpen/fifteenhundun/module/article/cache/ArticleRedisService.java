@@ -57,6 +57,18 @@ public class ArticleRedisService {
             throw new RuntimeException("插入文章列表缓存失败...");
         }
     }
+    //在redis移除文章列表
+    public void deleteArticleListInRedis() {
+        try{
+            log.info("移除文章列表缓存...");
+            redisTemplate.delete(ARTICLE_LIST);
+            log.info("已移除文章列表缓存...");
+        }
+        catch (Exception e){
+            log.error("移除文章列表缓存失败...");
+            throw new RuntimeException("移除文章列表缓存失败...");
+        }
+    }
 
 
 

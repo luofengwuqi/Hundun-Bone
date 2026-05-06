@@ -61,11 +61,13 @@ public class ArticleServiceImpl implements ArticleService {
         BeanUtils.copyProperties(dto, article);
         article.setCreatedAt(LocalDateTime.now());
         articleMapper.insertArticle(article);
+
+        articleRedisService.deleteArticleListInRedis();
     }
 
     /*
         下面的两个方法只操作redis里面的点赞/点踩相关的东西
-        //todo:未解决点踩高并发下事务原子性问题
+        //todoed:已解决点踩高并发下事务原子性问题
     */
     @Override
     public void updateArticleGood(Long articleId) {

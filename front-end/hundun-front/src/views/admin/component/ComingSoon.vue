@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue'
 
-// TODO: 扩展创作者信息 - 可以添加更多字段如社交媒体链接、个人网站等
 const creatorInfo = ref({
   name: '芜柒',
   role: '一个快被AI打倒的程序员艺术家',

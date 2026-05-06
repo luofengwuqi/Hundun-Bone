@@ -2,6 +2,7 @@
 
 import ChangeAvatar from '@/views/user/component/Info/RightSideComponent/ChangeAvatar.vue'
 import Default from '@/views/user/component/Info/RightSideComponent/UserManage.vue'
+import ComingSoon from '@/views/admin/component/ComingSoon.vue'
 
 const props = defineProps({
   operationType: {
@@ -16,6 +17,7 @@ const props = defineProps({
     <Transition name="fade">
       <Default v-if="props.operationType === 0" key="default" />
       <ChangeAvatar v-else-if="props.operationType === 1" key="avatar" />
+      <ComingSoon v-else-if="props.operationType === 2" key="coming-soon" />
     </Transition>
   </div>
 </template>

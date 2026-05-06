@@ -44,8 +44,8 @@ const closeCreatorInfo = () => {
 
       <!-- 文本内容 -->
       <div class="text-content">
-        <h1 class="main-title">敬请期待</h1>
-        <p class="subtitle">点击探索创作者信息</p>
+        <h1 class="main-title">一直在路上...</h1>
+        <p class="subtitle">点击查看创作者信息</p>
       </div>
     </div>
 

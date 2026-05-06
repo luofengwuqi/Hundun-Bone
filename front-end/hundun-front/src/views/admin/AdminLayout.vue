@@ -29,12 +29,14 @@ const changeMenu = (index) => {
       <el-container>
         <el-header>{{header}}</el-header>
         <el-main :span="18">
-          <div v-if="menu===0"><User/></div>
-          <div v-else-if="menu===1"><InviteAdmin/></div>
-          <div v-else-if="menu===2"><HandleFeedback/></div>
-          <div v-else-if="menu===3"><WriteHelp/></div>
-          <div v-else-if="menu===4"><OperationPanel/></div>
-          <div v-else-if="menu===5"><ComingSoon/></div>
+          <transition name="slide-fade" mode="out-in">
+            <div v-if="menu===0" key="user"><User/></div>
+            <div v-else-if="menu===1" key="invite"><InviteAdmin/></div>
+            <div v-else-if="menu===2" key="feedback"><HandleFeedback/></div>
+            <div v-else-if="menu===3" key="help"><WriteHelp/></div>
+            <div v-else-if="menu===4" key="operation"><OperationPanel/></div>
+            <div v-else-if="menu===5" key="coming"><ComingSoon/></div>
+          </transition>
           <!--     TODO:这里日后会放管理员的其他功能组件     -->
         </el-main>
       </el-container>
@@ -78,5 +80,24 @@ const changeMenu = (index) => {
   height: calc(100vh - 137px); /* 100vh - header高度(57px) - header上下margin(40px) - main上下margin(40px) */
   overflow-y: auto;
   padding: 0;
+}
+
+// 菜单切换过渡动画
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(-20px);
+  opacity: 0;
 }
 </style>

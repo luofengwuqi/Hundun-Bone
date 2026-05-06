@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { getArticleListAPI } from '@/api/article'
+import { getArticleListAPI, updateArticleGoodAPI, updateArticleBadAPI } from '@/api/article'
 
 export const useArticleStore = defineStore('article', () => {
 
@@ -26,12 +26,36 @@ export const useArticleStore = defineStore('article', () => {
   const getUserVoteStatus = (articleId) => {
     return userVoteStatus.value[articleId] || null
   }
+  
+  // 点赞
+  const updateArticleGood = async (id) => {
+    const res = await updateArticleGoodAPI(id)
+    // 更新本地文章列表中的点赞数
+    const article = articleList.value.find(item => item.id === id)
+    if (article) {
+      article.goodCount = (article.goodCount || 0) + 1
+    }
+    return res
+  }
+  
+  // 点踩
+  const updateArticleBad = async (id) => {
+    const res = await updateArticleBadAPI(id)
+    // 更新本地文章列表中的点踩数
+    const article = articleList.value.find(item => item.id === id)
+    if (article) {
+      article.badCount = (article.badCount || 0) + 1
+    }
+    return res
+  }
 
   return {
     articleList,
     userVoteStatus,
     getArticleList,
     setUserVoteStatus,
-    getUserVoteStatus
+    getUserVoteStatus,
+    updateArticleGood,
+    updateArticleBad
   }
 })

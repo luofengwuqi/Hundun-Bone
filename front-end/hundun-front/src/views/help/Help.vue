@@ -252,7 +252,7 @@ ___________________________________________________
 
     <!-- 下部：文章卡片区域 -->
     <div class="info-section">
-      <div class="cards-wrapper">
+      <transition-group name="card-list" tag="div" class="cards-wrapper">
         <el-card
           v-for="article in articleStore.articleList"
           :key="article.id"
@@ -283,7 +283,7 @@ ___________________________________________________
             </div>
           </div>
         </el-card>
-      </div>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -338,6 +338,30 @@ ___________________________________________________
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+}
+
+/* 卡片列表过渡动画 */
+.card-list-enter-active {
+  transition: all 0.5s ease;
+}
+
+.card-list-leave-active {
+  transition: all 0.3s ease;
+  position: absolute;
+}
+
+.card-list-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.card-list-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.card-list-move {
+  transition: transform 0.5s ease;
 }
 
 .info-card {

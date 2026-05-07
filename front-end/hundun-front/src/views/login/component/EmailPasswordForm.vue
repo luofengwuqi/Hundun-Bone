@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { loginRouterPush } from '@/utils/login/loginRouterPush.js'
+import { View, Hide } from '@element-plus/icons-vue'
 
 // 定义 emits
 const emit = defineEmits(['changeLoginType'])
@@ -28,6 +29,8 @@ const rules = {
 const userStore = useUserStore()
 const router = useRouter()
 const formRef = ref(null)
+// 密码显示控制
+const showPassword = ref(false)
 const handleLogin = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
@@ -72,7 +75,19 @@ const handleRegister = async () => {
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input v-model="form.password" placeholder="请输入密码" prefix-icon="lock"></el-input>
+        <el-input 
+          v-model="form.password" 
+          placeholder="请输入密码" 
+          prefix-icon="lock"
+          :type="showPassword ? 'text' : 'password'"
+        >
+          <template #suffix>
+            <el-icon @click="showPassword = !showPassword" style="cursor: pointer; font-size: 18px;">
+              <View v-if="!showPassword" />
+              <Hide v-else />
+            </el-icon>
+          </template>
+        </el-input>
       </el-form-item>
       <div class="buttons">
         <el-form-item class="button-group">

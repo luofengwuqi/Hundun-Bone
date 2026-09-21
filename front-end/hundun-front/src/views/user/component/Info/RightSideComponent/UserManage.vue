@@ -91,7 +91,7 @@ const handleImageLoad = () => {
 }
 
 // 图片加载失败
-const handleImageError = (e) => {
+const handleImageError = () => {
   console.error('图片加载失败:', inputpic)
   console.log('当前组件所在路径:', import.meta.url)
   debugMode.value = true
@@ -394,7 +394,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="less">
-@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Caveat:wght@400;600;700&family=Indie+Flower&display=swap');
+//@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Caveat:wght@400;600;700&family=Indie+Flower&display=swap');
 
 .user-manage {
   padding: 40px 30px;

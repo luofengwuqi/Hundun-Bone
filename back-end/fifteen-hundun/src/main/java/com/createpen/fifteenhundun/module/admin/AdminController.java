@@ -1,7 +1,9 @@
-package com.createpen.fifteenhundun.module.user.controller;
+package com.createpen.fifteenhundun.module.admin;
 
 import com.createpen.fifteenhundun.common.response.Result;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.*;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
+import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateUserDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.service.AdminService;
 import jakarta.validation.Valid;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-//@RequestMapping("/admins")
 @RequestMapping
 public class AdminController {
     @Autowired

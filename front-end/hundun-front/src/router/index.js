@@ -14,8 +14,6 @@ const router = createRouter({
       component:()=>import('@/views/user/UserHome.vue'),
       children:[
         { path:'info', component:()=>import('@/views/user/component/Info/Info.vue')},
-        { path:'article', component:()=>import('@/views/user/component/article/Article.vue')},
-        { path:'article/:id', component:()=>import('@/views/user/component/article/ArticleDetail.vue')},
       ]
     },
   ],

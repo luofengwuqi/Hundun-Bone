@@ -40,7 +40,6 @@ public class UserController {
     //26/3/26 芜柒:看见之前的代码想把自己打一顿怎么办
     //26/4/1  芜柒:腿打断
     @PostMapping("/page")
-    //@Cacheable(cacheNames = "usersCache" ,key = "#dto.page + '_' + #dto.size + '_' + #dto.name + '_' + #dto.status")
     public Result<PageVO<User>> getUsers(@Valid @RequestBody GetUsersDTO dto)
     {
         log.info("{}",dto);

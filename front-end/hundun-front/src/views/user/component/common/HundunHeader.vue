@@ -28,12 +28,11 @@ const handleCommand =  async (command) => {
 
 const list=[
   { id: 1, name:'首页' ,to:'/user'},
-  { id: 2, name: '社区', to:'/user/article' },
-  { id: 3, name:'帮助' ,to:'/help'}
+  { id: 2, name:'帮助' ,to:'/help'}
 ]
-const handleRouter = (to)=>{
+const handleRouter = async (to)=>{
   if (to) {
-    router.replace(to)
+    await router.push(to)
   }
 }
 </script>

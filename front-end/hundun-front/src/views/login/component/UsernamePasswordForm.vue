@@ -86,6 +86,12 @@ const handleRegister = async () => {
 
 </script>
 <template>
+  <div class="test-button">
+    警告 这里只是一个测试按钮 正式上线时要删除<br>
+    <!--    todo:最终上线的删除  -->
+    <el-button @click="adminLogin">管理员登录</el-button>
+    <el-button @click="userLogin">用户登录</el-button>
+  </div>
   <div class="form">
     <div class="logo-box">
       <img src="../../../assets/img/common/logotext.png" alt="这是logo 按理来说不会显示不出来 哈哈">
@@ -101,9 +107,9 @@ const handleRegister = async () => {
       </el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input 
-        v-model="form.password" 
-        placeholder="请输入密码" 
+      <el-input
+        v-model="form.password"
+        placeholder="请输入密码"
         prefix-icon="lock"
         :type="showPassword ? 'text' : 'password'"
       >
@@ -119,9 +125,6 @@ const handleRegister = async () => {
       <el-form-item class="button-group">
         <el-button type="primary" @click="handleLogin">登录</el-button>
         <el-button type="primary" @click="handleRegister">注册</el-button>
-<!--        TODO : 这里后续要删除-->
-        <el-button type="primary" @click="adminLogin">测试按钮:管理员登录</el-button>
-        <el-button type="primary" @click="userLogin">测试按钮:用户登录</el-button>
       </el-form-item>
     </div>
       <router-link to="/help">忘记密码</router-link>

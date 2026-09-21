@@ -55,7 +55,7 @@ const closeCreatorInfo = () => {
         <!-- TODO: 添加创作者头像 -->
         <div class="card-header">
           <div class="creator-avatar">
-            <span class="avatar-icon">✦</span>
+            <img src="@/assets/img/common/wuqi.jpg" alt="创作者头像" class="avatar-icon">
           </div>
           <button class="close-btn" @click="closeCreatorInfo" aria-label="关闭">
             <span>×</span>
@@ -290,6 +290,7 @@ const closeCreatorInfo = () => {
 .creator-avatar {
   width: 80px;
   height: 80px;
+  overflow: hidden;
   background: linear-gradient(135deg, #FFF8E8 0%, #FFEFD5 100%);
   border-radius: 50%;
   display: flex;

@@ -1,17 +1,16 @@
 <script setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { syncRedisToMysqlAPI } from '@/api/article.js'
 
 // 定义功能分区配置 - 易于扩展
 const operationSections = ref([
   {
     id: 'user-management',
     title: '缓存管理',
-    icon: '👥',
+    icon: '',
     description: 'redis相关的操作',
     operations: [
-      { label: '同步文章数据', type: 'success', action: () => handleOperation('同步文章数据') },
+      { label: 'test', type: 'success', action: () => handleOperation('test') },
     ]
   },
 
@@ -20,8 +19,8 @@ const operationSections = ref([
 // 处理操作点击
 const handleOperation = (operationName) => {
   ElMessage.success(`执行操作: ${operationName}`)
-  if(operationName === '同步文章数据'){
-    syncRedisToMysqlAPI()
+  if(operationName === 'test'){
+    ElMessage.warning(`该功能已移除`)
   }
   console.log(`执行操作: ${operationName}`)
 }

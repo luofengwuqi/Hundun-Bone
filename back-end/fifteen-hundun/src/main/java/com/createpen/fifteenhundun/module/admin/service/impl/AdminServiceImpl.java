@@ -16,7 +16,6 @@ import com.createpen.fifteenhundun.module.admin.pojo.DTO.AddAdminDTO;
 import com.createpen.fifteenhundun.module.admin.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.admin.service.AdminService;
-import com.createpen.fifteenhundun.module.user.service.serviceimpl.UserServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -42,9 +41,6 @@ public class AdminServiceImpl implements AdminService {
     private AdminMapper am;
     @Autowired
     private UserMapper um;
-
-    @Autowired
-    private UserServiceImpl us;
     
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -65,19 +61,32 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     @Override
     public Integer changeStatus(String username) {
+        //1检验用户是否存在
         User operateUser = um.getUserByUserName( username);
         if(operateUser == null)
         {
             throw new UserNotFoundException("用户不存在");
         }
         Integer status = operateUser.getStatus();
-        //检验权限是否允许这样做
+        //2检验权限是否允许这样做
         String currentUsername = BaseContext.getCurrentUsername();
         User currentUser= um.getUserByUserName(currentUsername);
-
         if (currentUser.getStatus()<= operateUser.getStatus() || currentUser.getStatus()<=(-operateUser.getStatus())){
             throw new InsufficientPermissionsException("权限不够的...(就算你是鹈鹕也不能吃同事/w\\)");
         }
+        //3执行修改
+        User changedUser = changeStatus(operateUser,status);
+        um.updateUserByUserName(changedUser);
+        log.info("用户状态已修改");
+        log.info("用户状态:{}", operateUser.getStatus());
+        
+        //清除用户查询缓存
+        userRedisService.clearUsersCache();
+        
+        return operateUser.getStatus();
+    }
+    //辅助方法:使用定义好的常量修改用户的状态
+    private User changeStatus(User operateUser, Integer status) {
         switch (status){
             case STATUS_USER:{
                 operateUser.setStatus(STATUS_USER_BAN);
@@ -104,60 +113,47 @@ public class AdminServiceImpl implements AdminService {
                 break;
             }
         }
-
-        um.updateUserByUserName(operateUser);
-        log.info("用户状态已修改");
-        log.info("用户状态:{}", operateUser.getStatus());
-        
-        //清除用户查询缓存
-        userRedisService.clearUsersCache();
-        
-        return operateUser.getStatus();
+        return operateUser;
     }
 
     @Override
     @Transactional
     public void addAdmin(AddAdminDTO dto) {
-        log.info("开始添加管理员");
-        //这里的逻辑应该只有当时写代码的我还有上帝才能看得懂 这里就当是一个教训
-        try{
-            us.getValidUserByUserName(dto.getUsername());
-        }catch (UserNotFoundException e)//不存在才继续 真拧巴
-        {
-            String importantPassword = am.selectInvitePassword(dto.getImportantPassword());
-            log.info("检索到的邀请码#{}",importantPassword);
-            if(importantPassword==null){
-                throw new LoginException("你貌似没有被邀请 你干嘛啊??");
-            }
-            log.info("重要密码已校验通过");
-
-            User u = new User();
-            u.setUsername(dto.getUsername());
-            u.setPasswordHash(PasswordUtil.addMi(dto.getPassword()));
-            u.setStatus(2);
-            u.setEmail(dto.getEmail());
-            u.setPhone(dto.getPhone());
-            u.setAvatarUrl(dto.getAvatarUrl());
-            u.setLastLoginAt(LocalDateTime.now());
-
-            //注册用户
-            um.insertUser(u);
-            //清除用户查询缓存
-            userRedisService.clearUsersCache();
-
-            //移除临时占位用户
-            try{
-                String tempUserName = "管理员待注册"+importantPassword.substring(0, 2);
-                User tempUser = us.getValidUserByUserName(tempUserName);
-                um.deleteUserById(tempUser.getId());
-                userRedisService.clearUserdata(tempUser.getId());
-            }catch (Exception exception){
-                log.error("移除临时占位管理员时候出现异常,疑似出现命名碰撞,请手动处理");
-            }
-
+        //1 检查是否已有用户
+        User existUser = um.getUserByUserName(dto.getUsername());
+        if(existUser != null){
+            throw new UserExistedException("addAdmin失败 原因:用户名被占用了...");
+        }
+        //2 检查邀请码
+        String importantPassword = am.selectInvitePassword(dto.getImportantPassword());
+        log.info("检索到的邀请码#{}",importantPassword);
+        if(importantPassword==null){
+            throw new LoginException("你貌似没有被邀请 你干嘛啊??");
+        }
+        log.info("重要密码已校验通过");
+        //3 构造User并插入用户表
+        User u = new User();
+        u.setUsername(dto.getUsername());
+        u.setPasswordHash(PasswordUtil.addMi(dto.getPassword()));
+        u.setStatus(STATUS_ADMIN);
+        u.setEmail(dto.getEmail());
+        u.setPhone(dto.getPhone());
+        u.setAvatarUrl(dto.getAvatarUrl());
+        u.setLastLoginAt(LocalDateTime.now());
+        um.insertUser(u);
+        //4 移除占位管理员
+        String tempUserName = "管理员待注册"+importantPassword.substring(0, 2);
+        User tempUser = um.getUserByUserName(tempUserName);
+        if(tempUser == null){
+            log.warn("没有找到占位管理员,疑似出现命名碰撞,请手动处理");
             return;
         }
-        throw new UserExistedException("用户已存在");
+        um.deleteUserById(tempUser.getId());
+
+        //Last 清除用户查询缓存
+        userRedisService.clearUsersCache();
+        userRedisService.clearUserdata(tempUser.getId());
+
 
 
     }
@@ -258,7 +254,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteUserById(Long id) {
         log.info("{}",id);
-        User u =  us.selectUserById(id);
+        User u =  um.selectUserById(id);
         if(u == null){
             throw new UserNotFoundException("用户不存在");
         }

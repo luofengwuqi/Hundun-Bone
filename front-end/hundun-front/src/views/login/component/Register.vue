@@ -4,7 +4,8 @@ import { useUserStore } from '@/stores/user.js'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, QuestionFilled, Message, View, Hide } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { addAdmin, addUser } from '@/api/user.js'
+import { addUser } from '@/api/user.js'
+import { addAdmin } from '@/api/admin.js'
 
 // 定义 emits
 const emit = defineEmits(['changeLoginType','changeDialogShow'])
@@ -177,9 +178,9 @@ const handleRegister = async () => {
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input 
-          v-model.trim="form.password" 
-          placeholder="请输入密码" 
+        <el-input
+          v-model.trim="form.password"
+          placeholder="请输入密码"
           prefix-icon="lock"
           :type="showPassword ? 'text' : 'password'"
         >
@@ -192,9 +193,9 @@ const handleRegister = async () => {
         </el-input>
       </el-form-item>
       <el-form-item prop="passwordAgain">
-        <el-input 
-          v-model.trim="form.passwordAgain" 
-          placeholder="请再次输入密码" 
+        <el-input
+          v-model.trim="form.passwordAgain"
+          placeholder="请再次输入密码"
           prefix-icon="lock"
           :type="showPasswordAgain ? 'text' : 'password'"
         >

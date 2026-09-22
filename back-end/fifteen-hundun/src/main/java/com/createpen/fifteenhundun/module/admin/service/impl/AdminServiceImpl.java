@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.module.user.service.serviceimpl;
+package com.createpen.fifteenhundun.module.admin.service.impl;
 
 //import com.createpen.fifteenhundun.common.constant.ImportantConstant;
 import com.createpen.fifteenhundun.common.context.BaseContext;
@@ -12,10 +12,11 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateUserDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
-import com.createpen.fifteenhundun.module.user.service.AdminService;
+import com.createpen.fifteenhundun.module.admin.service.AdminService;
+import com.createpen.fifteenhundun.module.user.service.serviceimpl.UserServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;

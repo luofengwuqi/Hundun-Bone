@@ -23,9 +23,5 @@ export const updateArticleBadAPI = (id) => {
   return request.post(`/article/bad/${id}`)
 }
 
-// 同步Redis数据到MySQL
-export const syncRedisToMysqlAPI = () => {
-  return request.post('/article/sync')
-}
 
 

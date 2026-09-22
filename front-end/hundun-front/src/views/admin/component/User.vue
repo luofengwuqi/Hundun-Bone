@@ -257,7 +257,8 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { changeStatus, deleteSingleUser, getUserInfoAPI, updateUserAPI } from '@/api/user.js'
+import { getUserInfoAPI, updateUserAPI } from '@/api/user.js'
+import { changeStatus, deleteSingleUser } from '@/api/admin.js'
 import request from '@/utils/request.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { CONFIG } from '@/utils/config.js'

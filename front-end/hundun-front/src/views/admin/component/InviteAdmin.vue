@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { getInviteCode } from '@/api/user.js'
+import { getInviteCode } from '@/api/admin.js'
 
 const isPressing = ref(false)
 const chargeProgress = ref(0)

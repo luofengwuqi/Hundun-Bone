@@ -6,7 +6,7 @@ import com.createpen.fifteenhundun.common.util.AliOSSUtil;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdatePasswordDTO;
@@ -84,7 +84,10 @@ public class UserServiceImpl implements UserService {
         } else if (operateUser.getStatus() == 2 || operateUser.getStatus() == 3) {
             //管理员 无需密码删除
             //1 传参存在性判断
-            getValidUserListByUserNameList(dto.getUsernames());
+            List<User> validUserListByUserNameList = getValidUserListByUserNameList(dto.getUsernames());
+            if (validUserListByUserNameList.isEmpty()) {
+                return;
+            }
             //2 删除这些合法参数
             um.deleteUserByUserNameList(dto.getUsernames());
         } else {

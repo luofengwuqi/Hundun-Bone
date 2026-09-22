@@ -1,6 +1,6 @@
 package com.createpen.fifteenhundun.module.user.service;
 
-import com.createpen.fifteenhundun.module.user.pojo.DTO.DeleteUsersDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.PutDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdatePasswordDTO;

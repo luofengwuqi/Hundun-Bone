@@ -1,11 +1,13 @@
-package com.createpen.fifteenhundun.module.admin;
+package com.createpen.fifteenhundun.module.admin.controller;
 
 import com.createpen.fifteenhundun.common.response.Result;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateUserDTO;
+import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
-import com.createpen.fifteenhundun.module.user.service.AdminService;
+import com.createpen.fifteenhundun.module.admin.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,34 +55,21 @@ public class AdminController {
         return Result.success();
     }
     //禁用或启用用户
-    @PutMapping("/user/status")
+    @PutMapping("/admin/user/status")
     public Result<Integer> changeStatus(@RequestParam("username") String username)
     {
         log.info("禁用或启用用户");
         Integer status = as.changeStatus(username);
         return Result.success(status);
     }
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/admin/user/{id}")
     public Result<Void> deleteUser(@PathVariable Long id)
     {
-        log.info("删除用户");
+        log.info("删除单个用户 前端传参id:{}",id);
         as.deleteUserById(id);
 
         return Result.success();
     }
-    //删除用户
-//    @DeleteMapping("/admins/users")
-//    public Result deleteUser(@RequestBody DeleteUsersDTO dto)
-//    {
-//        //todoed:优化这里的删除逻辑 改为批量删除 而且这里不符合RESTful风格 好麻烦(遗憾离场)
-//        log.info("删除用户");
-//        as.deleteUserByUserName(username);
-//
-//        return Result.success();
-//    }
-
-    //分页查询用户
-
     //分页查询日志
     @GetMapping("/logs")
     public Result<PageVO> SelectLog(@Valid @RequestBody GetLogsDTO dto)
@@ -89,6 +78,20 @@ public class AdminController {
         PageVO vo = as.getLogs(dto);
         return Result.success(vo);
     }
+    //todoed:优化这里的删除逻辑 改为批量删除
+    //26/3/26 芜柒:看见之前的代码想把自己打一顿怎么办
+    //26/4/1  芜柒:腿打断
 
+    //分页查询用户
+    @PostMapping("/user/page")
+    public Result<PageVO<User>> getUsers(@Valid @RequestBody GetUsersDTO dto)
+    {
+        log.info("{}",dto);
+        //page:当前的页数
+        //size:前端指定的每页的条数
+        log.info("分页查询用户");
+        PageVO<User> vo = as.getUsers(dto);
+        return Result.success(vo);
+    }
 
 }

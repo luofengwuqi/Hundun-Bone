@@ -2,11 +2,10 @@ package com.createpen.fifteenhundun.module.user.controller;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.DeleteUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.*;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
-import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;
-import com.createpen.fifteenhundun.module.user.service.AdminService;
 import com.createpen.fifteenhundun.module.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class UserController {
 
-    private final UserService us;
-    private final AdminService as;
+    private final UserService userService;
 
-    public UserController(UserService us, AdminService as) {
-        this.us = us;
-        this.as = as;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/register")
@@ -32,29 +29,17 @@ public class UserController {
     {
         log.info("用户注册");
         log.info("已经接收到请求:RegisterDTO信息为{}",dto.toString());
-        RegisterVO r = us.register(dto);
+        RegisterVO r = userService.register(dto);
         return Result.success(r);
     }
 
-    //todoed:优化这里的删除逻辑 改为批量删除
-    //26/3/26 芜柒:看见之前的代码想把自己打一顿怎么办
-    //26/4/1  芜柒:腿打断
-    @PostMapping("/page")
-    public Result<PageVO<User>> getUsers(@Valid @RequestBody GetUsersDTO dto)
-    {
-        log.info("{}",dto);
-        //page:当前的页数
-        //size:前端指定的每页的条数
-        log.info("分页查询用户");
-        PageVO<User> vo = as.getUsers(dto);
-        return Result.success(vo);
-    }
+
 
     @DeleteMapping
     public Result<Void> deleteUsers(@Valid @RequestBody DeleteUsersDTO dto) throws Exception {
         log.info("用户删除");
 //        log.info("即将进行用户删除 捕获到信息:{}",dto);
-        us.deleteUsers(dto);
+        userService.deleteUsers(dto);
         return Result.success();
     }
 
@@ -62,7 +47,7 @@ public class UserController {
     @PutMapping("/avatar")
     public Result<Void> updateAvatar(@RequestParam("file") MultipartFile file) {
         log.info("上传用户头像");
-        us.updateAvatar(file);
+        userService.updateAvatar(file);
         return Result.success();
     }
 
@@ -71,31 +56,31 @@ public class UserController {
         log.info("获取用户信息 接收到信息{}",id);
         Long trueId = id == null ? BaseContext.getCurrentId() : id;
         log.info("被获取的用户id为{}",trueId);
-        User u = us.selectUserById(trueId);
+        User u = userService.selectUserById(trueId);
         return Result.success(u);
     }
     @PutMapping("/nickname")
     public Result<Void> updateNickname(@RequestBody @Valid PutDTO dto) {
         log.info("修改用户昵称");
-        us.updateNickname(dto);
+        userService.updateNickname(dto);
         return Result.success();
     }
     @PutMapping("/email")
     public Result<Void> updateEmail(@RequestBody @Valid PutDTO dto) {
         log.info("修改用户邮箱");
-        us.updateEmail(dto);
+        userService.updateEmail(dto);
         return Result.success();
     }
     @PutMapping("/phone")
     public Result<Void> updatePhone(@RequestBody @Valid PutDTO dto) {
         log.info("修改用户手机号");
-        us.updatePhone(dto);
+        userService.updatePhone(dto);
         return Result.success();
     }
     @PutMapping("/password")
     public Result<Void> updatePassword(@RequestBody @Valid UpdatePasswordDTO dto) {
         log.info("修改用户密码");
-        us.updatePassword(dto);
+        userService.updatePassword(dto);
         return Result.success();
     }
 

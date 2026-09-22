@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.module.user.pojo.DTO;
+package com.createpen.fifteenhundun.module.admin.pojo.DTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

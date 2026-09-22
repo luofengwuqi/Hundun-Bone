@@ -1,8 +1,8 @@
-package com.createpen.fifteenhundun.module.user.service;
+package com.createpen.fifteenhundun.module.admin.service;
 
 import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.AddAdminDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.GetUsersDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.AddAdminDTO;
+import com.createpen.fifteenhundun.module.admin.pojo.DTO.GetUsersDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateUserDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;

@@ -18,25 +18,10 @@ export const loginByPhoneAndPassword = async (phone , password)=>{
   })
 }
 
-export const changeStatus = async (username)=>{
-  // console.log(useUserStore().token)
-  return await request.put(`/user/status?username=${username}`)
-}
+
 
 export const logoutAPI = async ()=>{
   return await request.post('/user/login/logout')
-}
-
-export const getInviteCode = async ()=>{
-  return await request.get('/admin/invite-code')
-}
-
-export const deleteSingleUser = async (id)=> {
-  return await request.delete(`/user/${id}`)
-}
-
-export const addAdmin = async (admin)=>{
-  return await request.post('/admin',admin)
 }
 
 export const addUser = async (user)=>{

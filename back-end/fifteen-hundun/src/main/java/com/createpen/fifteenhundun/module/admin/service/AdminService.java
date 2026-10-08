@@ -32,4 +32,6 @@ public interface AdminService {
     void deleteUserById(Long id);
 
     void updateUser(UpdateUserDTO dto);
+
+    User getUserInfoById(Long id);
 }

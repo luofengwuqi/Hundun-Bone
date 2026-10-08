@@ -52,9 +52,8 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public Result<User> getUserInfo(@RequestParam(required = false) Long id) {
-        log.info("获取用户信息 接收到信息{}",id);
-        Long trueId = id == null ? BaseContext.getCurrentId() : id;
+    public Result<User> getUserInfo() {
+        Long trueId = BaseContext.getCurrentId();
         log.info("被获取的用户id为{}",trueId);
         User u = userService.selectUserById(trueId);
         return Result.success(u);

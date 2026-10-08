@@ -31,7 +31,8 @@ public class User implements Serializable {
         /**
          * 密码哈希值
          */
-//        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // 序列化时忽略，避免返回给前端
+        @JsonIgnore
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // 序列化时忽略，避免返回给前端
         private String passwordHash;
 
         /**

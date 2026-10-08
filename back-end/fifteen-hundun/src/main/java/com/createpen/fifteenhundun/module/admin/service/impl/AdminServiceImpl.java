@@ -284,6 +284,16 @@ public class AdminServiceImpl implements AdminService {
         userRedisService.clearUserdata(dto.getOldId());
     }
 
+    @Override
+    public User getUserInfoById(Long id) {
+        User u =  um.selectUserById(id);
+        if(u == null || u.getStatus() == null )
+        {
+            throw new UserNotFoundException("用户不存在");
+        }
+        return u;
+    }
+
     /**
      * 清除所有用户查询缓存
      * 使用 pattern 删除匹配的所有 key
@@ -295,12 +305,12 @@ public class AdminServiceImpl implements AdminService {
         User u =new User();
         u.setPasswordHash(PasswordUtil.addMi("fqeqvbqeiovfbqiudbv"));
         u.setStatus(STATUS_ADMIN_BAN);
-        //todoed: 生成邀请码
+        //todoEd: 生成邀请码
         String code = RandomCodeUtil.makeComplexCode(10);
         u.setInviteCode(code);
         u.setUsername("管理员待注册"+code.substring(0,2));
         um.insertUser(u);
-        //todoed: 删除管理端用户查询的分页缓存
+        //todoEd: 删除管理端用户查询的分页缓存
         userRedisService.clearUsersCache();
         return u.getInviteCode();
     }

@@ -56,12 +56,8 @@ export const updateAvatarAPI = async (formData) => {
   })
 }
 
-export const getUserInfoAPI = async (id) => {
-  return await request.get('/user/info',{
-    params: {
-      id
-    }
-  })
+export const getUserInfoAPI = async () => {
+  return await request.get('/user/info')
 }
 
 

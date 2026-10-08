@@ -16,3 +16,11 @@ export const changeStatus = async (username)=>{
   // console.log(useUserStore().token)
   return await request.put(`/admin/user/status?username=${username}`)
 }
+
+export const getUserInfoAPI = async (id) => {
+  return await request.get('/admin/user/info',{
+    params: {
+      id
+    }
+  })
+}

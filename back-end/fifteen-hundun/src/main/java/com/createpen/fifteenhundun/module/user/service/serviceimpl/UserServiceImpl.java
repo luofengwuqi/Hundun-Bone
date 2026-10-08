@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
         Long id = BaseContext.getCurrentId();
         User user = getValidUserById(id);
         //校验密码
-        if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
+        if(PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
             throw new PasswordException("密码输错了哦...");
         }
         //更新用户

@@ -10,7 +10,6 @@ import com.createpen.fifteenhundun.module.user.pojo.VO.PageVO;
 import com.createpen.fifteenhundun.module.admin.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -18,24 +17,27 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping
 public class AdminController {
-    @Autowired
-    private AdminService as;
+    private final AdminService adminService;
+
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
 
 
     //新建管理员
     @PostMapping("/admin")
     public Result<Void> addAdmin(@RequestBody AddAdminDTO dto){
         log.info("新建管理员");
-        as.addAdmin(dto);
+        adminService.addAdmin(dto);
         return Result.success();
     }
 
-    //统计用户数量
-    @GetMapping("/users/count")
+    //统计用户数量(未使用)
+    @GetMapping("/admin/users/count")
     public Result<Integer> getUserNumber()
     {
         log.info("统计用户数量");
-        Integer num = as.getUserNumber();
+        Integer num = adminService.getUserNumber();
         return Result.success(num);
     }
     //生成邀请码
@@ -43,7 +45,7 @@ public class AdminController {
     public Result<String> makeInviteCode()
     {
         log.info("生成邀请码");
-        String code = as.makeInviteCode();
+        String code = adminService.makeInviteCode();
         return Result.success(code);
     }
     //修改用户信息
@@ -51,7 +53,7 @@ public class AdminController {
     public Result<Void> updateUser(@RequestBody UpdateUserDTO dto)
     {
         log.info("修改用户信息{}",dto);
-        as.updateUser(dto);
+        adminService.updateUser(dto);
         return Result.success();
     }
     //禁用或启用用户
@@ -59,14 +61,14 @@ public class AdminController {
     public Result<Integer> changeStatus(@RequestParam("username") String username)
     {
         log.info("禁用或启用用户");
-        Integer status = as.changeStatus(username);
+        Integer status = adminService.changeStatus(username);
         return Result.success(status);
     }
     @DeleteMapping("/admin/user/{id}")
     public Result<Void> deleteUser(@PathVariable Long id)
     {
         log.info("删除单个用户 前端传参id:{}",id);
-        as.deleteUserById(id);
+        adminService.deleteUserById(id);
 
         return Result.success();
     }
@@ -75,7 +77,7 @@ public class AdminController {
     public Result<PageVO> SelectLog(@Valid @RequestBody GetLogsDTO dto)
     {
         log.info("日志分页查询");
-        PageVO vo = as.getLogs(dto);
+        PageVO vo = adminService.getLogs(dto);
         return Result.success(vo);
     }
     //todoed:优化这里的删除逻辑 改为批量删除
@@ -90,8 +92,15 @@ public class AdminController {
         //page:当前的页数
         //size:前端指定的每页的条数
         log.info("分页查询用户");
-        PageVO<User> vo = as.getUsers(dto);
+        PageVO<User> vo = adminService.getUsers(dto);
         return Result.success(vo);
+    }
+
+    @GetMapping("/admin/user/info")
+    public Result<User> getUserInfoById(@RequestParam(required = false) Long id){
+        log.info("获取用户信息");
+        User user = adminService.getUserInfoById(id);
+        return Result.success(user);
     }
 
 }

@@ -129,7 +129,7 @@ public class LoginFilter implements Filter {
         if (uri.startsWith("/admin")) {
             User user = userService.selectUserById(Long.valueOf(id));
             Integer status = user.getStatus();
-            if(status <= UserStatusConstant.STATUS_ADMIN){
+            if(status < UserStatusConstant.STATUS_ADMIN){
                 log.warn("{}发生越级访问!!!",username);
                 returnJson(res, 401, "越级访问!!!");
                 return;

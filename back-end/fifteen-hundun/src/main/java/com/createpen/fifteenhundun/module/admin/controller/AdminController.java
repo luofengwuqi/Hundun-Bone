@@ -49,7 +49,7 @@ public class AdminController {
         return Result.success(code);
     }
     //修改用户信息
-    @PutMapping("/user")
+    @PutMapping("/admin/user")
     public Result<Void> updateUser(@RequestBody UpdateUserDTO dto)
     {
         log.info("修改用户信息{}",dto);
@@ -73,7 +73,7 @@ public class AdminController {
         return Result.success();
     }
     //分页查询日志
-    @GetMapping("/logs")
+    @GetMapping("/admin/logs")
     public Result<PageVO> selectLog(@Valid @RequestBody GetLogsDTO dto)
     {
         log.info("日志分页查询");

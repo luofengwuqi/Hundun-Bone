@@ -74,7 +74,7 @@ public class AdminController {
     }
     //分页查询日志
     @GetMapping("/logs")
-    public Result<PageVO> SelectLog(@Valid @RequestBody GetLogsDTO dto)
+    public Result<PageVO> selectLog(@Valid @RequestBody GetLogsDTO dto)
     {
         log.info("日志分页查询");
         PageVO vo = adminService.getLogs(dto);
@@ -85,7 +85,7 @@ public class AdminController {
     //26/4/1  芜柒:腿打断
 
     //分页查询用户
-    @PostMapping("/user/page")
+    @PostMapping("/admin/user/page")
     public Result<PageVO<User>> getUsers(@Valid @RequestBody GetUsersDTO dto)
     {
         log.info("{}",dto);

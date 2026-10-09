@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.module.user.service;
+package com.createpen.fifteenhundun.module.auth.service;
 
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;

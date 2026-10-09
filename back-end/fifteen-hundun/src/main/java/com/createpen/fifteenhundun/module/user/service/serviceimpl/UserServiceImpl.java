@@ -156,13 +156,8 @@ public class UserServiceImpl implements UserService {
 
     //辅助性方法 用户是否存在
     //1 单个用户
-    public User getValidUserById(Long id){
-        User u = userRedisService.getUserInRedis(id);
-        if (u != null){
-            return u;
-        }
-        //缓存未命中
-        u =  um.selectUserById(id);
+    public User getValidUserByIdInMysql(Long id){
+        User u =  um.selectUserById(id);
         if(u==null){
             throw new UserNotFoundException("用户不存在");
         }
@@ -215,9 +210,9 @@ public class UserServiceImpl implements UserService {
     public void updateNickname(PutDTO dto) {
         //获取当前用户
         Long id = BaseContext.getCurrentId();
-        User user = getValidUserById(id);
+        User user = getValidUserByIdInMysql(id);
         //校验密码
-        if(PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
+        if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
             throw new PasswordException("密码输错了哦...");
         }
         //更新用户
@@ -231,7 +226,7 @@ public class UserServiceImpl implements UserService {
     public void updateEmail(PutDTO dto) {
         //获取当前用户
         Long id = BaseContext.getCurrentId();
-        User user = getValidUserById(id);
+        User user = getValidUserByIdInMysql(id);
         //校验密码
         if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
             throw new PasswordException("密码输错了哦...");
@@ -251,7 +246,7 @@ public class UserServiceImpl implements UserService {
     public void updatePhone(PutDTO dto) {
         //获取当前用户
         Long id = BaseContext.getCurrentId();
-        User user = getValidUserById(id);
+        User user = getValidUserByIdInMysql(id);
         //校验密码
         if(!PasswordUtil.check(dto.getPassword(),user.getPasswordHash())){
             throw new PasswordException("密码输错了哦...");
@@ -272,7 +267,7 @@ public class UserServiceImpl implements UserService {
         //1 在redis中读验证码
         User user = userRedisService.getUserInRedis(BaseContext.getCurrentId());
         if(user == null){
-            user = getValidUserById(BaseContext.getCurrentId());
+            user = getValidUserByIdInMysql(BaseContext.getCurrentId());
         }
         String key = EMAIL_CODE_PATH + user.getEmail();
         log.info("{}",key);

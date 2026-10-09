@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.module.user.service.serviceimpl;
+package com.createpen.fifteenhundun.module.auth.service.impl;
 
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
@@ -13,9 +13,8 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
-import com.createpen.fifteenhundun.module.user.service.LoginService;
+import com.createpen.fifteenhundun.module.auth.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -31,25 +30,23 @@ import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 @Service
 public class LoginServiceImpl implements LoginService {
 
-    @Autowired
-    private UserRedisService userRedisService;
-
+    private final UserRedisService userRedisService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final StringRedisTemplate stringRedisTemplate;
-
     private final UserMapper userMapper;
 
-    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate, StringRedisTemplate stringRedisTemplate) {
+    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate, StringRedisTemplate stringRedisTemplate, UserRedisService userRedisService) {
         this.userMapper = userMapper;
         this.redisTemplate = redisTemplate;
         this.stringRedisTemplate = stringRedisTemplate;
+        this.userRedisService = userRedisService;
     }
 
     @Override
     public LoginRequestVO loginPhonePassword(LoginPhonePasswordDTO dto) {
         //检验存在性
         User u = userMapper.selectUserByPhone(dto.getPhone());
-        if( u== null ){
+        if( u == null ){
             throw new UserNotFoundException("貌似没有这个手机号的...");
         }
         //校验密码

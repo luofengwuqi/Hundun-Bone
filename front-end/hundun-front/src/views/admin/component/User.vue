@@ -351,7 +351,7 @@ const fetchUsers = async () => {
       status: searchForm.status || undefined
     }
 
-    const res = await request.post('/user/page', params)
+    const res = await request.post('/admin/user/page', params)
 
     if (res.code === 0 || res.code === 200) {
       tableData.value = res.data.list || []

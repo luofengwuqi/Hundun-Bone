@@ -1,7 +1,10 @@
 package com.createpen.fifteenhundun.framework.interception;
 
+import com.createpen.fifteenhundun.common.constant.status.UserStatusConstant;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
+import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
+import com.createpen.fifteenhundun.module.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,23 +27,23 @@ import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.TO
 @Component // 仅用Spring管理，去掉@WebFilter避免重复注册
 public class LoginFilter implements Filter {
 
+    private final UserService userService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
             "/user/login",                        // /user/login 下的所有接口
-            "/user/register",                              // 注册接口
-            "/admin"
+            "/user/register"                              // 注册接口
     );
     //对应 SKIP_URIS 中需要限制方法的路径（索引对应
     private static final List<String> SKIP_URIS_METHODS = Arrays.asList(
             "",                   // /user/login/*：允许所有方法
-            "POST",               // 注册接口：仅允许 POST
-            "POST"                // 管理员接口：仅允许 POST
+            "POST"               // 注册接口：仅允许 POST
     );
 
-    public LoginFilter(RedisTemplate<String, Object> redisTemplate) {
+    public LoginFilter(RedisTemplate<String, Object> redisTemplate, UserService userService) {
         this.redisTemplate = redisTemplate;
+        this.userService = userService;
     }
 
     @Override
@@ -112,7 +115,7 @@ public class LoginFilter implements Filter {
             return;
         }
 
-        // ========== 3. 解析token中的用户信息（处理空指针） ==========
+        // ========== 3. 解析token中的用户信息（处理空指针+防止普通用户越级访问） ==========
         log.info("token解析成功，提取用户信息");
         String username = claims.get("username", String.class);
 
@@ -122,6 +125,19 @@ public class LoginFilter implements Filter {
             returnJson(res, 401, "登录信息异常");
             return;
         }
+        //防止普通用户越级访问
+        if (uri.startsWith("/admin")) {
+            User user = userService.selectUserById(Long.valueOf(id));
+            Integer status = user.getStatus();
+            if(status <= UserStatusConstant.STATUS_ADMIN){
+                log.warn("{}发生越级访问!!!",username);
+                returnJson(res, 401, "越级访问!!!");
+                return;
+            }
+
+        }
+
+
 
         // 存入线程上下文
         BaseContext.setCurrentId(Long.valueOf(id));
@@ -132,7 +148,7 @@ public class LoginFilter implements Filter {
         //更新redis中token过期时间
         redisTemplate.expire(TOKEN_PATH + id, 30, java.util.concurrent.TimeUnit.MINUTES);
         chain.doFilter(request, response);
-        log.info("请求已放行");
+        log.info("通过Filter验证 请求已放行");
     }
 
     /**
@@ -163,6 +179,11 @@ public class LoginFilter implements Filter {
 
     //辅助方法 判断是否是已经声明可以跳过的请求
     private boolean isSkipUrl(String uri,String method) {
+        //管理员注册
+        if(uri.equals("/admin") && method.equals("POST")){
+            log.info("管理员注册 放行");
+            return true;
+        }
         for(int i = 0 ; i < SKIP_URIS.size(); i++)
         {
             String skipUri = SKIP_URIS.get(i);

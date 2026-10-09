@@ -32,7 +32,8 @@ public class User implements Serializable {
          * 密码哈希值
          */
         @JsonIgnore
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // 序列化时忽略，避免返回给前端
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        // 序列化时忽略，避免返回给前端 这会导致redis里面也读不到
         private String passwordHash;
 
         /**
@@ -84,7 +85,7 @@ public class User implements Serializable {
          * 对应数据库 user_settings 表
          */
 
-        //重写TOstring方法
+        //重写ToString方法
         @Override
         public String toString() {
             return "User{" +

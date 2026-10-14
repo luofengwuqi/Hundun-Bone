@@ -1,8 +1,8 @@
 package com.createpen.fifteenhundun.common.context;
 
 public class BaseContext {
-    private static ThreadLocal<Long> idThreadLocal = new ThreadLocal<>();
-    private static ThreadLocal<String> usernameThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<Long> idThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<String> usernameThreadLocal = new ThreadLocal<>();
 
     // 现有的用户ID管理方法
     public static void setCurrentId(Long id) {

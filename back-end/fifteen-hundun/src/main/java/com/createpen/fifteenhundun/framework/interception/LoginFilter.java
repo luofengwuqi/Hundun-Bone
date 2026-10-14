@@ -48,6 +48,15 @@ public class LoginFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        try {
+            doFilterInternal(request, response, chain);
+        } finally {
+            BaseContext.clearAll();
+            log.info("已清理线程上下文");
+        }
+    }
+
+    private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         log.info("进入登录校验过滤器");
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;

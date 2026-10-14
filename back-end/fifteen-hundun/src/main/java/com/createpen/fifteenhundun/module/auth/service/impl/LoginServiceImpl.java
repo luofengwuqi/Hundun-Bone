@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_USER_BAN;
 
 @Slf4j
 @Service
@@ -49,6 +50,7 @@ public class LoginServiceImpl implements LoginService {
         if( u == null ){
             throw new UserNotFoundException("貌似没有这个手机号的...");
         }
+        banCheck(u);
         //校验密码
         if(!PasswordUtil.check(dto.getPassword(),u.getPasswordHash())){
             throw new PasswordException("密码输错了...");
@@ -66,15 +68,7 @@ public class LoginServiceImpl implements LoginService {
     public LoginRequestVO loginUsernamePassword(LoginUsernamePasswordRequestDTO l) {
 
         User u = getValidUserByUserName(l.getUsername());
-        //校验是否账号被禁用
-        log.info("开始校验用户是否被禁用");
-        int status = u.getStatus();
-        log.info("用户状态为:{}",status);
-        if(u.getStatus()<=0)
-        {
-            log.info("用户被禁用");
-            throw new LoginException("你的账户被ban了(#`Д´)ﾉ!(tell me why)");
-        }
+        banCheck(u);
         //校验密码
         String password = l.getPassword() ;
         if (!PasswordUtil.check(password,u.getPasswordHash())) {
@@ -108,6 +102,7 @@ public class LoginServiceImpl implements LoginService {
         if(u==null){
             throw new UserNotFoundException("没找到这个邮箱...");
         }
+        banCheck(u);
         //2校验验证码
         String trueCode = stringRedisTemplate.opsForValue().get(EMAIL_CODE_PATH+dto.getEmail());
         if(trueCode == null){
@@ -155,6 +150,7 @@ public class LoginServiceImpl implements LoginService {
         if(u==null){
             throw new UserNotFoundException("邮箱不存在...");
         }
+        banCheck(u);
         //2校验密码
         if(!PasswordUtil.check(dto.getPassword(),u.getPasswordHash())){
             throw new PasswordException("密码输错了...");
@@ -196,6 +192,18 @@ public class LoginServiceImpl implements LoginService {
         }
         log.info("已经查询到当前使用而存在的用户信息:{}",u);
         return u;
+    }
+
+
+    public void banCheck(User user){
+        log.info("开始校验用户是否被禁用");
+        int status = user.getStatus();
+        log.info("用户状态为:{}",status);
+
+        if(status <= STATUS_USER_BAN)
+            throw new LoginException("你的账户被ban了(#`Д´)ﾉ!(tell me why)");
+
+        log.info("校验通过");
     }
 
 

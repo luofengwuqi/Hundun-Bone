@@ -37,3 +37,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# npm 误生成的 lockfile（本项目使用 pnpm）
+package-lock.json

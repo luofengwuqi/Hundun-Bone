@@ -3,6 +3,7 @@ package com.createpen.fifteenhundun.module.user.controller;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.admin.pojo.DTO.DeleteUsersDTO;
+import com.createpen.fifteenhundun.module.auth.pojo.dto.RegisterDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.*;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.pojo.VO.RegisterVO;

@@ -1,4 +1,4 @@
-package com.createpen.fifteenhundun.module.user.pojo.DTO;
+package com.createpen.fifteenhundun.module.auth.pojo.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

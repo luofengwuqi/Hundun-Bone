@@ -1,9 +1,9 @@
 package com.createpen.fifteenhundun.module.auth.service;
 
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailCodeDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginEmailPassWordDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginPhonePasswordDTO;
-import com.createpen.fifteenhundun.module.user.pojo.DTO.LoginUsernamePasswordRequestDTO;
+import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginEmailCodeDTO;
+import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginEmailPassWordDTO;
+import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginPhonePasswordDTO;
+import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginUsernamePasswordRequestDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import jakarta.validation.Valid;
 

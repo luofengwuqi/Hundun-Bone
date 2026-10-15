@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.auth.controller;
 
+import com.createpen.fifteenhundun.common.anno.RateLimit;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginEmailPassWordDTO;
@@ -23,6 +24,7 @@ public class LoginController {
     public LoginController(LoginService loginService) {
         this.loginService = loginService;
     }
+    @RateLimit(count = 10, time = 60, key = "login:username-password", resetOnSuccess = true)
     @PostMapping("/username-password")
     public Result<LoginRequestVO> loginUsernamePassword(@Valid @RequestBody LoginUsernamePasswordRequestDTO dto) {
         log.info("用户登录");
@@ -31,6 +33,7 @@ public class LoginController {
         return Result.success(vo);
     }
 
+    @RateLimit(count = 10, time = 60, key = "login:phone-password", resetOnSuccess = true)
     @PostMapping("/phone-password")
     public Result<LoginRequestVO> loginPhonePassword(@RequestBody LoginPhonePasswordDTO dto)
     {
@@ -39,6 +42,7 @@ public class LoginController {
         return Result.success(vo);
     }
 
+    @RateLimit(count = 10, time = 60, key = "login:email-code", resetOnSuccess = true)
     @PostMapping("/email-code")
     public Result<LoginRequestVO> loginEmailCode(@RequestBody LoginEmailCodeDTO dto)
     {
@@ -47,6 +51,7 @@ public class LoginController {
         return Result.success(vo);
     }
     //和上一个方法配套的验证码发送方法
+    @RateLimit(count = 3, time = 60, key = "login:email-code-send")
     @PostMapping("/email-code/send")
     public Result<Void> sendEmailCode(@RequestBody String email)
     {
@@ -58,6 +63,7 @@ public class LoginController {
     }
 
     //邮箱+验证码登录
+    @RateLimit(count = 10, time = 60, key = "login:email-password", resetOnSuccess = true)
     @PostMapping("/email-password")
     public Result<LoginRequestVO> loginEmailCode(@RequestBody LoginEmailPassWordDTO dto)
     {

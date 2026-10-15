@@ -28,4 +28,7 @@ public class RedisConstant {
     public static final String EMAIL_CODE_PATH = "user:email:code:";
     //5分钟过期
     public static final long EMAIL_CODE_EXPIRE_TIME = 5;
+
+    //接口限流计数(ratelimit:${接口标识}:${维度}:${值} 维度为 ip/id)
+    public static final String RATE_LIMIT_PATH = "ratelimit:";
 }

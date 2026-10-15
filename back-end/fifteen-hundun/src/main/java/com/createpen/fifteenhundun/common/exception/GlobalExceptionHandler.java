@@ -97,6 +97,13 @@ public class GlobalExceptionHandler {
         String msg = e.getMessage();
         return Result.fail(400,msg);
     }
+    //限流异常处理
+    @ExceptionHandler
+    public Result<Void> handleRateLimitException(RateLimitException e) {
+        String msg = e.getMessage();
+        log.info("接口被限流:{}",msg);
+        return Result.fail(429,msg);
+    }
 
 //    @ExceptionHandler(org.springframework.data.redis.RedisConnectionFailureException.class)
 //    public Result<Void> handleRedisConnectionFailureException(org.springframework.data.redis.RedisConnectionFailureException e) {

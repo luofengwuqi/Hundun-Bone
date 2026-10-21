@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.EMAIL_CODE_PATH;
 import static com.createpen.fifteenhundun.common.constant.oss.UserOssConstant.USER_AVATAR_FOLDER;
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.*;
 
 @Slf4j
 @Service
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
         User operateUser = getValidUserByUserName(operateUsername);
         //检验执行者身份
         log.info("当前操作用户{}状态为{}", operateUser.getUsername(), operateUser.getStatus());
-        if (operateUser.getStatus() == 1) {
+        if (operateUser.getStatus() == STATUS_USER) {
             //普通用户 走根据密码删除
             //1 校验密码
             if (!PasswordUtil.check(dto.getPassword(), operateUser.getPasswordHash())) {
@@ -84,14 +85,20 @@ public class UserServiceImpl implements UserService {
 
             um.deleteUserByUserNameList(dto.getUsernames());
 
-        } else if (operateUser.getStatus() == 2 || operateUser.getStatus() == 3) {
+        } else if (operateUser.getStatus() == STATUS_ADMIN || operateUser.getStatus() == STATUS_SUPER_ADMIN) {
             //管理员 无需密码删除
             //1 传参存在性判断
             List<User> validUserListByUserNameList = getValidUserListByUserNameList(dto.getUsernames());
             if (validUserListByUserNameList.isEmpty()) {
                 return;
             }
-            //2 删除这些合法参数
+            //2 禁止越级删除：普通管理员不能删除管理员，任何人不能删除超级管理员
+            for (User target : validUserListByUserNameList) {
+                if (!canManage(operateUser.getStatus(), target.getStatus())) {
+                    throw new InsufficientPermissionsException("当前用户权限不足，不能删除该用户!");
+                }
+            }
+            //3 删除这些合法参数
             um.deleteUserByUserNameList(dto.getUsernames());
         } else {
             throw new IllegalAccessException("用户已被禁用!");
@@ -292,6 +299,26 @@ public class UserServiceImpl implements UserService {
         //5 删除缓存
         userRedisService.clearUserdata(BaseContext.getCurrentId());
 
+    }
+
+
+    /**
+     * 角色层级：普通管理员只能管理普通用户，超级管理员可管理除超级管理员外的所有用户
+     */
+    private boolean canManage(Integer actorStatus, Integer targetStatus) {
+        if (actorStatus == null || targetStatus == null) {
+            return false;
+        }
+        if (targetStatus == STATUS_SUPER_ADMIN) {
+            return false;
+        }
+        if (actorStatus == STATUS_SUPER_ADMIN) {
+            return true;
+        }
+        if (actorStatus == STATUS_ADMIN) {
+            return targetStatus == STATUS_USER || targetStatus == STATUS_USER_BAN;
+        }
+        return false;
     }
 
 }

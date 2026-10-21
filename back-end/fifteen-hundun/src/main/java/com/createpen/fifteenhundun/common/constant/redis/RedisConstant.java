@@ -3,7 +3,7 @@ package com.createpen.fifteenhundun.common.constant.redis;
 
 public class RedisConstant {
     //防止穿透 存空的有效时间 n 分钟
-    public static final Integer NULL_EXPIRE_TIME = 1;
+    public static final Integer NULL_EXPIRE_TIME = 5;
 
     //登录用户信息缓存
     //user:data:${userId}

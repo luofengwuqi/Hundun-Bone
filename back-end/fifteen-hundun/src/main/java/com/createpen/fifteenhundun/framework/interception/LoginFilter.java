@@ -73,8 +73,9 @@ public class LoginFilter implements Filter {
         log.info("当前请求方法：{}", method);
 
         // ========== 1. 放行无需登录的接口（核心修复：加入注册接口） ==========
-        if (method.equals("OPTIONS")){
-            log.info("OPTIONS请求，拦这个干啥 放了");
+        // 仅放行浏览器 CORS 预检（带 Origin 的 OPTIONS），其余 OPTIONS 仍需鉴权
+        if ("OPTIONS".equalsIgnoreCase(method) && req.getHeader("Origin") != null) {
+            log.debug("CORS 预检请求放行");
             chain.doFilter(request, response);
             return;
         }

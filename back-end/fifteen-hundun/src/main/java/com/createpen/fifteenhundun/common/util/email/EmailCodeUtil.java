@@ -12,14 +12,16 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.EMAIL_CODE_EXPIRE_TIME;
 
 @Slf4j
 @Component
 public class EmailCodeUtil {
+
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final MailProperties mailProperties;
 
@@ -31,7 +33,7 @@ public class EmailCodeUtil {
      * 生成 6 位随机数字验证码
      */
     public String generateCode() {
-        return String.format("%06d", new Random().nextInt(999999));
+        return String.format("%06d", RANDOM.nextInt(1_000_000));
     }
 
     /**

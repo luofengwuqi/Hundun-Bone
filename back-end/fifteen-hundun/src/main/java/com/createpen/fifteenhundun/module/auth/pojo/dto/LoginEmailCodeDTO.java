@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,9 +13,10 @@ public class LoginEmailCodeDTO {
     @NotEmpty
     @Email
     private String email;
-    //十位非空
+    //六位非空
+    @ToString.Exclude
     @NotEmpty
-    @Size(min = 10, max = 10,message="验证码长度不对哦...")
+    @Size(min = 6, max = 6, message = "验证码长度不对哦...")
     private String code;
 
 }

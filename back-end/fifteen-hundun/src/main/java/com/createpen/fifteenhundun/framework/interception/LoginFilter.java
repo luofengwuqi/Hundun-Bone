@@ -112,15 +112,17 @@ public class LoginFilter implements Filter {
         }
         //2.3 检验token在redis是否过期
         Integer id = claims.get("id", Integer.class);
-        String redisToken;
+        String redisToken = null;
+        boolean redisAvailable = true;
         try{
             redisToken  = (String) redisTemplate.opsForValue().get(TOKEN_PATH + id);
         }catch (Exception e){
-            log.info("从redis获取token失败，返回401");
-            returnJson(res, 401, "登录已过期...");
-            return;
+            // Redis 故障时降级为仅校验 JWT 签名，避免全站用户被锁在系统外
+            // 代价：Redis 恢复前无法通过登出/服务端主动失效来吊销 token
+            redisAvailable = false;
+            log.error("Redis 不可用，降级为仅校验 JWT 签名: {}", e.getMessage());
         }
-        if (redisToken == null || !redisToken.equals(token)) {
+        if (redisAvailable && (redisToken == null || !redisToken.equals(token))) {
             log.info("检查到token已过期，返回401");
             returnJson(res, 401, "登录已过期...");
             return;
@@ -162,8 +164,14 @@ public class LoginFilter implements Filter {
         log.info("用户信息已存入线程上下文，放行请求");
 
         // ========== 4. 放行请求 ==========
-        //更新redis中token过期时间
-        redisTemplate.expire(TOKEN_PATH + id, 30, java.util.concurrent.TimeUnit.MINUTES);
+        //更新redis中token过期时间（Redis 故障时跳过，不影响请求）
+        if (redisAvailable) {
+            try {
+                redisTemplate.expire(TOKEN_PATH + id, 30, java.util.concurrent.TimeUnit.MINUTES);
+            } catch (Exception e) {
+                log.warn("刷新 token 过期时间失败: {}", e.getMessage());
+            }
+        }
         chain.doFilter(request, response);
         log.info("通过Filter验证 请求已放行");
     }

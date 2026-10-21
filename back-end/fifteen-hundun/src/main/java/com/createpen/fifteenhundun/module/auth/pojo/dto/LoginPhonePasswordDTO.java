@@ -24,7 +24,6 @@ public class LoginPhonePasswordDTO {
     public String toString() {
         return "LoginPhonePasswordDTO{" +
                 "phone='" + phone + '\'' +
-                ", password='" + password + '\'' +
                 '}';
     }
 }

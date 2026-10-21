@@ -40,9 +40,8 @@ public class AddAdminDTO {
     //重写toString方法
     @Override
     public String toString() {
-        return "RegisterDTO{" +
+        return "AddAdminDTO{" +
                 "username='" + username + '\'' +
-                ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 '}';

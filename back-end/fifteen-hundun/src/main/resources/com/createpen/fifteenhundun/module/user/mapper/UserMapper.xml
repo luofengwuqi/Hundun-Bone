@@ -44,7 +44,7 @@
         <if test="lastLoginAt != null">last_login_at = #{lastLoginAt,jdbcType=TIMESTAMP},</if>
         <if test="status != null">status = #{status,jdbcType=TINYINT},</if>
         <if test="updatedAt != null">updated_at = #{updatedAt,jdbcType=TIMESTAMP},</if>
-        <if test="inviteCode != null and inviteCode != ''">invite_code = #{inviteCode,jdbc}</if>
+        <if test="inviteCode != null and inviteCode != ''">invite_code = #{inviteCode,jdbcType=VARCHAR}</if>
     </set>
     WHERE username = #{username,jdbcType=VARCHAR}
 </update>

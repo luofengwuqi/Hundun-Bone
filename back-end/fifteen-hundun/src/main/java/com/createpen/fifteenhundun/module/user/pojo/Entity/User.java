@@ -1,7 +1,6 @@
 package com.createpen.fifteenhundun.module.user.pojo.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,9 +30,8 @@ public class User implements Serializable {
         /**
          * 密码哈希值
          */
+        // 密码哈希永远不参与 JSON 序列化（HTTP 响应和 Redis 缓存都不落哈希）
         @JsonIgnore
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        // 序列化时忽略，避免返回给前端 这会导致redis里面也读不到
         private String passwordHash;
 
         /**
@@ -92,7 +90,6 @@ public class User implements Serializable {
                     "id=" + id +
                     ", username='" + username + '\'' +
                     ", email='" + email + '\'' +
-                    ", passwordHash='" + passwordHash + '\'' +
                     ", nickname='" + nickname + '\'' +
                     ", avatarUrl='" + avatarUrl + '\'' +
                     ", phone='" + phone + '\'' +

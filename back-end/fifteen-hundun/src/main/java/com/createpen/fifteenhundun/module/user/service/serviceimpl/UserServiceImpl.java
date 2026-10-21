@@ -3,6 +3,7 @@ package com.createpen.fifteenhundun.module.user.service.serviceimpl;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.util.AliOSSUtil;
+import com.createpen.fifteenhundun.common.util.FileUploadValidator;
 import com.createpen.fifteenhundun.common.util.PasswordUtil;
 import com.createpen.fifteenhundun.module.user.cache.UserRedisService;
 import com.createpen.fifteenhundun.module.user.mapper.UserMapper;
@@ -40,6 +41,8 @@ public class UserServiceImpl implements UserService {
     private AliOSSUtil aliOssUtil;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private FileUploadValidator fileUploadValidator;
 
     @Transactional(rollbackFor = Exception.class)
     public RegisterVO register(RegisterDTO dto) {
@@ -97,6 +100,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateAvatar(MultipartFile file) {
+        //头像只允许图片，并限制大小与内容类型
+        fileUploadValidator.validate(file, true);
         //构建文件路径
         Long currentId = BaseContext.getCurrentId();
         String currentUsername = BaseContext.getCurrentUsername();
@@ -282,7 +287,9 @@ public class UserServiceImpl implements UserService {
         }
         //3 修改
         um.updatePasswordById(PasswordUtil.addMi(dto.getPassword()),BaseContext.getCurrentId());
-        //4 删除缓存
+        //4 验证码一次性使用，修改成功后立即删除，防止 TTL 内被重复利用
+        stringRedisTemplate.delete(key);
+        //5 删除缓存
         userRedisService.clearUserdata(BaseContext.getCurrentId());
 
     }

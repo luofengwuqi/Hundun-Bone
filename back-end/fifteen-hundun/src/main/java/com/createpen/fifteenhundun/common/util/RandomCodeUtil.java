@@ -1,23 +1,20 @@
 package com.createpen.fifteenhundun.common.util;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class RandomCodeUtil {
-    static String EnglishCode = "ABCDEFJHIJKIMNOPQRSTUVWXYZ";
-//    static String NumCode="1234567890";
-    public static String makeComplexCode(int length){
-        StringBuilder code =new StringBuilder("");
-        for(int i = 0 ; i < length ; i++)
-        {
-            Random r = new Random();
-            int NumOrChar=r.nextInt(10);
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String ENGLISH_CODE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public static String makeComplexCode(int length) {
+        StringBuilder code = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
             //情况一 塞数字
-            if(NumOrChar <=4){
+            if (RANDOM.nextInt(10) <= 4) {
                 code.append(getRandomSingleInt());
-//                code.append();
             }
             //情况二 塞字母
-            else{
+            else {
                 code.append(getRandomSingleChar());
             }
         }
@@ -25,22 +22,18 @@ public class RandomCodeUtil {
         return code.toString();
     }
 
-    public static int getRandomSingleInt(){
-        Random r =new Random();
-        return r.nextInt(10);
+    public static int getRandomSingleInt() {
+        return RANDOM.nextInt(10);
     }
-    public static char getRandomSingleChar(){
-        Random r = new Random();
-        //随机拿到一个字母
-        int which = r.nextInt(26);
-        char code = EnglishCode.charAt(which);
-        //随机大小写
-        int lowOrUp = r.nextInt(2);
-        if(lowOrUp == 0)
-        {
-            code = (char)(code + 32);
-        }
 
+    public static char getRandomSingleChar() {
+        //随机拿到一个字母
+        int which = RANDOM.nextInt(ENGLISH_CODE.length());
+        char code = ENGLISH_CODE.charAt(which);
+        //随机大小写
+        if (RANDOM.nextBoolean()) {
+            code = (char) (code + 32);
+        }
 
         return code;
     }

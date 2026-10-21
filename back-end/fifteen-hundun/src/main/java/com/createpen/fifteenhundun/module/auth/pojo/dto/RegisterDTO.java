@@ -40,7 +40,6 @@ private String email;
     public String toString() {
         return "RegisterDTO{" +
                 "username='" + username + '\'' +
-                ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 '}';

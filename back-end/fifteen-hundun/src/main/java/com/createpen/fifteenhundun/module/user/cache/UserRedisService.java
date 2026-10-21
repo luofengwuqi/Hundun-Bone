@@ -2,7 +2,6 @@ package com.createpen.fifteenhundun.module.user.cache;
 
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.lettuce.core.RedisException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -65,8 +64,8 @@ public class UserRedisService {
         try{
             redisTemplate.opsForValue().set(USER_DATA_PATH + u.getId(), u, TOKEN_EXPIRE_TIME, TimeUnit.MINUTES);
         }catch (Exception e){
-            log.error("保存用户数据到redis失败", e);
-            throw new RedisException("保存用户数据到redis失败");
+            // 缓存写失败不影响主流程，Redis 故障时降级为直接查库
+            log.warn("保存用户数据到redis失败: {}", e.getMessage());
         }
     }
 
@@ -81,8 +80,9 @@ public class UserRedisService {
             }
             return objectMapper.convertValue(obj, User.class);
         }catch (Exception e){
-            log.error("从redis获取用户数据失败", e);
-            throw new RedisException("从redis获取用户数据失败");
+            // 缓存读失败时返回 null，由调用方回源数据库
+            log.warn("从redis获取用户数据失败: {}", e.getMessage());
+            return null;
         }
     }
 

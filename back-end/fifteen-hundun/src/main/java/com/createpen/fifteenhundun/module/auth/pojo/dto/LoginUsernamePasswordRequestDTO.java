@@ -20,7 +20,6 @@ public class LoginUsernamePasswordRequestDTO {
     public String toString() {
         return "LoginRequestDTO{" +
                 "username='" + username + '\'' +
-                ", password='" + password + '\'' +
                 '}';
     }
 }

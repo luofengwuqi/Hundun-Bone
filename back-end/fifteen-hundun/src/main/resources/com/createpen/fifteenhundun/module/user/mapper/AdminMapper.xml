@@ -4,9 +4,6 @@
     <update id="updateUserByIdForAdmin">
         update users
         <set>
-            <if test="id != null">
-                id = #{id},
-            </if>
             <if test="username != null and username != ''">
                 username = #{username},
             </if>
@@ -30,7 +27,18 @@
     </update>
 
     <select id="getUsers" resultType="com.createpen.fifteenhundun.module.user.pojo.Entity.User">
-       select * from users
+       select
+           id,
+           username,
+           email,
+           nickname,
+           avatar_url as avatarUrl,
+           phone,
+           status,
+           created_at as createdAt,
+           updated_at as updatedAt,
+           last_login_at as lastLoginAt
+       from users
        <where>
            <if test="name!=null and name!=''">
                username like concat('%',#{name},'%')

@@ -6,6 +6,7 @@ import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginEmailCodeDTO;
 import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginEmailPassWordDTO;
 import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginPhonePasswordDTO;
 import com.createpen.fifteenhundun.module.auth.pojo.dto.LoginUsernamePasswordRequestDTO;
+import com.createpen.fifteenhundun.module.auth.pojo.dto.SendEmailCodeDTO;
 import com.createpen.fifteenhundun.module.user.pojo.VO.LoginRequestVO;
 import com.createpen.fifteenhundun.module.auth.service.LoginService;
 import jakarta.validation.Valid;
@@ -27,15 +28,14 @@ public class LoginController {
     @RateLimit(count = 10, time = 60, key = "login:username-password", resetOnSuccess = true)
     @PostMapping("/username-password")
     public Result<LoginRequestVO> loginUsernamePassword(@Valid @RequestBody LoginUsernamePasswordRequestDTO dto) {
-        log.info("用户登录");
-        log.info("已经接收到请求:LoginRequestDTO信息为{}",dto.toString());
+        log.info("用户登录，用户名：{}", dto.getUsername());
         LoginRequestVO vo =  loginService.loginUsernamePassword(dto);
         return Result.success(vo);
     }
 
     @RateLimit(count = 10, time = 60, key = "login:phone-password", resetOnSuccess = true)
     @PostMapping("/phone-password")
-    public Result<LoginRequestVO> loginPhonePassword(@RequestBody LoginPhonePasswordDTO dto)
+    public Result<LoginRequestVO> loginPhonePassword(@Valid @RequestBody LoginPhonePasswordDTO dto)
     {
         LoginRequestVO  vo= loginService.loginPhonePassword(dto);
         log.info("手机密码登录成功");
@@ -44,7 +44,7 @@ public class LoginController {
 
     @RateLimit(count = 10, time = 60, key = "login:email-code", resetOnSuccess = true)
     @PostMapping("/email-code")
-    public Result<LoginRequestVO> loginEmailCode(@RequestBody LoginEmailCodeDTO dto)
+    public Result<LoginRequestVO> loginEmailCode(@Valid @RequestBody LoginEmailCodeDTO dto)
     {
         LoginRequestVO  vo= loginService.loginEmailCode(dto);
         log.info("邮箱验证码登录成功");
@@ -53,22 +53,20 @@ public class LoginController {
     //和上一个方法配套的验证码发送方法
     @RateLimit(count = 3, time = 60, key = "login:email-code-send")
     @PostMapping("/email-code/send")
-    public Result<Void> sendEmailCode(@RequestBody String email)
+    public Result<Void> sendEmailCode(@Valid @RequestBody SendEmailCodeDTO dto)
     {
-        log.info("开始发送邮箱验证码");
-        email= email.substring(10,email.length()-2);
-        log.info("接收到的邮箱为{}",email);
-        loginService.sendEmailCode(email);
+        log.info("开始发送邮箱验证码，邮箱：{}", dto.getEmail());
+        loginService.sendEmailCode(dto.getEmail());
         return Result.success();
     }
 
     //邮箱+验证码登录
     @RateLimit(count = 10, time = 60, key = "login:email-password", resetOnSuccess = true)
     @PostMapping("/email-password")
-    public Result<LoginRequestVO> loginEmailCode(@RequestBody LoginEmailPassWordDTO dto)
+    public Result<LoginRequestVO> loginEmailPassword(@Valid @RequestBody LoginEmailPassWordDTO dto)
     {
         LoginRequestVO  vo= loginService.loginEmailPassword(dto);
-        log.info("邮箱验证码登录成功");
+        log.info("邮箱密码登录成功");
         return Result.success(vo);
     }
 

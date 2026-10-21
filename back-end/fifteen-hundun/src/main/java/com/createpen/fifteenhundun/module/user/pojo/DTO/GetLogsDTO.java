@@ -1,5 +1,8 @@
 package com.createpen.fifteenhundun.module.user.pojo.DTO;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,8 +19,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class GetLogsDTO implements Serializable {
     // 分页参数
-    private Integer page; // 页码（从1开始）
-    private Integer size; // 每页条数
+    @NotNull(message = "页码不能为空")
+    @Min(value = 1, message = "页码不能小于1")
+    private Integer page = 1; // 页码（从1开始）
+    @NotNull(message = "每页条数不能为空")
+    @Min(value = 1, message = "每页条数不能小于1")
+    @Max(value = 1000, message = "每页最多查询1000条")
+    private Integer size = 10; // 每页条数
 
     // 操作者姓名（模糊查询）
     private String operateUserName;

@@ -1,10 +1,12 @@
 package com.createpen.fifteenhundun.framework.interception;
 
 import com.createpen.fifteenhundun.common.constant.status.UserStatusConstant;
+import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.util.JwtUtil;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.createpen.fifteenhundun.module.user.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +32,7 @@ public class LoginFilter implements Filter {
     private final UserService userService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
@@ -42,10 +45,12 @@ public class LoginFilter implements Filter {
             "POST"               // 注册接口：仅允许 POST
     );
 
-    public LoginFilter(RedisTemplate<String, Object> redisTemplate, UserService userService, JwtUtil jwtUtil) {
+    public LoginFilter(RedisTemplate<String, Object> redisTemplate, UserService userService,
+                       JwtUtil jwtUtil, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -185,8 +190,8 @@ public class LoginFilter implements Filter {
     private void returnJson(HttpServletResponse res, int code, String message) throws IOException {
         res.setStatus(code);
         res.setContentType("application/json;charset=utf-8");
-        // 统一响应格式，和你的Result类对齐
-        String json = String.format("{\"code\":%d,\"message\":\"%s\",\"data\":null}", code, message);
+        // 使用 Jackson 序列化，避免 message 中的引号破坏 JSON 结构
+        String json = objectMapper.writeValueAsString(Result.fail(code, message));
 
         PrintWriter writer = res.getWriter();
         writer.write(json);

@@ -2,7 +2,7 @@ package com.createpen.fifteenhundun.framework.aspect;
 
 import com.createpen.fifteenhundun.common.anno.RateLimit;
 import com.createpen.fifteenhundun.common.exception.MyException.RateLimitException;
-import jakarta.servlet.http.HttpServletRequest;
+import com.createpen.fifteenhundun.common.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -28,9 +28,11 @@ import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.RA
 public class RateLimitAspect {
 
     private final StringRedisTemplate stringRedisTemplate;
+    private final IpUtil ipUtil;
 
-    public RateLimitAspect(StringRedisTemplate stringRedisTemplate) {
+    public RateLimitAspect(StringRedisTemplate stringRedisTemplate, IpUtil ipUtil) {
         this.stringRedisTemplate = stringRedisTemplate;
+        this.ipUtil = ipUtil;
     }
 
     @Pointcut("@annotation(com.createpen.fifteenhundun.common.anno.RateLimit)")
@@ -105,27 +107,12 @@ public class RateLimitAspect {
         return null;
     }
 
-    //获取真实客户端 IP 优先取反向代理头
+    //获取真实客户端 IP（默认不信任代理头，防止伪造）
     private String getClientIp() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {
             return "unknown";
         }
-        HttpServletRequest request = attributes.getRequest();
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        //X-Forwarded-For 可能是逗号分隔的代理链 取第一个真实客户端 IP
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip == null || ip.isEmpty() ? "unknown" : ip;
+        return ipUtil.getClientIp(attributes.getRequest());
     }
 }

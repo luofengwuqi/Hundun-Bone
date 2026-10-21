@@ -3,6 +3,7 @@ package com.createpen.fifteenhundun.common.exception;
 import com.createpen.fifteenhundun.common.exception.MyException.*;
 import com.createpen.fifteenhundun.common.response.Result;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,104 +20,103 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String msg = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
-        log.info("DTO接收异常信息:{}",msg);
-        return Result.fail(400,msg);
+        log.warn("DTO接收异常信息:{}", msg);
+        return Result.fail(400, msg);
     }
 
-    //jwt相关异常
+    //jwt过期：具体原因只写日志，不返回给客户端
     @ExceptionHandler
-    public Result<Void> handleJwtException(ExpiredJwtException e) {
-        String msg = e.getMessage();
-        return Result.fail(401,msg);
+    public Result<Void> handleJwtExpiredException(ExpiredJwtException e) {
+        log.warn("JWT 已过期: {}", e.getMessage());
+        return Result.fail(401, "登录已过期");
     }
+
     @ExceptionHandler
-    public Result<Void> handleJwtException(MalformedJwtException e) {
-        return Result.fail(401, e.getMessage());
+    public Result<Void> handleJwtMalformedException(MalformedJwtException e) {
+        log.warn("JWT 格式错误: {}", e.getMessage());
+        return Result.fail(401, "无效的令牌");
+    }
+
+    //其余 JWT 异常（签名错误、不支持的令牌等）
+    @ExceptionHandler
+    public Result<Void> handleJwtException(JwtException e) {
+        log.warn("JWT 校验失败: {}", e.getMessage());
+        return Result.fail(401, "无效的令牌");
     }
 
     //用户异常
     @ExceptionHandler
     public Result<Void> handleUserNotFoundException(UserNotFoundException e) {
-        log.info("已接受到用户不存在异常");
-        String msg = e.getMessage();
-        return Result.fail(404,msg);
+        log.warn("用户不存在: {}", e.getMessage());
+        return Result.fail(404, e.getMessage());
     }
+
     @ExceptionHandler
     public Result<Void> handleUserExistedException(UserExistedException e) {
-        String msg = e.getMessage();
-        log.info("已接受到用户已存在异常");
-        return Result.fail(409,msg);
+        log.warn("用户已存在: {}", e.getMessage());
+        return Result.fail(409, e.getMessage());
     }
 
     //登录异常
     @ExceptionHandler
     public Result<Void> handleLoginException(LoginException e) {
-        String msg = e.getMessage();
-        log.info("拦截器拦截到登录异常:{}",msg);
-        return Result.fail(401,msg);
+        log.warn("登录异常: {}", e.getMessage());
+        return Result.fail(401, e.getMessage());
     }
 
     //运行时异常处理
     @ExceptionHandler
     public Result<Void> handleRuntimeException(RuntimeException e) {
-        String msg = e.getMessage();
-        log.info("运行时异常信息:{}",msg);
-        return Result.fail(500,msg);
+        log.error("运行时异常", e);
+        return Result.fail(500, e.getMessage());
+    }
+
+    //数据库操作异常
+    @ExceptionHandler
+    public Result<Void> handleSqlOperationException(SqlOperationException e) {
+        log.error("数据库操作异常", e);
+        return Result.fail(500, e.getMessage());
     }
 
     //OSS异常
     @ExceptionHandler
     public Result<Void> handleOSSException(OSSException e) {
-        String msg = e.getMessage();
-        log.info("已接受到OSS异常:{}",msg);
-        return Result.fail(500,msg);
+        log.error("OSS异常: {}", e.getMessage(), e);
+        return Result.fail(500, e.getMessage());
     }
 
     //权限不足异常处理
     @ExceptionHandler
     public Result<Void> handleInsufficientPermissionsException(InsufficientPermissionsException e) {
-        String msg = e.getMessage();
-        log.info("已接受到权限不足异常:{}",msg);
-        return Result.fail(403,msg);
+        log.warn("权限不足: {}", e.getMessage());
+        return Result.fail(403, e.getMessage());
     }
+
     //密码异常处理
     @ExceptionHandler
     public Result<Void> handlePasswordException(PasswordException e) {
-        String msg = e.getMessage();
-        return Result.fail(400,msg);
+        log.warn("密码校验失败: {}", e.getMessage());
+        return Result.fail(400, e.getMessage());
     }
+
     //传参异常处理
     @ExceptionHandler
     public Result<Void> handleIllegalArgumentException(IllegalArgumentException e) {
-        String msg = e.getMessage();
-        return Result.fail(400,msg);
+        log.warn("参数异常: {}", e.getMessage());
+        return Result.fail(400, e.getMessage());
     }
+
     //验证码相关的异常
     @ExceptionHandler
     public Result<Void> handleSendCodeException(SendCodeException e) {
-        String msg = e.getMessage();
-        return Result.fail(400,msg);
+        log.warn("验证码发送失败: {}", e.getMessage());
+        return Result.fail(400, e.getMessage());
     }
+
     //限流异常处理
     @ExceptionHandler
     public Result<Void> handleRateLimitException(RateLimitException e) {
-        String msg = e.getMessage();
-        log.info("接口被限流:{}",msg);
-        return Result.fail(429,msg);
+        log.warn("接口被限流: {}", e.getMessage());
+        return Result.fail(429, e.getMessage());
     }
-
-//    @ExceptionHandler(org.springframework.data.redis.RedisConnectionFailureException.class)
-//    public Result<Void> handleRedisConnectionFailureException(org.springframework.data.redis.RedisConnectionFailureException e) {
-//        log.error("Redis连接失败:{}", e.getMessage());
-//        return Result.fail(503,"redis未启动/已崩溃...");
-//    }
-
-//    未知异常处理
-//    @ExceptionHandler
-//    public Result<Void> handleException(Exception e) {
-//        log.error(e.getMessage());
-//        return Result.fail(500,"未知异常");
-//    }
-
-
 }

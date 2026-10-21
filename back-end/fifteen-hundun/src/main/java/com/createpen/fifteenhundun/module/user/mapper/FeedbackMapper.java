@@ -4,7 +4,6 @@ import com.createpen.fifteenhundun.common.anno.AutoLog;
 import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
 import com.createpen.fifteenhundun.common.constant.type.OperateTypeConstant;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.Feedback;
-import jakarta.validation.constraints.NotNull;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -27,13 +26,13 @@ public interface FeedbackMapper {
      */
     @AutoLog(operateType = OperateTypeConstant.UPDATE, moduleName = ModuleNameConstant.FEEDBACK)
     @Update("update feedback set status = #{status},finished_at = #{now},handle_user_id=#{handleUserId} where id = #{id}")
-    int updateFeedbackStatus(Integer id, @NotNull(message = "反馈状态不能为空") Integer status, LocalDateTime now, @NotNull(message = "处理人ID不能为空") Integer handleUserId);
+    int updateFeedbackStatus(Integer id, Integer status, LocalDateTime now, Integer handleUserId);
 
     @Insert("insert into feedback (type,text,user_id,username,user_email,status,created_at) values (#{type},#{text},#{userId},#{username},#{userEmail},#{status},#{createdAt})")
     void insertFeedback(Feedback feedback);
 
     @Select("select * from feedback where id = #{id}")
-    Feedback selectFeedbackById(@NotNull(message = "反馈ID不能为空") Integer id);
+    Feedback selectFeedbackById(Integer id);
 
     /**
      * 批量删除反馈

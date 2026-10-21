@@ -3,10 +3,13 @@ package com.createpen.fifteenhundun.module.user.cache;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
@@ -27,11 +30,25 @@ public class UserRedisService {
         log.info("清除用户查询缓存，pattern:{}", pattern);
 
         try {
-            Set<String> keys = redisTemplate.keys(pattern);
-            if (keys != null && !keys.isEmpty()) {
-                redisTemplate.delete(keys);
-                log.info("已删除 {} 个用户查询缓存 key", keys.size());
+            // 使用 SCAN 分批删除，避免 KEYS 阻塞 Redis
+            ScanOptions options = ScanOptions.scanOptions().match(pattern).count(1000).build();
+            int deleted = 0;
+            List<String> batch = new ArrayList<>(500);
+            try (Cursor<String> cursor = redisTemplate.scan(options)) {
+                while (cursor.hasNext()) {
+                    batch.add(cursor.next());
+                    if (batch.size() >= 500) {
+                        redisTemplate.delete(batch);
+                        deleted += batch.size();
+                        batch.clear();
+                    }
+                }
             }
+            if (!batch.isEmpty()) {
+                redisTemplate.delete(batch);
+                deleted += batch.size();
+            }
+            log.info("已删除 {} 个用户查询缓存 key", deleted);
         } catch (Exception e) {
             log.error("清除用户查询缓存失败", e);
         }

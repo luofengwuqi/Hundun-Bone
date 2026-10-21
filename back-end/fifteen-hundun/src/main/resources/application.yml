@@ -36,6 +36,9 @@ app:
   upload:
     # 单个文件最大字节数（默认 10MB）
     max-size-bytes: ${UPLOAD_MAX_SIZE_BYTES:10485760}
+  security:
+    # 只有部署在可信反向代理后面时才设为 true，否则 X-Forwarded-For 可被伪造
+    trust-proxy-headers: ${TRUST_PROXY_HEADERS:false}
 
 # 阿里云OSS配置
 # AccessKey 优先从环境变量读取，本地开发放在 application-secret.yml 中

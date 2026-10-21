@@ -20,8 +20,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
@@ -82,12 +80,8 @@ public class LoginServiceImpl implements LoginService {
         //设置loginTime
         u.setLastLoginAt(LocalDateTime.now());
         userMapper.updateUserByUserName(u);
-        //生成token往token里面塞点信息
-        Map<String,Object> tokenDatamap = new HashMap<>();
-        tokenDatamap.put("id",u.getId());
-        tokenDatamap.put("username",u.getUsername());
         //生成token 并存入redis(方便过期)
-        String token = jwtUtil.makeToken(tokenDatamap);
+        String token = jwtUtil.makeToken(Math.toIntExact(u.getId()), u.getUsername());
         saveTokenInRedis(token,u.getId());
         //处理vo
         LoginRequestVO vo = new LoginRequestVO();

@@ -37,6 +37,8 @@ import static com.createpen.fifteenhundun.common.constant.status.UserStatusConst
 @Service
 public class AdminServiceImpl implements AdminService {
 
+    private static final String PENDING_ADMIN_PREFIX = "管理员待注册";
+
     @Autowired
     private AdminMapper am;
     @Autowired
@@ -68,10 +70,9 @@ public class AdminServiceImpl implements AdminService {
             throw new UserNotFoundException("用户不存在");
         }
         Integer status = operateUser.getStatus();
-        //2检验权限是否允许这样做
-        String currentUsername = BaseContext.getCurrentUsername();
-        User currentUser= um.getUserByUserName(currentUsername);
-        if (currentUser.getStatus()<= operateUser.getStatus() || currentUser.getStatus()<=(-operateUser.getStatus())){
+        //2 显式校验角色层级，禁止越级操作
+        User currentUser = getCurrentActor();
+        if (!canManage(currentUser.getStatus(), status)) {
             throw new InsufficientPermissionsException("权限不够的...(就算你是鹈鹕也不能吃同事/w\\)");
         }
         //3执行修改
@@ -141,9 +142,12 @@ public class AdminServiceImpl implements AdminService {
         u.setAvatarUrl(dto.getAvatarUrl());
         u.setLastLoginAt(LocalDateTime.now());
         um.insertUser(u);
-        //4 移除占位管理员
-        String tempUserName = "管理员待注册"+importantPassword.substring(0, 2);
-        User tempUser = um.getUserByUserName(tempUserName);
+        //4 移除占位管理员（优先匹配新格式，兼容历史两字符后缀格式）
+        User tempUser = um.getUserByUserName(PENDING_ADMIN_PREFIX + importantPassword);
+        if (tempUser == null) {
+            tempUser = um.getUserByUserName(PENDING_ADMIN_PREFIX
+                    + importantPassword.substring(0, Math.min(2, importantPassword.length())));
+        }
         if(tempUser == null){
             log.warn("没有找到占位管理员,疑似出现命名碰撞,请手动处理");
             return;
@@ -258,7 +262,8 @@ public class AdminServiceImpl implements AdminService {
         if(u == null){
             throw new UserNotFoundException("用户不存在");
         }
-        if(u.getStatus() == STATUS_SUPER_ADMIN){
+        User currentUser = getCurrentActor();
+        if (!canManage(currentUser.getStatus(), u.getStatus())) {
             throw new InsufficientPermissionsException("不许你这样对管理员 sama");
         }
         um.deleteUserById(id);
@@ -269,7 +274,16 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void updateUser(UpdateUserDTO dto) {
-        if(dto.getPassword() != null){
+        // 只能修改层级更低的用户，禁止普通管理员修改管理员/超级管理员
+        User target = um.selectUserById(dto.getOldId());
+        if (target == null) {
+            throw new UserNotFoundException("用户不存在");
+        }
+        User currentUser = getCurrentActor();
+        if (!canManage(currentUser.getStatus(), target.getStatus())) {
+            throw new InsufficientPermissionsException("权限不足，不能修改该用户");
+        }
+        if(dto.getPassword() != null && !dto.getPassword().isBlank()){
             String password_hash = PasswordUtil.addMi(dto.getPassword());
             dto.setPassword(password_hash);
         }
@@ -277,7 +291,7 @@ public class AdminServiceImpl implements AdminService {
         try{
             am.updateUserByIdForAdmin(dto);
         }catch (Exception e){
-            throw new SQLException("你是个大笨蛋");
+            throw new SqlOperationException("你是个大笨蛋");
         }
         //删除缓存
         userRedisService.clearUsersCache();
@@ -303,12 +317,20 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public String makeInviteCode() {
         User u =new User();
-        u.setPasswordHash(PasswordUtil.addMi("fqeqvbqeiovfbqiudbv"));
+        u.setPasswordHash(PasswordUtil.addMi(java.util.UUID.randomUUID().toString()));
         u.setStatus(STATUS_ADMIN_BAN);
-        //todoEd: 生成邀请码
-        String code = RandomCodeUtil.makeComplexCode(10);
+        // 生成不重复的邀请码，占位用户名使用完整邀请码避免前缀碰撞
+        String code;
+        int attempts = 0;
+        do {
+            code = RandomCodeUtil.makeComplexCode(10);
+            attempts++;
+        } while (am.selectInvitePassword(code) != null && attempts < 10);
+        if (am.selectInvitePassword(code) != null) {
+            throw new IllegalStateException("邀请码生成失败，请重试");
+        }
         u.setInviteCode(code);
-        u.setUsername("管理员待注册"+code.substring(0,2));
+        u.setUsername(PENDING_ADMIN_PREFIX + code);
         um.insertUser(u);
         //todoEd: 删除管理端用户查询的分页缓存
         userRedisService.clearUsersCache();
@@ -320,5 +342,40 @@ public class AdminServiceImpl implements AdminService {
 
 //    }
 
+
+
+    /**
+     * 当前操作人（从数据库实时读取，避免缓存中的旧状态）
+     */
+    private User getCurrentActor() {
+        String currentUsername = BaseContext.getCurrentUsername();
+        if (currentUsername == null) {
+            throw new InsufficientPermissionsException("未登录");
+        }
+        User currentUser = um.getUserByUserName(currentUsername);
+        if (currentUser == null) {
+            throw new InsufficientPermissionsException("当前用户不存在");
+        }
+        return currentUser;
+    }
+
+    /**
+     * 角色层级：普通管理员只能管理普通用户，超级管理员可管理除超级管理员外的所有用户
+     */
+    private boolean canManage(Integer actorStatus, Integer targetStatus) {
+        if (actorStatus == null || targetStatus == null) {
+            return false;
+        }
+        if (targetStatus == STATUS_SUPER_ADMIN) {
+            return false;
+        }
+        if (actorStatus == STATUS_SUPER_ADMIN) {
+            return true;
+        }
+        if (actorStatus == STATUS_ADMIN) {
+            return targetStatus == STATUS_USER || targetStatus == STATUS_USER_BAN;
+        }
+        return false;
+    }
 
 }

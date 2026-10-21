@@ -56,7 +56,7 @@ public class AdminController {
     }
     //修改用户信息
     @PutMapping("/admin/user")
-    public Result<Void> updateUser(@RequestBody UpdateUserDTO dto)
+    public Result<Void> updateUser(@Valid @RequestBody UpdateUserDTO dto)
     {
         log.info("修改用户信息{}",dto);
         adminService.updateUser(dto);

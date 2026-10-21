@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.createpen.fifteenhundun.module.user.mapper.CommonMapper">
     <insert id="addLog">
-            INSERT INTO operation_log (
+        INSERT INTO operation_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="operateUserId != null">
                 operate_user_id,
             </if>
@@ -28,12 +29,13 @@
                 operate_status,
             </if>
             <if test="operateFunctionName != null and operateFunctionName != ''">
-                operate_function_name
+                operate_function_name,
             </if>
-             <if test="executedSql != null and executedSql != ''">
-                 ,executed_sql
-             </if>
-            ) VALUES (
+            <if test="executedSql != null and executedSql != ''">
+                executed_sql,
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="operateUserId != null">
                 #{operateUserId},
             </if>
@@ -59,11 +61,11 @@
                 #{operateStatus},
             </if>
             <if test="operateFunctionName != null and operateFunctionName != ''">
-                #{operateFunctionName}
+                #{operateFunctionName},
             </if>
             <if test="executedSql != null and executedSql != ''">
-                ,#{executedSql}
+                #{executedSql},
             </if>
-            )
-        </insert>
+        </trim>
+    </insert>
 </mapper>

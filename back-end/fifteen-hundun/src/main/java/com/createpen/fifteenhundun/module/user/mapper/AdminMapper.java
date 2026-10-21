@@ -7,7 +7,6 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.GetLogsDTO;
 import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateUserDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.OperateLog;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
-import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -30,7 +29,7 @@ public interface AdminMapper {
 //    void deleteUserByUserName(String username);
 
     @Select("select invite_code from users where invite_code = #{importantPassword}")
-    String selectInvitePassword(@NotBlank(message = "邀请码不能为空") String importantPassword);
+    String selectInvitePassword(String importantPassword);
 
     //我也不知道这里适不适合加自动填充注解(我觉得还是算了
     @AutoLog(operateType = OperateTypeConstant.SELECT, moduleName = ModuleNameConstant.ADMIN)

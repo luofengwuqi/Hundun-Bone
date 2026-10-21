@@ -72,17 +72,6 @@ public class User implements Serializable {
          */
         private LocalDateTime lastLoginAt;
 
-        /**
-         * 用户个性化配置（一对一关联 user_settings 表）
-         * 可根据业务需求拆分为独立的 UserSettings 类
-         */
-        private UserSettings userSettings;
-
-        /**
-         * 用户个性化配置实体类
-         * 对应数据库 user_settings 表
-         */
-
         //重写ToString方法
         @Override
         public String toString() {

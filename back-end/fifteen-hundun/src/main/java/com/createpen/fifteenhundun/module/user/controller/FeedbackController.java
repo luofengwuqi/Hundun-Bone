@@ -6,6 +6,8 @@ import com.createpen.fifteenhundun.module.user.pojo.DTO.UpdateFeedbackStatusDTO;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.Feedback;
 import com.createpen.fifteenhundun.module.user.service.FeedbackService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -28,9 +30,11 @@ public class FeedbackController {
 
     //获取所有的反馈
     @GetMapping
-    public Result<List<Feedback>> selectAllFeedback(){
-        log.info("获取所有的反馈");
-        return Result.success(feedbackService.selectAllFeedback());
+    public Result<List<Feedback>> selectAllFeedback(
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "50") @Min(1) @Max(200) int size){
+        log.info("分页获取反馈，page={}, size={}", page, size);
+        return Result.success(feedbackService.selectAllFeedback(page, size));
     }
     
     //更新反馈状态

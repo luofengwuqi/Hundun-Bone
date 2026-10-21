@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 public interface FeedbackService {
-    List<Feedback> selectAllFeedback();
+    List<Feedback> selectAllFeedback(int page, int size);
     
     /**
      * 更新反馈状态

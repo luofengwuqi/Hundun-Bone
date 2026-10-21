@@ -18,15 +18,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.*;
 import static com.createpen.fifteenhundun.common.constant.status.FeedbackStatusConstant.*;
 import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_ADMIN;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -39,51 +38,24 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final RedisTemplate<String,Object> redisTemplate;
     private final FeedbackMapper feedbackMapper;
     private final UserMapper userMapper;
-    private final ObjectMapper objectMapper;
-    
-    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper, UserRedisService userRedisService, FeedbackRedisService feedbackRedisService, SendEmailService sendEmailService) {
+
+    public FeedbackServiceImpl(UserMapper userMapper, FeedbackMapper feedbackMapper, RedisTemplate<String, Object> redisTemplate, UserRedisService userRedisService, FeedbackRedisService feedbackRedisService, SendEmailService sendEmailService) {
         this.userMapper = userMapper;
         this.feedbackMapper = feedbackMapper;
         this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
         this.userRedisService = userRedisService;
         this.feedbackRedisService = feedbackRedisService;
         this.sendEmailService = sendEmailService;
     }
 
     @Override
-    public List<Feedback> selectAllFeedback() {
-       //1 判断权限是否允许
+    public List<Feedback> selectAllFeedback(int page, int size) {
+        //1 判断权限是否允许
         isAllowed();
-        //2 查询信息
-        //2.1 先查redis
-        try {
-            Object cachedData = redisTemplate.opsForValue().get(FEEDBACK_CACHE_PATH);
-            if(cachedData != null){
-                String json = (String) cachedData;
-                List<Feedback> redisList = objectMapper.readValue(json, 
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Feedback.class));
-                log.info("命中缓存，从 Redis 获取反馈数据");
-                return redisList;
-            }
-        } catch (JsonProcessingException e) {
-            log.error("反序列化缓存数据失败", e);
-            redisTemplate.delete(FEEDBACK_CACHE_PATH);
-        }
-        
-        //2.2 再查数据库
-        log.info("缓存未命中，查询数据库");
+        //2 分页查询，避免一次性加载全部反馈导致内存溢出
+        PageHelper.startPage(page, size);
         List<Feedback> feedbacks = feedbackMapper.selectAllFeedback();
-        
-        //2.3 将查询结果存入redis
-        try {
-            String json = objectMapper.writeValueAsString(feedbacks);
-            redisTemplate.opsForValue().set(FEEDBACK_CACHE_PATH, json, FEEDBACK_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
-            log.info("已将反馈数据存入 Redis 缓存，过期时间：{}分钟", FEEDBACK_CACHE_EXPIRE_TIME);
-        } catch (JsonProcessingException e) {
-            log.error("序列化缓存数据失败", e);
-        }
-        
+        log.info("查询反馈数据，page={}, size={}, 返回{}条", page, size, feedbacks.size());
         return feedbacks;
     }
 
@@ -107,10 +79,10 @@ public class FeedbackServiceImpl implements FeedbackService {
         // 4. 发送邮件给用户
         if(Objects.equals(dto.getStatus(), FEEDBACK_STATUS_FINISH)){
             log.info("将发送反馈完成通知邮件给用户，反馈ID：{}", dto.getId());
-            sendEmailService.sendFeedbackFinishedMsgToUser(Long.valueOf(feedback.getUserId()));
+            logEmailResult(sendEmailService.sendFeedbackFinishedMsgToUser(Long.valueOf(feedback.getUserId())), "反馈完成通知");
         } else if (Objects.equals(dto.getStatus(), FEEDBACK_STATUS_BAN)) {
             log.info("将发送反馈驳回通知邮件给用户，反馈ID：{}", dto.getId());
-            sendEmailService.sendFeedbackBanedMsgToUser(Long.valueOf(feedback.getUserId()));
+            logEmailResult(sendEmailService.sendFeedbackBanedMsgToUser(Long.valueOf(feedback.getUserId())), "反馈驳回通知");
         } else{
             throw new RuntimeException("邮件状态错误");
         }
@@ -139,7 +111,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         //3 移除feedbacks大缓存
         feedbackRedisService.clearFeedbacksCache();
         // 4 新开线程通知管理员处理
-        sendEmailService.sendFeedbackAddedMsgToAdmin();
+        logEmailResult(sendEmailService.sendFeedbackAddedMsgToAdmin(), "反馈新增通知");
 
     }
 
@@ -181,4 +153,18 @@ public class FeedbackServiceImpl implements FeedbackService {
             throw new InsufficientPermissionsException("权限不足...");
         }
     }
+
+    /**
+     * 异步邮件结果可观测：失败时记录错误日志，避免静默丢失
+     */
+    private void logEmailResult(CompletableFuture<Boolean> future, String scene) {
+        future.whenComplete((success, ex) -> {
+            if (ex != null) {
+                log.error("{}发送异常", scene, ex);
+            } else if (!Boolean.TRUE.equals(success)) {
+                log.error("{}发送失败", scene);
+            }
+        });
+    }
+
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static com.createpen.fifteenhundun.common.constant.CommonConstant.LARGE_NUMBER;
 import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_ADMIN;
@@ -33,19 +34,29 @@ public class SendEmailService {
         this.sendMsgUtil = sendMsgUtil;
     }
     @Async("emailExecutor")
-    public void sendFeedbackFinishedMsgToUser(Long userId) {
+    public CompletableFuture<Boolean> sendFeedbackFinishedMsgToUser(Long userId) {
         String feedbackMakerEmail = getEmail(userId);
-        sendMsgUtil.sendSingleEmail(feedbackMakerEmail,FEEDBACK_FINISHED_MSG_TO_USER );
-        log.info("反馈完成通知发送完成");
+        boolean success = sendMsgUtil.sendSingleEmail(feedbackMakerEmail, FEEDBACK_FINISHED_MSG_TO_USER);
+        if (success) {
+            log.info("反馈完成通知发送完成，userId={}", userId);
+        } else {
+            log.error("反馈完成通知发送失败，userId={}", userId);
+        }
+        return CompletableFuture.completedFuture(success);
     }
     @Async("emailExecutor")
-    public void sendFeedbackBanedMsgToUser(Long userId) {
+    public CompletableFuture<Boolean> sendFeedbackBanedMsgToUser(Long userId) {
         String feedbackMakerEmail = getEmail(userId);
-        sendMsgUtil.sendSingleEmail(feedbackMakerEmail,FEEDBACK_BANED_MSG_TO_USER );
-        log.info("反馈否决通知发送完成");
+        boolean success = sendMsgUtil.sendSingleEmail(feedbackMakerEmail, FEEDBACK_BANED_MSG_TO_USER);
+        if (success) {
+            log.info("反馈否决通知发送完成，userId={}", userId);
+        } else {
+            log.error("反馈否决通知发送失败，userId={}", userId);
+        }
+        return CompletableFuture.completedFuture(success);
     }
     @Async("emailExecutor")
-    public void sendFeedbackAddedMsgToAdmin() {
+    public CompletableFuture<Boolean> sendFeedbackAddedMsgToAdmin() {
         ArrayList<String> emailList = new ArrayList<>();
         try {
             GetUsersDTO dto1 = new GetUsersDTO(1,LARGE_NUMBER,null, STATUS_ADMIN , null, null, null);
@@ -91,12 +102,14 @@ public class SendEmailService {
             
             if (emailList.isEmpty()) {
                 log.warn("没有找到任何管理员邮箱，无法发送反馈添加通知");
-                return;
+                return CompletableFuture.completedFuture(false);
             }
             int successCount = sendMsgUtil.sendEmailToEmailList(emailList, FEEDBACK_ADDED_MSG_TO_ADMIN);
             log.info("反馈添加通知发送完成，目标管理员数量：{}，成功发送：{}", emailList.size(), successCount);
+            return CompletableFuture.completedFuture(successCount > 0);
         } catch (Exception e) {
             log.error("发送反馈添加通知给管理员时发生异常", e);
+            return CompletableFuture.completedFuture(false);
         }
     }
 

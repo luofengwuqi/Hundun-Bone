@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.createpen.fifteenhundun.common.exception.MyException.OSSException;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,68 +16,67 @@ import java.util.UUID;
 
 /**
  * 阿里云OSS工具类
- * AI生成
+ * 复用同一个 OSSClient，避免每次上传/删除都重新建立 TCP 连接
  */
 @Slf4j
 @Component
 public class AliOSSUtil {
 
-    @Value("${aliyun.endpoint}")
-    private String endpoint;
+    private final String bucketName;
+    private final String domain;
+    private final OSS ossClient;
 
-    @Value("${aliyun.access-key-id}")
-    private String accessKeyId;
+    public AliOSSUtil(@Value("${aliyun.endpoint}") String endpoint,
+                      @Value("${aliyun.access-key-id}") String accessKeyId,
+                      @Value("${aliyun.access-key-secret}") String accessKeySecret,
+                      @Value("${aliyun.bucket-name}") String bucketName,
+                      @Value("${aliyun.domain}") String domain) {
+        if (accessKeyId == null || accessKeyId.isBlank()
+                || accessKeySecret == null || accessKeySecret.isBlank()) {
+            throw new IllegalStateException("OSS AccessKey 未配置，请设置 ALIYUN_ACCESS_KEY_ID / ALIYUN_ACCESS_KEY_SECRET");
+        }
+        this.bucketName = bucketName;
+        this.domain = domain;
+        this.ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+    }
 
-    @Value("${aliyun.access-key-secret}")
-    private String accessKeySecret;
+    @PreDestroy
+    public void shutdown() {
+        if (ossClient != null) {
+            ossClient.shutdown();
+            log.info("OSS 客户端已关闭");
+        }
+    }
 
-    @Value("${aliyun.bucket-name}")
-    private String bucketName;
-
-    @Value("${aliyun.domain}")
-    private String domain;
+    /**
+     * 生成唯一文件名
+     */
+    public String makeUUIDFileName(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        String suffix = "";
+        if (originalFilename != null) {
+            int dotIndex = originalFilename.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                suffix = originalFilename.substring(dotIndex);
+            }
+        }
+        return UUID.randomUUID() + suffix;
+    }
 
     /**
      * 上传文件到OSS
      * @param file 前端上传的文件
+     * @param objectName OSS 对象名
      * @return 文件访问URL
      */
-
-    public String makeUUIDFileName(MultipartFile file){
-        // 1. 生成唯一文件名（避免重复）
-        String originalFilename = file.getOriginalFilename();
-        String suffix = null;
-        if (originalFilename != null) {
-            suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-        // 如：a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxx.png
-        return UUID.randomUUID() + suffix;
-    }
     public String upload(MultipartFile file, String objectName) throws IOException {
-
-        // 2. 获取文件输入流
-        InputStream inputStream = file.getInputStream();
-
-        // 3. 创建OSS客户端并上传文件
-        OSS ossClient = null;
-        try {
-            ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-            // 上传文件
+        try (InputStream inputStream = file.getInputStream()) {
             ossClient.putObject(new PutObjectRequest(bucketName, objectName, inputStream));
             log.info("文件上传OSS成功：{}", objectName);
-            // 4. 返回文件访问URL
-            return domain + "/" + objectName; // 如：https://xxx.oss-cn-hangzhou.aliyuncs.com/memos/avatars/a1b2c3d4.png
+            return domain + "/" + objectName;
         } catch (Exception e) {
             log.error("文件上传OSS失败", e);
             throw new OSSException("文件上传失败");
-        } finally {
-            // 关闭OSS客户端和输入流
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
     }
 
@@ -85,30 +85,22 @@ public class AliOSSUtil {
      * @param fileUrl 文件访问URL或objectName
      */
     public void delete(String fileUrl) {
-        // 解析objectName（去掉域名部分）
         String objectName = fileUrl;
         if (fileUrl.startsWith(domain + "/")) {
             objectName = fileUrl.replace(domain + "/", "");
         } else if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
-            // 如果是完整URL，提取路径部分
             int domainEndIndex = fileUrl.indexOf("/", fileUrl.indexOf("//") + 2);
             if (domainEndIndex != -1) {
                 objectName = fileUrl.substring(domainEndIndex + 1);
             }
         }
-        
-        OSS ossClient = null;
+
         try {
-            ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
             ossClient.deleteObject(bucketName, objectName);
             log.info("文件删除OSS成功：{}", objectName);
         } catch (Exception e) {
             log.error("文件删除OSS失败", e);
             throw new OSSException("文件删除失败");
-        } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
         }
     }
 }

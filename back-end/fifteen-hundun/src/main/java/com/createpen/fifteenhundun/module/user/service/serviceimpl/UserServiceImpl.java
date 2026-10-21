@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.EMAIL_CODE_PATH;
-import static com.createpen.fifteenhundun.common.constant.oss.UserOssContant.USER_AVATAR_FOLDER;
+import static com.createpen.fifteenhundun.common.constant.oss.UserOssConstant.USER_AVATAR_FOLDER;
 
 @Slf4j
 @Service
@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
             um.updateUserAvatarPathById(currentId, objectName);
         }catch (Exception e){
             aliOssUtil.delete(objectName);
-            throw new SQLException("更新输入库失败...");
+            throw new SqlOperationException("更新输入库失败...");
         }
         //删除用户缓存
         userRedisService.clearUserdata(BaseContext.getCurrentId());
@@ -221,7 +221,7 @@ public class UserServiceImpl implements UserService {
             throw new PasswordException("密码输错了哦...");
         }
         //更新用户
-        String nickname = dto.getHuh();
+        String nickname = dto.getValue();
         user.setNickname(nickname);
         um.updateNickNameById(nickname,id);
         userRedisService.saveUserInRedis(user);
@@ -237,12 +237,12 @@ public class UserServiceImpl implements UserService {
             throw new PasswordException("密码输错了哦...");
         }
         //更新用户
-        String email = dto.getHuh();
+        String email = dto.getValue();
         user.setEmail(email);
         try{
             um.updateEmailById(email,id);
         }catch (Exception e){
-            throw new SQLException("这个邮箱已被使用...");
+            throw new SqlOperationException("这个邮箱已被使用...");
         }
         userRedisService.saveUserInRedis(user);
     }
@@ -257,12 +257,12 @@ public class UserServiceImpl implements UserService {
             throw new PasswordException("密码输错了哦...");
         }
         //更新用户
-        String phone = dto.getHuh();
+        String phone = dto.getValue();
         user.setPhone(phone);
         try{
             um.updatePhoneById(phone,id);
         }catch (Exception e){
-            throw new SQLException("这个手机号已被使用...");
+            throw new SqlOperationException("这个手机号已被使用...");
         }
         userRedisService.saveUserInRedis(user);
     }

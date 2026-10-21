@@ -6,10 +6,6 @@ import com.createpen.fifteenhundun.common.constant.ModuleNameConstant;
 import com.createpen.fifteenhundun.common.constant.type.OperateTypeConstant;
 import com.createpen.fifteenhundun.common.enums.AutoFillTimeType;
 import com.createpen.fifteenhundun.module.user.pojo.Entity.User;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -44,7 +40,7 @@ public interface UserMapper {
     void deleteUserByUserNameList(List<String> userNameList);
 
     @Select("Select * from users where phone=#{phone}")
-    User selectUserByPhone(@NotBlank(message = "手机号不能为空") @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式错误") String phone);
+    User selectUserByPhone(String phone);
 
     @Select("Select * from users where id= #{id}")
     User selectUserById(Long id);
@@ -52,7 +48,7 @@ public interface UserMapper {
     @Delete("delete from users where id= #{id}")
     void deleteUserById(Long id);
     @Select("Select * from users where email= #{email}")
-    User selectUserByEmail(@NotEmpty @Email String email);
+    User selectUserByEmail(String email);
 
     Integer checkUserNotExists(String username, String phone, String email);
 

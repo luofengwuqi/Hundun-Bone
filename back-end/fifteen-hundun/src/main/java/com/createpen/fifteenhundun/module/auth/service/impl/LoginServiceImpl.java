@@ -35,12 +35,16 @@ public class LoginServiceImpl implements LoginService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final StringRedisTemplate stringRedisTemplate;
     private final UserMapper userMapper;
+    private final JwtUtil jwtUtil;
+    private final EmailCodeUtil emailCodeUtil;
 
-    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate, StringRedisTemplate stringRedisTemplate, UserRedisService userRedisService) {
+    public LoginServiceImpl(UserMapper userMapper, RedisTemplate<String, Object> redisTemplate, StringRedisTemplate stringRedisTemplate, UserRedisService userRedisService, JwtUtil jwtUtil, EmailCodeUtil emailCodeUtil) {
         this.userMapper = userMapper;
         this.redisTemplate = redisTemplate;
         this.stringRedisTemplate = stringRedisTemplate;
         this.userRedisService = userRedisService;
+        this.jwtUtil = jwtUtil;
+        this.emailCodeUtil = emailCodeUtil;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class LoginServiceImpl implements LoginService {
             throw new PasswordException("密码输错了...");
         }
         //创建token
-        String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
+        String token = jwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
         //4 存进缓存
         userRedisService.saveUserInRedis(u);
@@ -83,7 +87,7 @@ public class LoginServiceImpl implements LoginService {
         tokenDatamap.put("id",u.getId());
         tokenDatamap.put("username",u.getUsername());
         //生成token 并存入redis(方便过期)
-        String token = JwtUtil.makeToken(tokenDatamap);
+        String token = jwtUtil.makeToken(tokenDatamap);
         saveTokenInRedis(token,u.getId());
         //处理vo
         LoginRequestVO vo = new LoginRequestVO();
@@ -112,7 +116,7 @@ public class LoginServiceImpl implements LoginService {
             throw new PasswordException("验证码不对的...");
         }
         //3通过 生成token 删除redis存的验证码 封装vo返回
-        String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
+        String token = jwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
 //        删除redis里面的验证码
         stringRedisTemplate.delete(EMAIL_CODE_PATH+dto.getEmail());
@@ -132,9 +136,9 @@ public class LoginServiceImpl implements LoginService {
             throw new UserNotFoundException("邮箱不存在...");
         }
         //2生成验证码并把他塞进redis
-        String code = EmailCodeUtil.generateCode();
+        String code = emailCodeUtil.generateCode();
         //3发送验证码
-        boolean result =  EmailCodeUtil.sendEmailCode(email,code);
+        boolean result =  emailCodeUtil.sendEmailCode(email,code);
         if(!result){
             throw new SendCodeException("验证码发送失败了QAQ(疑似并不是程序的问题...)");
         }
@@ -156,7 +160,7 @@ public class LoginServiceImpl implements LoginService {
             throw new PasswordException("密码输错了...");
         }
         //3通过 封装vo返回
-        String token = JwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
+        String token = jwtUtil.makeToken(Math.toIntExact(u.getId()),u.getUsername());
         saveTokenInRedis(token,u.getId());
         LoginRequestVO vo = new LoginRequestVO();
         vo.setToken(token);

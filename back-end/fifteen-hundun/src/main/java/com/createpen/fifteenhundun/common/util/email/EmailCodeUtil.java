@@ -1,6 +1,9 @@
 package com.createpen.fifteenhundun.common.util.email;
 
+import com.createpen.fifteenhundun.common.config.MailProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -13,16 +16,21 @@ import java.util.Properties;
 import java.util.Random;
 
 import static com.createpen.fifteenhundun.common.constant.redis.RedisConstant.EMAIL_CODE_EXPIRE_TIME;
-import static com.createpen.fifteenhundun.common.constant.email.Config.*;
 
 @Slf4j
+@Component
 public class EmailCodeUtil {
 
+    private final MailProperties mailProperties;
+
+    public EmailCodeUtil(MailProperties mailProperties) {
+        this.mailProperties = mailProperties;
+    }
 
     /**
      * 生成 6 位随机数字验证码
      */
-    public static String generateCode() {
+    public String generateCode() {
         return String.format("%06d", new Random().nextInt(999999));
     }
 
@@ -32,10 +40,10 @@ public class EmailCodeUtil {
      * @param code 验证码
      * @return 发送结果
      */
-    public static boolean sendEmailCode(String toEmail, String code) {
+    public boolean sendEmailCode(String toEmail, String code) {
         // 1. 配置 SMTP 服务器参数
         Properties props = new Properties();
-        props.setProperty("mail.smtp.host", SMTP_HOST);
+        props.setProperty("mail.smtp.host", mailProperties.getSmtpHost());
         props.setProperty("mail.smtp.port", "587");
         props.setProperty("mail.smtp.auth", "true");
         props.setProperty("mail.smtp.starttls.enable", "true");
@@ -44,7 +52,7 @@ public class EmailCodeUtil {
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_FROM, EMAIL_AUTH_CODE);
+                return new PasswordAuthentication(mailProperties.getFrom(), mailProperties.getAuthCode());
             }
         });
 
@@ -52,14 +60,14 @@ public class EmailCodeUtil {
             // 3. 构建邮件内容
             String content = "Ciallo～(∠・ω< )⌒★\n\n您期待已久的验证码是------\n\n" + code + "\n\n只在"+EMAIL_CODE_EXPIRE_TIME+" 分钟内有效!\n\n祝您今天也有好心情!";
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_FROM)); // 发件人
+            message.setFrom(new InternetAddress(mailProperties.getFrom())); // 发件人
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail)); // 收件人
             message.setSubject("【身份验证】验证码!"); // 邮件标题
             message.setText(content); // 邮件内容
 
             // 4. 发送邮件
             Transport.send(message);
-            System.out.println("验证码发送成功！验证码：" + code);
+            log.info("验证码邮件发送成功，收件人：{}", toEmail);
             return true;
         } catch (MessagingException e) {
             log.error("发送邮件失败，邮箱：{}", toEmail, e);

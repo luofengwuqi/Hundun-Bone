@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.admin.controller;
 
+import com.createpen.fifteenhundun.common.anno.RequireRole;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.admin.pojo.DTO.AddAdminDTO;
 import com.createpen.fifteenhundun.module.admin.pojo.DTO.GetUsersDTO;
@@ -12,10 +13,14 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_ADMIN;
+import static com.createpen.fifteenhundun.common.constant.status.UserStatusConstant.STATUS_SUPER_ADMIN;
+
 
 @Slf4j
 @RestController
 @RequestMapping
+@RequireRole({STATUS_ADMIN, STATUS_SUPER_ADMIN})
 public class AdminController {
     private final AdminService adminService;
 
@@ -24,9 +29,10 @@ public class AdminController {
     }
 
 
-    //新建管理员
+    //新建管理员（仅超级管理员，普通管理员请走邀请码注册）
     @PostMapping("/admin")
-    public Result<Void> addAdmin(@RequestBody AddAdminDTO dto){
+    @RequireRole(STATUS_SUPER_ADMIN)
+    public Result<Void> addAdmin(@Valid @RequestBody AddAdminDTO dto){
         log.info("新建管理员");
         adminService.addAdmin(dto);
         return Result.success();

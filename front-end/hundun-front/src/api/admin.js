@@ -1,7 +1,7 @@
 import request from "@/utils/request.js";
 
 export const addAdmin = async (admin)=>{
-  return await request.post('/admin',admin)
+  return await request.post('/user/register/admin',admin)
 }
 
 export const getInviteCode = async ()=>{

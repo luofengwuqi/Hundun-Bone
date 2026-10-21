@@ -1,6 +1,9 @@
 package com.createpen.fifteenhundun.common.util.email;
 
+import com.createpen.fifteenhundun.common.config.MailProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -12,26 +15,34 @@ import javax.mail.internet.MimeMessage;
 import java.util.List;
 import java.util.Properties;
 
-import static com.createpen.fifteenhundun.common.constant.email.Config.*;
-
 @Slf4j
+@Component
 public class SendMsgUtil {
 
-    public static int sendEmailToEmailList(List<String> toEmailList, String content) {
-        // 1. 配置参数（仅创建一次）
+    private final MailProperties mailProperties;
+
+    public SendMsgUtil(MailProperties mailProperties) {
+        this.mailProperties = mailProperties;
+    }
+
+    private Session createSession() {
         Properties props = new Properties();
-        props.setProperty("mail.smtp.host", SMTP_HOST);
+        props.setProperty("mail.smtp.host", mailProperties.getSmtpHost());
         props.setProperty("mail.smtp.port", "587");
         props.setProperty("mail.smtp.auth", "true");
         props.setProperty("mail.smtp.starttls.enable", "true");
 
-        // 2. 创建会话（仅创建一次）
-        Session session = Session.getInstance(props, new Authenticator() {
+        return Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_FROM, EMAIL_AUTH_CODE);
+                return new PasswordAuthentication(mailProperties.getFrom(), mailProperties.getAuthCode());
             }
         });
+    }
+
+    public int sendEmailToEmailList(List<String> toEmailList, String content) {
+        // 1. 创建会话（仅创建一次）
+        Session session = createSession();
 
         Transport transport = null;
         int successCount = 0;
@@ -47,7 +58,7 @@ public class SendMsgUtil {
                 try {
                     // 构建邮件：直接使用传入的自定义内容
                     Message message = new MimeMessage(session);
-                    message.setFrom(new InternetAddress(EMAIL_FROM));
+                    message.setFrom(new InternetAddress(mailProperties.getFrom()));
                     message.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
                     message.setSubject("【收到反馈】"); // 可自行修改标题
                     message.setText(content); // 使用外部传入的文本
@@ -84,37 +95,25 @@ public class SendMsgUtil {
      * @param content 邮件内容
      * @return 是否发送成功
      */
-    public static boolean sendSingleEmail(String toEmail, String content) {
-        // 1. 配置参数
-        Properties props = new Properties();
-        props.setProperty("mail.smtp.host", SMTP_HOST);
-        props.setProperty("mail.smtp.port", "587");
-        props.setProperty("mail.smtp.auth", "true");
-        props.setProperty("mail.smtp.starttls.enable", "true");
-    
-        // 2. 创建会话
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_FROM, EMAIL_AUTH_CODE);
-            }
-        });
-    
+    public boolean sendSingleEmail(String toEmail, String content) {
+        // 1. 创建会话
+        Session session = createSession();
+
         Transport transport = null;
-    
+
         try {
             // 3. 建立连接
             transport = session.getTransport();
             transport.connect();
             log.info("发送邮件连接建立成功，收件人：{}", toEmail);
-    
+
             // 4. 构建邮件
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_FROM));
+            message.setFrom(new InternetAddress(mailProperties.getFrom()));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
             message.setSubject("【反馈回执】");
             message.setText(content);
-    
+
             // 5. 发送邮件
             transport.sendMessage(message, message.getAllRecipients());
             log.info("邮件发送成功！收件人：{}", toEmail);
@@ -127,7 +126,7 @@ public class SendMsgUtil {
             if (transport != null && transport.isConnected()) {
                 try {
                     transport.close();
-                    log.info("邮件发送连接已关闭");
+                    log.info("发送邮件连接已关闭");
                 } catch (MessagingException e) {
                     log.error("关闭邮件连接失败", e);
                 }

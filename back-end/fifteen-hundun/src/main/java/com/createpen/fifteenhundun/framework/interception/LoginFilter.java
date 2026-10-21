@@ -29,6 +29,7 @@ public class LoginFilter implements Filter {
 
     private final UserService userService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final JwtUtil jwtUtil;
 
     //预先声明直接放行的请求
     private static final List<String> SKIP_URIS = Arrays.asList(
@@ -41,9 +42,10 @@ public class LoginFilter implements Filter {
             "POST"               // 注册接口：仅允许 POST
     );
 
-    public LoginFilter(RedisTemplate<String, Object> redisTemplate, UserService userService) {
+    public LoginFilter(RedisTemplate<String, Object> redisTemplate, UserService userService, JwtUtil jwtUtil) {
         this.redisTemplate = redisTemplate;
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -102,7 +104,7 @@ public class LoginFilter implements Filter {
         // 2.2 解析token → 异常则返回401
         Claims claims;
         try {
-            claims = JwtUtil.solveToken(token);
+            claims = jwtUtil.solveToken(token);
         } catch (Exception e) {
             log.error("解析token失败", e);
             returnJson(res, 401, "登录已过期");
@@ -134,13 +136,19 @@ public class LoginFilter implements Filter {
             returnJson(res, 401, "登录信息异常");
             return;
         }
-        //防止普通用户越级访问
+        //防止普通用户越级访问（第一道防线，细粒度角色校验由 @RequireRole 切面完成）
         if (uri.startsWith("/admin")) {
             User user = userService.selectUserById(Long.valueOf(id));
+            if (user == null) {
+                log.warn("token中的用户已不存在:{}", username);
+                returnJson(res, 401, "登录信息异常");
+                return;
+            }
             Integer status = user.getStatus();
-            if(status < UserStatusConstant.STATUS_ADMIN){
+            if (status != UserStatusConstant.STATUS_ADMIN
+                    && status != UserStatusConstant.STATUS_SUPER_ADMIN) {
                 log.warn("{}发生越级访问!!!",username);
-                returnJson(res, 401, "越级访问!!!");
+                returnJson(res, 403, "越级访问!!!");
                 return;
             }
 
@@ -188,11 +196,6 @@ public class LoginFilter implements Filter {
 
     //辅助方法 判断是否是已经声明可以跳过的请求
     private boolean isSkipUrl(String uri,String method) {
-        //管理员注册
-        if(uri.equals("/admin") && method.equals("POST")){
-            log.info("管理员注册 放行");
-            return true;
-        }
         for(int i = 0 ; i < SKIP_URIS.size(); i++)
         {
             String skipUri = SKIP_URIS.get(i);

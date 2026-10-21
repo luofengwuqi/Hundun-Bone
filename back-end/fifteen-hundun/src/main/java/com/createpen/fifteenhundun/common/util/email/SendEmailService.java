@@ -24,22 +24,24 @@ public class SendEmailService {
     private final AdminService adminService;
     private final UserMapper userMapper;
     private final UserRedisService userRedisService;
+    private final SendMsgUtil sendMsgUtil;
 
-    public SendEmailService(AdminService adminService, UserMapper userMapper, UserRedisService userRedisService) {
+    public SendEmailService(AdminService adminService, UserMapper userMapper, UserRedisService userRedisService, SendMsgUtil sendMsgUtil) {
         this.adminService = adminService;
         this.userMapper = userMapper;
         this.userRedisService = userRedisService;
+        this.sendMsgUtil = sendMsgUtil;
     }
     @Async("emailExecutor")
     public void sendFeedbackFinishedMsgToUser(Long userId) {
         String feedbackMakerEmail = getEmail(userId);
-        SendMsgUtil.sendSingleEmail(feedbackMakerEmail,FEEDBACK_FINISHED_MSG_TO_USER );
+        sendMsgUtil.sendSingleEmail(feedbackMakerEmail,FEEDBACK_FINISHED_MSG_TO_USER );
         log.info("反馈完成通知发送完成");
     }
     @Async("emailExecutor")
     public void sendFeedbackBanedMsgToUser(Long userId) {
         String feedbackMakerEmail = getEmail(userId);
-        SendMsgUtil.sendSingleEmail(feedbackMakerEmail,FEEDBACK_BANED_MSG_TO_USER );
+        sendMsgUtil.sendSingleEmail(feedbackMakerEmail,FEEDBACK_BANED_MSG_TO_USER );
         log.info("反馈否决通知发送完成");
     }
     @Async("emailExecutor")
@@ -91,7 +93,7 @@ public class SendEmailService {
                 log.warn("没有找到任何管理员邮箱，无法发送反馈添加通知");
                 return;
             }
-            int successCount = SendMsgUtil.sendEmailToEmailList(emailList, FEEDBACK_ADDED_MSG_TO_ADMIN);
+            int successCount = sendMsgUtil.sendEmailToEmailList(emailList, FEEDBACK_ADDED_MSG_TO_ADMIN);
             log.info("反馈添加通知发送完成，目标管理员数量：{}，成功发送：{}", emailList.size(), successCount);
         } catch (Exception e) {
             log.error("发送反馈添加通知给管理员时发生异常", e);

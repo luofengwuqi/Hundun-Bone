@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
@@ -47,8 +48,15 @@ public class RedisConfiguration {
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         
         // 启用默认类型信息，确保反序列化时能识别具体类型（解决 List<Article> 等泛型问题）
+        // 使用白名单校验器，禁止反序列化任意类型，避免恶意序列化数据触发 RCE
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("com.createpen.fifteenhundun.")
+                .allowIfSubType("com.github.pagehelper.")
+                .allowIfSubType("java.util.")
+                .allowIfSubType("java.time.")
+                .build();
         objectMapper.activateDefaultTyping(
-            LaissezFaireSubTypeValidator.instance,
+            typeValidator,
             ObjectMapper.DefaultTyping.NON_FINAL,
             JsonTypeInfo.As.PROPERTY
         );

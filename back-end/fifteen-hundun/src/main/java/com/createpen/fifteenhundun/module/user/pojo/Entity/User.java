@@ -54,7 +54,8 @@ public class User implements Serializable {
          */
         private Integer status;
 
-        //邀请码
+        //邀请码属于管理端敏感字段，不随任何JSON响应外泄
+        @JsonIgnore
         private String inviteCode;
 
         /**

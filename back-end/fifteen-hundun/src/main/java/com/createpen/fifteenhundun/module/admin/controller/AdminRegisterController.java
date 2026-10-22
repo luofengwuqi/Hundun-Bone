@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.admin.controller;
 
+import com.createpen.fifteenhundun.common.anno.RateLimit;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.admin.pojo.DTO.AddAdminDTO;
 import com.createpen.fifteenhundun.module.admin.service.AdminService;
@@ -23,6 +24,7 @@ public class AdminRegisterController {
         this.adminService = adminService;
     }
 
+    @RateLimit(count = 5, time = 60, key = "register:admin")
     @PostMapping("/user/register/admin")
     public Result<Void> registerByInviteCode(@Valid @RequestBody AddAdminDTO dto) {
         log.info("管理员邀请码注册");

@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class RegisterDTO {
     @NotBlank(message = "用户名不能为空")
     @Size(min = 1, max = 10, message = "用户名长度在1-10之间")
+    //用户名会拼进OSS对象路径与各类缓存key，必须限制字符白名单
+    @Pattern(regexp = "^[\\w\\u4e00-\\u9fa5-]{1,10}$", message = "用户名仅支持中英文、数字、下划线、连字符")
     private String username;
 
     @NotBlank(message = "密码不能为空")

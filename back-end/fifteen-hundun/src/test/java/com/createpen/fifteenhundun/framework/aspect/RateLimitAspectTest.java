@@ -41,7 +41,7 @@ class RateLimitAspectTest {
         factory.afterPropertiesSet();
         template = new StringRedisTemplate(factory);
         template.afterPropertiesSet();
-        aspect = new RateLimitAspect(template);
+        aspect = new RateLimitAspect(template, new com.createpen.fifteenhundun.common.util.IpUtil(false));
         cleanKeys();
     }
 
@@ -206,7 +206,7 @@ class RateLimitAspectTest {
 
         @Bean
         RateLimitAspect rateLimitAspect(StringRedisTemplate stringRedisTemplate) {
-            return new RateLimitAspect(stringRedisTemplate);
+            return new RateLimitAspect(stringRedisTemplate, new com.createpen.fifteenhundun.common.util.IpUtil(false));
         }
 
         @Bean

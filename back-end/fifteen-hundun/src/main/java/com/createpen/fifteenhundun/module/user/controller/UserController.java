@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
+import com.createpen.fifteenhundun.common.anno.RateLimit;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.admin.pojo.DTO.DeleteUsersDTO;
@@ -25,6 +26,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @RateLimit(count = 5, time = 60, key = "register:user")
     @PostMapping("/register")
     public Result<RegisterVO> register(@Valid @RequestBody RegisterDTO dto)
     {
@@ -77,6 +79,7 @@ public class UserController {
         userService.updatePhone(dto);
         return Result.success();
     }
+    @RateLimit(count = 5, time = 60, key = "user:password-update")
     @PutMapping("/password")
     public Result<Void> updatePassword(@RequestBody @Valid UpdatePasswordDTO dto) {
         log.info("修改用户密码");

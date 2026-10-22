@@ -80,10 +80,14 @@ public class AdminServiceImpl implements AdminService {
         um.updateUserByUserName(changedUser);
         log.info("用户状态已修改");
         log.info("用户状态:{}", operateUser.getStatus());
-        
+
+        //4 状态变化后立即吊销该用户token并清除其数据缓存，防止被禁用用户持旧token继续访问
+        userRedisService.clearUserToken(operateUser.getId());
+        userRedisService.clearUserdata(operateUser.getId());
+
         //清除用户查询缓存
         userRedisService.clearUsersCache();
-        
+
         return operateUser.getStatus();
     }
     //辅助方法:使用定义好的常量修改用户的状态
@@ -120,10 +124,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public void addAdmin(AddAdminDTO dto) {
-        //1 检查是否已有用户
+        //1 检查是否已有用户（统一报错文案，避免接口被用于枚举已注册用户名）
         User existUser = um.getUserByUserName(dto.getUsername());
         if(existUser != null){
-            throw new UserExistedException("addAdmin失败 原因:用户名被占用了...");
+            throw new UserExistedException("注册信息不可用，请更换后重试");
         }
         //2 检查邀请码
         String importantPassword = am.selectInvitePassword(dto.getImportantPassword());
@@ -267,7 +271,11 @@ public class AdminServiceImpl implements AdminService {
             throw new InsufficientPermissionsException("不许你这样对管理员 sama");
         }
         um.deleteUserById(id);
-        
+
+        //删除后立即吊销token与数据缓存，防止已删除用户持旧token继续访问
+        userRedisService.clearUserToken(id);
+        userRedisService.clearUserdata(id);
+
         //清除用户查询缓存
         userRedisService.clearUsersCache();
     }

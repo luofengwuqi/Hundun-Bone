@@ -59,18 +59,18 @@ public class LoginFilter implements Filter {
             doFilterInternal(request, response, chain);
         } finally {
             BaseContext.clearAll();
-            log.info("已清理线程上下文");
+            log.debug("已清理线程上下文");
         }
     }
 
     private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        log.info("进入登录校验过滤器");
+        log.debug("进入登录校验过滤器");
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         String uri = req.getRequestURI();
         String method = req.getMethod();
-        log.info("当前请求URI：{}", uri);
-        log.info("当前请求方法：{}", method);
+        log.debug("当前请求URI：{}", uri);
+        log.debug("当前请求方法：{}", method);
 
         // ========== 1. 放行无需登录的接口（核心修复：加入注册接口） ==========
         // 仅放行浏览器 CORS 预检（带 Origin 的 OPTIONS），其余 OPTIONS 仍需鉴权
@@ -80,11 +80,11 @@ public class LoginFilter implements Filter {
             return;
         }
         if (isSkipUrl(uri,method) && !uri.equals("/user/login/logout")) {
-            log.info("检查到无需登录的请求（登录/注册），直接放行");
+            log.debug("检查到无需登录的请求（登录/注册），直接放行");
             BaseContext.setCurrentUsername("login");
             BaseContext.setCurrentId(0L);
             chain.doFilter(request, response);
-            log.info("无需登录的请求已放行");
+            log.debug("无需登录的请求已放行");
             return;
         }
 
@@ -102,7 +102,7 @@ public class LoginFilter implements Filter {
 
         // 2.1 token 为空 → 返回 401（规范响应流）
         if (token == null || token.isEmpty()) {
-            log.info("检查到 token 为空，返回 401");
+            log.debug("检查到 token 为空，返回 401");
             returnJson(res, 401, "未登录");
             return;
         }
@@ -112,7 +112,7 @@ public class LoginFilter implements Filter {
         try {
             claims = jwtUtil.solveToken(token);
         } catch (Exception e) {
-            log.error("解析token失败", e);
+            log.warn("解析token失败: {}", e.getMessage());
             returnJson(res, 401, "登录已过期");
             return;
         }
@@ -129,37 +129,44 @@ public class LoginFilter implements Filter {
             log.error("Redis 不可用，降级为仅校验 JWT 签名: {}", e.getMessage());
         }
         if (redisAvailable && (redisToken == null || !redisToken.equals(token))) {
-            log.info("检查到token已过期，返回401");
+            log.debug("检查到token已过期，返回401");
             returnJson(res, 401, "登录已过期...");
             return;
         }
 
-        // ========== 3. 解析token中的用户信息（处理空指针+防止普通用户越级访问） ==========
-        log.info("token解析成功，提取用户信息");
+        // ========== 3. 解析token中的用户信息（处理空指针+封禁检查+防止普通用户越级访问） ==========
+        log.debug("token解析成功，提取用户信息");
         String username = claims.get("username", String.class);
 
         // 空指针防护：id/username为空则返回401
         if (id == null || username == null) {
-            log.info("token中用户信息缺失");
+            log.debug("token中用户信息缺失");
             returnJson(res, 401, "登录信息异常");
             return;
         }
-        //防止普通用户越级访问（第一道防线，细粒度角色校验由 @RequireRole 切面完成）
-        if (uri.startsWith("/admin")) {
-            User user = userService.selectUserById(Long.valueOf(id));
-            if (user == null) {
-                log.warn("token中的用户已不存在:{}", username);
-                returnJson(res, 401, "登录信息异常");
-                return;
-            }
-            Integer status = user.getStatus();
-            if (status != UserStatusConstant.STATUS_ADMIN
-                    && status != UserStatusConstant.STATUS_SUPER_ADMIN) {
-                log.warn("{}发生越级访问!!!",username);
-                returnJson(res, 403, "越级访问!!!");
-                return;
-            }
 
+        // 所有需登录接口统一做用户存在性与封禁校验（selectUserById 带 redis 缓存，不会每请求打库）
+        // 防止被ban/被删除的用户持旧token继续访问任意接口（token吊销的第二道防线）
+        User user = userService.selectUserById(Long.valueOf(id));
+        if (user == null) {
+            log.warn("token中的用户已不存在:{}", username);
+            returnJson(res, 401, "登录信息异常");
+            return;
+        }
+        Integer status = user.getStatus();
+        if (status == null || status < 0) {
+            log.warn("用户{}已被禁用，拒绝访问", username);
+            returnJson(res, 403, "账号已被禁用");
+            return;
+        }
+
+        //防止普通用户越级访问（第一道防线，细粒度角色校验由 @RequireRole 切面完成）
+        if (uri.startsWith("/admin")
+                && status != UserStatusConstant.STATUS_ADMIN
+                && status != UserStatusConstant.STATUS_SUPER_ADMIN) {
+            log.warn("{}发生越级访问!!!",username);
+            returnJson(res, 403, "越级访问!!!");
+            return;
         }
 
 
@@ -167,7 +174,7 @@ public class LoginFilter implements Filter {
         // 存入线程上下文
         BaseContext.setCurrentId(Long.valueOf(id));
         BaseContext.setCurrentUsername(username);
-        log.info("用户信息已存入线程上下文，放行请求");
+        log.debug("用户信息已存入线程上下文，放行请求");
 
         // ========== 4. 放行请求 ==========
         //更新redis中token过期时间（Redis 故障时跳过，不影响请求）
@@ -179,7 +186,7 @@ public class LoginFilter implements Filter {
             }
         }
         chain.doFilter(request, response);
-        log.info("通过Filter验证 请求已放行");
+        log.debug("通过Filter验证 请求已放行");
     }
 
     /**

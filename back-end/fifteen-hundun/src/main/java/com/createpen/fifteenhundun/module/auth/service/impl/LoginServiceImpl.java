@@ -101,12 +101,14 @@ public class LoginServiceImpl implements LoginService {
             throw new UserNotFoundException("没找到这个邮箱...");
         }
         banCheck(u);
-        //2校验验证码
+        //2校验验证码（恒定时间比较，防时序侧信道穷举验证码）
         String trueCode = stringRedisTemplate.opsForValue().get(EMAIL_CODE_PATH+dto.getEmail());
         if(trueCode == null){
             throw new RuntimeException("验证码似乎过期了...");
         }
-        if (!trueCode.equals(dto.getCode())) {
+        if (!java.security.MessageDigest.isEqual(
+                dto.getCode().getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                trueCode.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
             throw new PasswordException("验证码不对的...");
         }
         //3通过 生成token 删除redis存的验证码 封装vo返回
@@ -175,20 +177,21 @@ public class LoginServiceImpl implements LoginService {
     //共用方法：在 redis 中存储 token
     public void saveTokenInRedis(String token,Long userId)
     {
-        log.info("开始在redis存储token:{}",token);
+        //安全：完整token禁止进日志，防止日志泄露导致会话冒用
+        log.info("开始在redis存储token, userId:{}", userId);
         redisTemplate.opsForValue().set(TOKEN_PATH+userId,token,TOKEN_EXPIRE_TIME, TimeUnit.MINUTES);
     }
 
     //辅助方法 校验用户存在性userService携带过来的...
     public User getValidUserByUserName(String username)
     {
-        log.info("单个用户校验存在性开始");
+        log.debug("单个用户校验存在性开始");
         User u = userMapper.getUserByUserName(username);
         if(u==null)
         {
             throw new UserNotFoundException("用户不存在");
         }
-        log.info("已经查询到当前使用而存在的用户信息:{}",u);
+        log.debug("已经查询到当前使用而存在的用户信息:{}",u);
         return u;
     }
 

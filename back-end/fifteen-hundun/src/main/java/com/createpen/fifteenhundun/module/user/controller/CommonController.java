@@ -1,5 +1,6 @@
 package com.createpen.fifteenhundun.module.user.controller;
 
+import com.createpen.fifteenhundun.common.anno.RateLimit;
 import com.createpen.fifteenhundun.common.context.BaseContext;
 import com.createpen.fifteenhundun.common.response.Result;
 import com.createpen.fifteenhundun.module.user.service.CommonService;
@@ -22,8 +23,9 @@ public class CommonController {
     @Autowired
     private CommonService cs;
     /**
-     * 上传图片/附件
+     * 上传图片/附件（限流：防止OSS存储轰炸直接产生账单费用）
      */
+    @RateLimit(count = 10, time = 60, key = "files:upload")
     @PostMapping("/files")
     public Result<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl =  cs.addFile(file);

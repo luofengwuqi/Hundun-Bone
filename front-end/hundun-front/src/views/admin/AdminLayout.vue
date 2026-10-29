@@ -4,13 +4,12 @@ import Aside from '@/views/admin/Aside.vue'
 import User from '@/views/admin/component/User.vue'
 import InviteAdmin from '@/views/admin/component/InviteAdmin.vue'
 import HandleFeedback from '@/views/admin/component/HandleFeedback.vue'
-import WriteHelp from '@/views/admin/component/WriteHelp.vue'
 import OperationPanel from '@/views/admin/component/OperationPanel.vue'
 import ComingSoon from '@/views/admin/component/ComingSoon.vue'
 
 const header = ref('用户管理');
 const menu = ref(0);
-const menuItems = ['用户管理','邀请管理','处理反馈','撰写帮助','操作面板','敬请期待']
+const menuItems = ['用户管理','邀请管理','处理反馈','操作面板','敬请期待']
 
 const changeMenu = (index) => {
   // console.log('切换菜单:', index);
@@ -33,9 +32,8 @@ const changeMenu = (index) => {
             <div v-if="menu===0" key="user"><User/></div>
             <div v-else-if="menu===1" key="invite"><InviteAdmin/></div>
             <div v-else-if="menu===2" key="feedback"><HandleFeedback/></div>
-            <div v-else-if="menu===3" key="help"><WriteHelp/></div>
-            <div v-else-if="menu===4" key="operation"><OperationPanel/></div>
-            <div v-else-if="menu===5" key="coming"><ComingSoon/></div>
+            <div v-else-if="menu===3" key="operation"><OperationPanel/></div>
+            <div v-else-if="menu===4" key="coming"><ComingSoon/></div>
           </transition>
           <!--     TODO:这里日后会放管理员的其他功能组件     -->
         </el-main>

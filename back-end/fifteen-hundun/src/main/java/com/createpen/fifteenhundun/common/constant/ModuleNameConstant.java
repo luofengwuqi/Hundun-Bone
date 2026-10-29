@@ -8,5 +8,4 @@ public class ModuleNameConstant {
     public static final String KNOWLEDGE = "知识模块";
     public static final String HEALTH = "健康模块";
     public static final String FEEDBACK = "反馈模块";
-    public static final String ARTICLE = "文章模块";
 }
